@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="potatos-logo.svg" alt="potatOS" width="420">
+</p>
+
 # potatOS
 
 中文 · [English](README-en.md)
