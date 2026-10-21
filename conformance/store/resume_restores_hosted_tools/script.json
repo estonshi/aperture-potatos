@@ -1,0 +1,54 @@
+{
+  "spec_version": "0.1",
+  "description": "A prefix-bound model resumes with the hosted tools its file froze: the stored web search keeps its options although the agent now registers it with others.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Stored instructions.",
+    "hosted_tools": [
+      {
+        "name": "web_search",
+        "web_search": {
+          "max_uses": 9
+        }
+      }
+    ],
+    "capabilities": [
+      {
+        "api": "anthropic.messages",
+        "model_glob": "claude-opus-5-5",
+        "caps": {
+          "thinking_prefix_bound": true
+        }
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-29T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "resume": {
+    "session_id": "ses_s1",
+    "file": "session.jsonl"
+  },
+  "actions": [
+    {
+      "send": {
+        "text": "Hi again."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

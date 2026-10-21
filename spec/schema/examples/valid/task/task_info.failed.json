@@ -1,0 +1,30 @@
+{
+  "task_id": "task_02",
+  "kind": "tool_exec",
+  "title": "build",
+  "status": "failed",
+  "attempt": 2,
+  "started_at": "2026-09-27T08:00:00Z",
+  "ended_at": "2026-09-27T08:05:00Z",
+  "progress": {},
+  "result": {
+    "summary": "make failed",
+    "content": [
+      {
+        "type": "text",
+        "text": "exit 2"
+      }
+    ],
+    "data": {
+      "code": 2
+    }
+  },
+  "error": "exit status 2",
+  "unprocessed_instructions": [
+    {
+      "id": "in_09",
+      "text": "also run tests",
+      "mode": "queue"
+    }
+  ]
+}

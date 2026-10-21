@@ -1,0 +1,23 @@
+{
+  "description": "A peer without streaming: the send returns at once and GetTask is polled after one, then two seconds.",
+  "base_url": "https://agent.test",
+  "calls": [
+    {
+      "op": "send",
+      "message": {
+        "message_id": "m-1",
+        "role": "user",
+        "parts": [
+          {
+            "text": "Hello"
+          }
+        ],
+        "metadata": {
+          "agent_call_chain": [
+            "Tater"
+          ]
+        }
+      }
+    }
+  ]
+}

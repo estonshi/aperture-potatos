@@ -1,0 +1,9 @@
+{
+  "id": "in_05",
+  "text": "Economy is fine.",
+  "mode": "next_loop",
+  "answer": true,
+  "data": {
+    "from": "parent"
+  }
+}

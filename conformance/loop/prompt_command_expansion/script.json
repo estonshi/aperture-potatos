@@ -1,0 +1,59 @@
+{
+  "spec_version": "0.1",
+  "description": "Prompt commands expand their templates: named and numbered placeholders, the whole argument string, a literal dollar, and a template without placeholders that gets the arguments appended.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "commands": [
+      {
+        "name": "trip",
+        "description": "Plan a trip.",
+        "template": "Plan a $days-day trip to $city with a budget of $2 ($ARGUMENTS[2]). Everything: $ARGUMENTS. Tip: $$5 coffee.",
+        "arg_names": [
+          "city",
+          "days"
+        ]
+      },
+      {
+        "name": "note",
+        "description": "Take a note.",
+        "template": "Take a note."
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "/trip Kyoto 3 \"30000 yen\""
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "/note buy milk"
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

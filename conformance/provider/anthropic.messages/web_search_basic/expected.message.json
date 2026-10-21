@@ -1,0 +1,120 @@
+{
+  "content": [
+    {
+      "id": "srvtoolu_01",
+      "input": {
+        "query": "osaka weather"
+      },
+      "name": "web_search",
+      "native": {
+        "api": "anthropic.messages",
+        "raw": {
+          "id": "srvtoolu_01",
+          "input": {
+            "query": "osaka weather"
+          },
+          "name": "web_search",
+          "type": "server_tool_use"
+        }
+      },
+      "type": "hosted_call"
+    },
+    {
+      "call_id": "srvtoolu_01",
+      "name": "web_search",
+      "native": {
+        "api": "anthropic.messages",
+        "raw": {
+          "content": [
+            {
+              "encrypted_content": "EqgBCioI",
+              "page_age": "October 12, 2026",
+              "title": "Osaka weather",
+              "type": "web_search_result",
+              "url": "https://example.com/osaka"
+            },
+            {
+              "encrypted_content": "EpMBCioI",
+              "page_age": null,
+              "title": "Kansai forecast",
+              "type": "web_search_result",
+              "url": "https://example.org/kansai"
+            }
+          ],
+          "tool_use_id": "srvtoolu_01",
+          "type": "web_search_tool_result"
+        }
+      },
+      "sources": [
+        {
+          "age": "October 12, 2026",
+          "title": "Osaka weather",
+          "url": "https://example.com/osaka"
+        },
+        {
+          "title": "Kansai forecast",
+          "url": "https://example.org/kansai"
+        }
+      ],
+      "type": "hosted_result"
+    },
+    {
+      "citations": [
+        {
+          "cited_text": "Sunny, 24C",
+          "title": "Osaka weather",
+          "url": "https://example.com/osaka"
+        }
+      ],
+      "native": {
+        "api": "anthropic.messages",
+        "raw": {
+          "citations": [
+            {
+              "cited_text": "Sunny, 24C",
+              "encrypted_index": "EpMB",
+              "title": "Osaka weather",
+              "type": "web_search_result_location",
+              "url": "https://example.com/osaka"
+            }
+          ],
+          "text": "Osaka is sunny today.",
+          "type": "text"
+        }
+      },
+      "text": "Osaka is sunny today.",
+      "type": "text"
+    }
+  ],
+  "origin": {
+    "kind": "model"
+  },
+  "producer": {
+    "api": "anthropic.messages",
+    "endpoint": "api.anthropic.com",
+    "model": "claude-opus-5-5",
+    "request_id": "req_ws",
+    "response_id": "msg_01"
+  },
+  "role": "assistant",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "hosted_calls": {
+      "web_search": 1
+    },
+    "input_tokens": 40,
+    "output_tokens": 30,
+    "raw": {
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "input_tokens": 40,
+      "output_tokens": 30,
+      "server_tool_use": {
+        "web_search_requests": 1
+      }
+    },
+    "reasoning_tokens": 0
+  }
+}

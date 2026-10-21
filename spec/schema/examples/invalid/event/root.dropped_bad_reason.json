@@ -1,0 +1,11 @@
+{
+  "type": "input.dropped",
+  "seq": 1,
+  "time": "2026-09-27T08:00:00Z",
+  "session_id": "ses_01",
+  "agent": "Tater",
+  "data": {
+    "input_id": "in_01",
+    "reason": "lost_in_space"
+  }
+}

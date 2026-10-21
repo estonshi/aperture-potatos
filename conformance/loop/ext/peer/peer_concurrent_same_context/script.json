@@ -1,0 +1,98 @@
+{
+  "spec_version": "0.1",
+  "description": "Two exchanges in one conversation with an in-process peer: the second waits for the first, saying which task it waits for, and each message is a turn of its own. Each end is notified and wakes the model.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "extensions": {
+      "peer": {
+        "local": [
+          {
+            "nickname": "Bee",
+            "description": "Chats.",
+            "instructions": "Be brief.",
+            "replies": [
+              {
+                "text": "zero"
+              },
+              {
+                "text": "one",
+                "hold_ms": 1000
+              },
+              {
+                "text": "two",
+                "hold_ms": 1000
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse",
+        "responses/04.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-02T00:00:00.000Z",
+    "step_ms": 1,
+    "interleaved": true
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Start a chat with Bee."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "task": {
+        "start": {
+          "kind": "a2a",
+          "title": "Bee: m1",
+          "input": {
+            "agent": "Bee",
+            "message": "m1"
+          }
+        }
+      }
+    },
+    {
+      "task": {
+        "start": {
+          "kind": "a2a",
+          "title": "Bee: m2",
+          "input": {
+            "agent": "Bee",
+            "message": "m2"
+          }
+        }
+      }
+    },
+    {
+      "task": {
+        "wait": "task_02"
+      }
+    },
+    {
+      "task": {
+        "wait": "task_03"
+      }
+    },
+    {
+      "wait_quiet": true
+    }
+  ]
+}

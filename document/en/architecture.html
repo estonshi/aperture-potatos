@@ -1,0 +1,909 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>potatOS Runtime, Illustrated</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans:wght@400;500;700&family=Noto+Serif:wght@700;900&display=swap">
+<style>
+/* Layout: a lecture read top to bottom, chapters ordered from the outside in, sticky chapter rail on wide screens, each figure in its own scroll box */
+:root {
+  --paper: #f5f7f5;
+  --card: #ffffff;
+  --ink: #16201c;
+  --muted: #56635e;
+  --line: #c9d2ce;
+  --kernel: #0d6b58;
+  --provider: #3c4ca3;
+  --ext: #93620c;
+  --hl: #c2410c;
+  --k-soft: color-mix(in srgb, var(--kernel) 11%, var(--card));
+  --p-soft: color-mix(in srgb, var(--provider) 10%, var(--card));
+  --e-soft: color-mix(in srgb, var(--ext) 11%, var(--card));
+  --hl-soft: color-mix(in srgb, var(--hl) 14%, var(--card));
+  --code-bg: color-mix(in srgb, var(--kernel) 6%, var(--paper));
+  --f-display: "Noto Serif", "Songti SC", "STSong", "SimSun", serif;
+  --f-body: "Noto Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --f-mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #111715;
+    --card: #18201d;
+    --ink: #e2e9e6;
+    --muted: #9aa8a2;
+    --line: #2e3a35;
+    --kernel: #4fc0a5;
+    --provider: #93a0f0;
+    --ext: #d8a548;
+    --hl: #fb8c4b;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #111715;
+  --card: #18201d;
+  --ink: #e2e9e6;
+  --muted: #9aa8a2;
+  --line: #2e3a35;
+  --kernel: #4fc0a5;
+  --provider: #93a0f0;
+  --ext: #d8a548;
+  --hl: #fb8c4b;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 15.5px/1.75 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  gap: 48px;
+  padding-block: 56px 96px;
+}
+nav.rail {
+  position: sticky;
+  top: calc(env(safe-area-inset-top, 0px) + 24px);
+  align-self: start;
+  font-size: 13.5px;
+}
+nav.rail .label {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+nav.rail ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: ch; }
+nav.rail li { counter-increment: ch; }
+nav.rail a {
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  padding: 5px 8px;
+  border-radius: 6px;
+  color: var(--muted);
+  text-decoration: none;
+}
+nav.rail a::before { content: counter(ch, decimal-leading-zero); font-family: var(--f-mono); font-size: 11.5px; padding-top: 2px; }
+nav.rail a:hover { color: var(--ink); background: var(--k-soft); }
+nav.rail a:focus-visible, button:focus-visible, .evlist li:focus-visible { outline: 2px solid var(--hl); outline-offset: 2px; }
+
+main { min-width: 0; display: grid; gap: 72px; }
+header.top { display: grid; gap: 14px; max-width: 46rem; }
+header.top .eyebrow {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--kernel);
+}
+h1 {
+  font-family: var(--f-display);
+  font-weight: 900;
+  font-size: clamp(34px, 5vw, 50px);
+  line-height: 1.2;
+  margin: 0;
+  text-wrap: balance;
+}
+header.top p.lede { font-size: 17.5px; color: var(--ink); margin: 0; }
+header.top .meta { font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+
+section { display: grid; gap: 18px; scroll-margin-top: 24px; }
+section > .head { display: grid; gap: 6px; max-width: 46rem; }
+section .num { font-family: var(--f-mono); font-size: 12px; color: var(--kernel); letter-spacing: .1em; }
+h2 {
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 27px;
+  line-height: 1.35;
+  margin: 0;
+  text-wrap: balance;
+}
+h3 { font-size: 16.5px; margin: 8px 0 0; font-weight: 700; }
+p { margin: 0; max-width: 44rem; }
+.prose { display: grid; gap: 12px; max-width: 44rem; }
+ul.points { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; max-width: 44rem; }
+code, .mono { font-family: var(--f-mono); font-size: .88em; }
+code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+
+figure { margin: 0; display: grid; gap: 10px; }
+.scroll {
+  overflow-x: auto;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px;
+}
+.scroll svg { display: block; min-width: 760px; width: 100%; height: auto; }
+figcaption { font-size: 13.5px; color: var(--muted); max-width: 46rem; }
+
+/* svg vocabulary */
+.dg { color: var(--muted); font-family: var(--f-body); }
+.dg .box { fill: var(--card); stroke: var(--line); stroke-width: 1.2; }
+.dg .k { fill: var(--k-soft); stroke: var(--kernel); stroke-width: 1.3; }
+.dg .kk { fill: var(--k-soft); stroke: var(--kernel); stroke-width: 2.2; }
+.dg .p { fill: var(--p-soft); stroke: var(--provider); stroke-width: 1.3; }
+.dg .e { fill: var(--e-soft); stroke: var(--ext); stroke-width: 1.3; }
+.dg .frame { fill: none; stroke: var(--line); stroke-width: 1.2; stroke-dasharray: 5 4; }
+.dg .chip { fill: var(--card); stroke: var(--ext); stroke-width: 1; }
+.dg .chipk { fill: var(--card); stroke: var(--kernel); stroke-width: 1; }
+.dg .hk { fill: var(--k-soft); stroke: none; }
+.dg .h { fill: var(--ink); font-size: 14px; font-weight: 700; }
+.dg .s { fill: var(--muted); font-size: 12px; }
+.dg .c { fill: var(--ink); font-size: 12px; }
+.dg .m { fill: var(--muted); font-family: var(--f-mono); font-size: 11.5px; }
+.dg .mk { fill: var(--kernel); font-family: var(--f-mono); font-size: 11.5px; }
+.dg .tag { fill: var(--muted); font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; }
+.dg .colh { fill: var(--muted); font-family: var(--f-mono); font-size: 11px; letter-spacing: .12em; }
+.dg .lbl { fill: var(--muted); font-size: 11.5px; }
+.dg .ar { stroke: currentColor; stroke-width: 1.4; fill: none; }
+.dg .ar.d { stroke-dasharray: 4 4; }
+.dg .ar.hl { stroke: var(--hl); }
+.dg .seg-m { fill: var(--p-soft); stroke: var(--provider); }
+.dg .seg-t { fill: var(--e-soft); stroke: var(--ext); }
+.dg .seg-b { fill: var(--k-soft); stroke: var(--kernel); }
+.dg .sp { stroke: var(--kernel); stroke-width: 1.6; stroke-dasharray: 3 3; }
+.dg .dot { fill: var(--hl); }
+.dg .x { stroke: var(--hl); stroke-width: 2.4; }
+.dg .ahead { fill: currentColor; }
+.dg .ahead-hl { fill: var(--hl); }
+
+/* replay highlight */
+#turnflow .node rect, #turnflow .node polygon { transition: fill .2s, stroke .2s, stroke-width .2s; }
+#turnflow .node.on rect, #turnflow .node.on polygon { fill: var(--hl-soft); stroke: var(--hl); stroke-width: 2.4; }
+@media (prefers-reduced-motion: reduce) { #turnflow .node rect, #turnflow .node polygon { transition: none; } }
+
+.replay {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+.replay .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.replay .bar strong { font-size: 14.5px; }
+.replay .bar .spacer { flex: 1 1 auto; }
+.replay .bar .pos { font-family: var(--f-mono); font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+button {
+  font: 500 13px/1 var(--f-body);
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+button:hover { border-color: var(--kernel); color: var(--kernel); }
+button[aria-pressed="true"] { background: var(--kernel); border-color: var(--kernel); color: var(--card); }
+.evlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; max-height: 380px; overflow-y: auto; border-top: 1px solid var(--line); }
+.evlist li {
+  display: grid;
+  grid-template-columns: 30px minmax(150px, 210px) minmax(0, 1fr) 100px;
+  gap: 12px;
+  align-items: baseline;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13.5px;
+}
+.evlist li:hover { background: var(--k-soft); }
+.evlist li.on { background: var(--hl-soft); }
+.evlist .i { font-family: var(--f-mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.evlist .t { font-family: var(--f-mono); font-size: 12.5px; color: var(--kernel); overflow-wrap: anywhere; }
+.evlist .st { font-size: 12px; color: var(--muted); text-align: right; }
+.note { font-size: 13px; color: var(--muted); }
+
+/* tables */
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 620px; }
+th, td { text-align: left; vertical-align: top; padding: 9px 14px; border-bottom: 1px solid var(--line); }
+tr:last-child td { border-bottom: 0; }
+th { font-family: var(--f-mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 500; background: var(--paper); }
+td code { white-space: nowrap; }
+
+/* glossary */
+dl.terms { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+dl.terms div { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; align-content: start; }
+dl.terms dt { font-family: var(--f-mono); font-size: 15px; color: var(--kernel); font-weight: 500; }
+dl.terms dd { margin: 0; font-size: 14px; }
+
+/* system prompt skeleton */
+ol.skeleton { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; max-width: 46rem; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--card); }
+ol.skeleton li { display: grid; grid-template-columns: 34px 120px minmax(0, 1fr); gap: 10px; padding: 9px 14px; border-bottom: 1px solid var(--line); font-size: 14px; }
+ol.skeleton li:last-child { border-bottom: 0; }
+ol.skeleton .n { font-family: var(--f-mono); color: var(--muted); font-size: 12px; padding-top: 2px; }
+ol.skeleton .slot { font-family: var(--f-mono); color: var(--kernel); font-size: 13px; }
+ol.skeleton li.open .slot { color: var(--ext); }
+
+.guarantees { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.guarantees li { border-left: 3px solid var(--kernel); padding: 4px 0 4px 14px; display: grid; gap: 4px; }
+.guarantees b { font-size: 15px; }
+.guarantees span { font-size: 14px; color: var(--muted); }
+
+@media (max-width: 900px) {
+  .wrap { grid-template-columns: minmax(0, 1fr); gap: 32px; padding-block: 32px 64px; }
+  nav.rail { display: none; }
+  main { gap: 56px; }
+  .evlist li { grid-template-columns: 26px minmax(0, 1fr); }
+  .evlist .d, .evlist .st { grid-column: 2; text-align: left; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="rail" aria-label="Chapters">
+  <div class="label">Chapters</div>
+  <ol>
+    <li><a href="#terms">Basic terms</a></li>
+    <li><a href="#layers">Layers</a></li>
+    <li><a href="#session">Inside a session</a></li>
+    <li><a href="#turn">How a turn runs</a></li>
+    <li><a href="#input">New input during a turn</a></li>
+    <li><a href="#tools">Tools, approval and tasks</a></li>
+    <li><a href="#context">Context and storage</a></li>
+    <li><a href="#rules">Runtime guarantees</a></li>
+    <li><a href="#map">Code map</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="eyebrow">Illustrated guide · github.com/estonshi/aperture-potatos</div>
+  <h1>potatOS Runtime, Illustrated</h1>
+  <p class="lede">potatOS is an agent core SDK written in Go. You use it to build agents inside your own program that can call tools and work over multiple turns. This page shows what happens after an agent receives a message: which parts of potatOS the message passes through, in what order, and where you can step in. It starts with the outermost layering of the modules and works its way down to every step of a single turn.</p>
+  <div class="meta">Spec version 0.1.0 · Event sequence taken from a real run</div>
+</header>
+
+<section id="terms">
+  <div class="head"><div class="num">01</div><h2>Basic terms</h2></div>
+  <p>The following five terms appear throughout the code, the events and the documentation. They are listed from the broadest scope to the narrowest, and every diagram on this page builds on them.</p>
+  <dl class="terms">
+    <div><dt>session</dt><dd>A conversation, including its history, its running tasks and its event subscribers. A session runs at most one turn at a time, and one Agent can open many sessions.</dd></div>
+    <div><dt>turn</dt><dd>The process that starts when a batch of input is delivered and ends when the model gives its final answer. A turn can also stop early, for example because it is interrupted or reaches a limit.</dd></div>
+    <div><dt>step</dt><dd>One model call plus the tool executions it leads to. A turn consists of several steps. The number of steps is unlimited by default, and you can set a limit with <code>Limits.MaxSteps</code>.</dd></div>
+    <div><dt>attempt</dt><dd>One try at calling the model within a step. A failed attempt is never written to history, so retrying is safe.</dd></div>
+    <div><dt>epoch</dt><dd>The stretch of history between two compactions or <code>/clear</code> commands. The system prompt and the tool definitions stay frozen within an epoch, which keeps the prompt cache valid.</dd></div>
+  </dl>
+</section>
+
+<section id="layers">
+  <div class="head"><div class="num">02</div><h2>Module layers and the kernel's responsibilities</h2></div>
+  <div class="prose">
+    <p>The kernel itself is responsible for only three things: <strong>calling the model, running the event loop and managing context</strong>. Subagents, skills, memory, A2A and the slash commands are all implemented as extension packages. These extensions use only the public registration interfaces, so they are no different from extensions you write yourself.</p>
+  </div>
+  <figure>
+    <div class="scroll">
+      <svg class="dg" viewBox="0 0 1040 564" role="img" aria-label="Layer diagram. The host assembles std and the extensions, the extensions are built on top of the kernel, and the kernel depends only on the provider interface and the L0 data types. Three provider adapters implement that interface and connect to the model APIs, and every layer reads the spec directory.">
+        <defs>
+          <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+        <rect class="box" x="40" y="16" width="960" height="60" rx="8"/>
+        <text class="h" x="64" y="42">Your program (the host)</text>
+        <text class="m" x="64" y="62">kernel.New(std.Defaults(...), kernel.WithModel(...))  ·  ag.NewSession(ctx)  ·  sess.Send(...)  ·  sess.Subscribe(ch)</text>
+        <line class="ar" x1="90" y1="76" x2="90" y2="98" marker-end="url(#a1)"/>
+
+        <rect class="e" x="40" y="100" width="600" height="48" rx="6"/>
+        <text class="tag" x="56" y="129">L5</text>
+        <text class="h" x="96" y="129">std</text>
+        <text class="s" x="150" y="120">std.Defaults() is the default extension list, one line per extension.</text>
+        <text class="s" x="150" y="137">With adds or replaces an extension; Without leaves one out.</text>
+        <line class="ar" x1="90" y1="148" x2="90" y2="170" marker-end="url(#a1)"/>
+
+        <rect class="e" x="40" y="172" width="600" height="84" rx="6"/>
+        <text class="tag" x="56" y="200">L4</text>
+        <text class="h" x="96" y="200">ext/*</text>
+        <text class="s" x="56" y="230">Uses only</text>
+        <text class="s" x="56" y="246">public APIs</text>
+        <g>
+          <rect class="chip" x="150" y="184" width="86" height="26" rx="13"/><text class="c" x="193" y="201" text-anchor="middle">tasks</text>
+          <rect class="chip" x="246" y="184" width="86" height="26" rx="13"/><text class="c" x="289" y="201" text-anchor="middle">subagent</text>
+          <rect class="chip" x="342" y="184" width="86" height="26" rx="13"/><text class="c" x="385" y="201" text-anchor="middle">history</text>
+          <rect class="chip" x="438" y="184" width="86" height="26" rx="13"/><text class="c" x="481" y="201" text-anchor="middle">compact</text>
+          <rect class="chip" x="534" y="184" width="86" height="26" rx="13"/><text class="c" x="577" y="201" text-anchor="middle">cmd/*</text>
+          <rect class="chip" x="150" y="220" width="86" height="26" rx="13"/><text class="c" x="193" y="237" text-anchor="middle">skills</text>
+          <rect class="chip" x="246" y="220" width="86" height="26" rx="13"/><text class="c" x="289" y="237" text-anchor="middle">memory</text>
+          <rect class="chip" x="342" y="220" width="86" height="26" rx="13"/><text class="c" x="385" y="237" text-anchor="middle">peer · a2a</text>
+          <rect class="chip" x="438" y="220" width="86" height="26" rx="13"/><text class="c" x="481" y="237" text-anchor="middle">mcp</text>
+          <rect class="chip" x="534" y="220" width="86" height="26" rx="13" stroke-dasharray="3 3"/><text class="c" x="577" y="237" text-anchor="middle">litellm</text>
+        </g>
+        <line class="ar" x1="90" y1="256" x2="90" y2="278" marker-end="url(#a1)"/>
+
+        <rect class="kk" x="40" y="280" width="600" height="96" rx="6"/>
+        <text class="tag" x="56" y="308">L3</text>
+        <text class="h" x="96" y="308">kernel</text>
+        <g>
+          <rect class="chipk" x="150" y="292" width="112" height="28" rx="6"/><text class="c" x="206" y="311" text-anchor="middle">Agent · Session</text>
+          <rect class="chipk" x="269" y="292" width="108" height="28" rx="6"/><text class="c" x="323" y="311" text-anchor="middle">actor · mailbox</text>
+          <rect class="chipk" x="384" y="292" width="100" height="28" rx="6"/><text class="c" x="434" y="311" text-anchor="middle">turn driver</text>
+          <rect class="chipk" x="491" y="292" width="136" height="28" rx="6"/><text class="c" x="559" y="311" text-anchor="middle">input queue</text>
+          <rect class="chipk" x="150" y="334" width="112" height="28" rx="6"/><text class="c" x="206" y="353" text-anchor="middle">task protocol</text>
+          <rect class="chipk" x="269" y="334" width="108" height="28" rx="6"/><text class="c" x="323" y="353" text-anchor="middle">approval gate</text>
+          <rect class="chipk" x="384" y="334" width="100" height="28" rx="6"/><text class="c" x="434" y="353" text-anchor="middle">hook dispatch</text>
+          <rect class="chipk" x="491" y="334" width="136" height="28" rx="6"/><text class="c" x="559" y="353" text-anchor="middle">context management</text>
+        </g>
+        <line class="ar" x1="90" y1="376" x2="90" y2="398" marker-end="url(#a1)"/>
+        <text class="lbl" x="100" y="392">Stream(req)</text>
+
+        <rect class="p" x="40" y="400" width="600" height="48" rx="6"/>
+        <text class="tag" x="56" y="429">L1</text>
+        <text class="h" x="96" y="429">provider</text>
+        <text class="s" x="180" y="429">Provider interface · Request · StreamEvent · Capabilities · Error</text>
+        <line class="ar" x1="90" y1="448" x2="90" y2="470" marker-end="url(#a1)"/>
+
+        <rect class="box" x="40" y="472" width="600" height="72" rx="6"/>
+        <text class="tag" x="56" y="496">L0</text>
+        <text class="h" x="96" y="496">message · event · store</text>
+        <text class="s" x="96" y="516">Message / Block · Event envelope · SessionStore</text>
+        <text class="s" x="96" y="532">(store/jsonl is the reference implementation)</text>
+
+        <rect class="box" x="720" y="100" width="280" height="276" rx="6"/>
+        <text class="h" x="740" y="128">spec/</text>
+        <text class="s" x="740" y="150">A language-neutral specification,</text>
+        <text class="s" x="740" y="166">shared by every language binding</text>
+        <text class="c" x="740" y="192">Schemas for message, event and hook</text>
+        <text class="c" x="740" y="216">Prompts and built-in tool definitions</text>
+        <text class="c" x="740" y="240">Error classes, defaults and limits</text>
+        <text class="c" x="740" y="264">Field mappings for each vendor API</text>
+        <text class="c" x="740" y="288">Conformance replay fixtures</text>
+        <text class="s" x="740" y="352">Read by the Go binding via go:embed</text>
+        <line class="ar d" x1="720" y1="238" x2="644" y2="238" marker-end="url(#a1)"/>
+
+        <rect class="p" x="720" y="400" width="280" height="72" rx="6"/>
+        <text class="tag" x="736" y="424">L2</text>
+        <text class="h" x="764" y="424">provider/&lt;api&gt;</text>
+        <text class="c" x="736" y="446">anthropic</text>
+        <text class="c" x="736" y="464">openaichat · openairesponses</text>
+        <line class="ar" x1="720" y1="424" x2="644" y2="424" marker-end="url(#a1)"/>
+        <text class="lbl" x="682" y="416" text-anchor="middle">implements</text>
+        <line class="ar" x1="860" y1="472" x2="860" y2="494" marker-end="url(#a1)"/>
+        <rect class="box" x="720" y="496" width="280" height="40" rx="6"/>
+        <text class="c" x="860" y="521" text-anchor="middle">Model API (HTTPS + SSE)</text>
+      </svg>
+    </div>
+    <figcaption>The left column shows the import direction: each arrow points at the layer being depended on. The kernel does not import any provider adapter. The host creates a Provider with a function such as <code>anthropic.New(...)</code> and hands it to the kernel through <code>WithModel</code>, so the kernel depends only on the L1 interface. The <code>litellm</code> chip with the dashed outline is not an extension. It only provides request tagging and cost lookups, and you pass it in as an Option.</figcaption>
+  </figure>
+  <ul class="points">
+    <li><strong>Deleting a package is enough to remove its feature.</strong> After you delete any <code>ext/&lt;x&gt;</code> package and its line in <code>std/std.go</code>, the kernel needs no changes. Tests in <code>internal/archtest</code> check this, as well as the direction of the dependencies between layers.</li>
+    <li><strong>Standard library only, with <code>ext/mcp</code> as the one exception.</strong> <code>ext/mcp</code> uses the official MCP Go SDK together with <code>golang.org/x/oauth2</code> and <code>jsonschema-go</code>, and <code>internal/archtest</code> allows only that package to import them. <code>tools/schemacheck</code> is a separate module, so the library it uses to validate schemas never becomes a dependency of the SDK.</li>
+    <li><strong>The provider layer can be used on its own.</strong> None of the three adapters depends on the kernel, so you can use them as a standalone library that turns the streaming responses of all three APIs into one common format.</li>
+  </ul>
+</section>
+
+<section id="session">
+  <div class="head"><div class="num">03</div><h2>Actors and workers inside a session</h2></div>
+  <div class="prose">
+    <p>Every session has one actor goroutine, and only the actor holds the session state. The actor itself never waits on the network and never runs user code, so methods such as <code>Send</code> and <code>Interrupt</code> always return immediately. Slow work such as calling the model, running tools, running hooks and running tasks is handed to worker goroutines. When a worker needs to read or write the session state, it hands a closure to the actor to run.</p>
+  </div>
+  <figure>
+    <div class="scroll">
+      <svg class="dg" viewBox="0 0 1040 450" role="img" aria-label="Inside a session. The host pushes input into the mailbox. The actor owns the session state and publishes events to the bus, which delivers them to the subscribers. The actor starts workers such as the turn driver, tools, hooks and tasks, and the workers come back to the actor through exec. The driver connects to the Provider. Interrupt bypasses the mailbox and cancels the current turn directly.">
+        <defs>
+          <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead" d="M0,0 L10,5 L0,10 z"/></marker>
+          <marker id="a2h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead-hl" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+        <rect class="box" x="20" y="30" width="180" height="130" rx="8"/>
+        <text class="h" x="36" y="56">Host goroutine</text>
+        <text class="c" x="36" y="82">Send · Command</text>
+        <text class="c" x="36" y="102">Interrupt · Close</text>
+        <text class="s" x="36" y="128">Send never blocks</text>
+        <text class="s" x="36" y="146">and returns a Receipt</text>
+
+        <line class="ar" x1="200" y1="95" x2="248" y2="95" marker-end="url(#a2)"/>
+        <text class="lbl" x="224" y="87" text-anchor="middle">push</text>
+        <rect class="box" x="250" y="30" width="150" height="130" rx="8"/>
+        <text class="h" x="266" y="56">mailbox</text>
+        <text class="s" x="266" y="82">Internal messages</text>
+        <text class="s" x="266" y="98">go first</text>
+        <text class="s" x="266" y="122">External input</text>
+        <text class="s" x="266" y="138">queue is bounded</text>
+
+        <line class="ar" x1="400" y1="95" x2="448" y2="95" marker-end="url(#a2)"/>
+        <text class="lbl" x="424" y="87" text-anchor="middle">ready</text>
+        <rect class="kk" x="450" y="30" width="250" height="130" rx="8"/>
+        <text class="h" x="466" y="56">actor goroutine</text>
+        <text class="c" x="466" y="82">Owns the session state</text>
+        <text class="c" x="466" y="102">History · input queue · task table</text>
+        <text class="s" x="466" y="124">Does no I/O and runs no user code</text>
+        <text class="s" x="466" y="144">Blocks only on &lt;-ready</text>
+
+        <line class="ar" x1="700" y1="95" x2="748" y2="95" marker-end="url(#a2)"/>
+        <text class="lbl" x="724" y="87" text-anchor="middle">publish</text>
+        <rect class="box" x="750" y="30" width="120" height="130" rx="8"/>
+        <text class="h" x="766" y="56">bus</text>
+        <text class="s" x="766" y="82">Publishes</text>
+        <text class="s" x="766" y="98">in order</text>
+        <text class="s" x="766" y="122">Credit-based</text>
+        <text class="s" x="766" y="138">backpressure</text>
+        <line class="ar" x1="870" y1="95" x2="896" y2="95" marker-end="url(#a2)"/>
+        <rect class="box" x="898" y="30" width="122" height="130" rx="8"/>
+        <text class="h" x="912" y="56">Subscribers</text>
+        <text class="c" x="912" y="82">channel</text>
+        <text class="c" x="912" y="102">callback</text>
+        <text class="c" x="912" y="122">iterator</text>
+
+        <line class="ar" x1="520" y1="160" x2="520" y2="228" marker-end="url(#a2)"/>
+        <text class="lbl" x="512" y="198" text-anchor="end">Starts workers</text>
+        <line class="ar" x1="600" y1="228" x2="600" y2="162" marker-end="url(#a2)"/>
+        <text class="lbl" x="608" y="198">exec(fn) · post(fn)</text>
+        <line class="ar d" x1="810" y1="228" x2="810" y2="162" marker-end="url(#a2)"/>
+        <text class="lbl" x="818" y="188">Backpressure blocks</text>
+        <text class="lbl" x="818" y="204">only the workers</text>
+
+        <rect class="frame" x="230" y="230" width="790" height="200" rx="10"/>
+        <text class="tag" x="246" y="252">WORKERS · EACH IN ITS OWN GOROUTINE</text>
+        <rect class="k" x="246" y="266" width="200" height="146" rx="6"/>
+        <text class="h" x="260" y="290">turn driver</text>
+        <text class="s" x="260" y="314">The whole turn is one</text>
+        <text class="s" x="260" y="330">piece of sequential code</text>
+        <text class="s" x="260" y="352">Reads and writes state</text>
+        <text class="s" x="260" y="368">only through exec</text>
+        <text class="s" x="260" y="390">Streams with read-ahead</text>
+        <rect class="box" x="462" y="266" width="170" height="146" rx="6"/>
+        <text class="h" x="476" y="290">tool workers</text>
+        <text class="s" x="476" y="314">One worker per call</text>
+        <text class="s" x="476" y="336">Up to 8 run at once</text>
+        <text class="s" x="476" y="352">within a group</text>
+        <rect class="box" x="648" y="266" width="170" height="146" rx="6"/>
+        <text class="h" x="662" y="290">hook workers</text>
+        <text class="s" x="662" y="314">Synchronous hooks</text>
+        <text class="s" x="662" y="330">have a timeout</text>
+        <text class="s" x="662" y="352">Asynchronous hooks</text>
+        <text class="s" x="662" y="368">run in a pool</text>
+        <rect class="box" x="834" y="266" width="170" height="146" rx="6"/>
+        <text class="h" x="848" y="290">task runners</text>
+        <text class="s" x="848" y="314">One runner per task</text>
+        <text class="s" x="848" y="336">ctx derives from</text>
+        <text class="s" x="848" y="352">the session</text>
+        <text class="s" x="848" y="374">Not affected by</text>
+        <text class="s" x="848" y="390">turn interrupts</text>
+
+        <rect class="p" x="20" y="306" width="164" height="80" rx="8"/>
+        <text class="h" x="36" y="332">Provider.Stream</text>
+        <text class="s" x="36" y="354">Connects to the model</text>
+        <text class="s" x="36" y="370">over HTTP + SSE</text>
+        <line class="ar" x1="244" y1="346" x2="186" y2="346" marker-start="url(#a2)" marker-end="url(#a2)"/>
+        <text class="lbl" x="207" y="338" text-anchor="middle">stream</text>
+
+        <path class="ar hl d" d="M110,160 V284 H244" marker-end="url(#a2h)"/>
+        <text class="lbl" x="118" y="196">Interrupt cancels the turn ctx</text>
+        <text class="lbl" x="118" y="214">directly, bypassing the mailbox</text>
+      </svg>
+    </div>
+    <figcaption>Solid lines show the normal data flow. Before the turn driver publishes a large number of delta events, it must first obtain credit from the bus. A slow subscriber therefore only makes the model stream wait; it blocks neither the actor nor <code>Send</code>.</figcaption>
+  </figure>
+  <ul class="points">
+    <li><strong>The history token.</strong> At any moment only one worker can modify the history and call the store. That worker is either the running turn or a command such as <code>/compact</code> or <code>/clear</code>. Store calls are therefore serialized by design and need no locking.</li>
+    <li><strong>Session states.</strong> A session starts in the <code>initializing</code> state, then enters <code>idle</code>, and from there moves back and forth between <code>idle</code> and either <code>running</code> or <code>maintenance</code>. When it closes, it passes through <code>closing</code> and then <code>closed</code>. Input that arrives during initialization is queued, not lost.</li>
+  </ul>
+</section>
+
+<section id="turn">
+  <div class="head"><div class="num">04</div><h2>How a turn runs</h2></div>
+  <div class="prose">
+    <p>The diagram below follows the structure of <code>runTurn</code> in <code>kernel/driver.go</code>. The middle column is the main flow, and the two columns on the right show where you can step in at each stage and which events that stage emits. Most of these intervention points are hook points. <code>ContextProvider</code> is not a hook but a registered context provider, which supplies reminders when the turn starts and at every safe point. The loop in the diagram that runs from the safe point to “Commit results” and back is one step.</p>
+  </div>
+  <figure>
+    <div class="scroll">
+      <svg id="turnflow" class="dg" viewBox="0 0 1020 860" role="img" aria-label="The flow of a turn. The input is taken and committed first. Then the step loop begins: the safe point, building the request, calling the model with streaming and committing the reply, followed by a check for tool calls. If there are tool calls, they pass the approval gate, the tools run, the results are committed and the flow returns to the safe point. If there are none, the end-of-turn check runs, where a stop hook can ask the turn to continue; otherwise the turn moves on to finish.">
+        <defs>
+          <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+        <text class="colh" x="440" y="24" text-anchor="middle">MAIN FLOW</text>
+        <text class="colh" x="650" y="24">INTERVENTION POINTS</text>
+        <text class="colh" x="875" y="24">EVENTS</text>
+
+        <g class="node" id="n1"><rect class="k" x="290" y="41" width="300" height="62" rx="8"/>
+          <text class="h" x="308" y="61">Take input</text><text class="s" x="308" y="79">Pick queued input that can start a turn</text><text class="s" x="308" y="94">and run the submit checks</text></g>
+        <line class="ar" x1="440" y1="103" x2="440" y2="115" marker-end="url(#a3)"/>
+        <g class="node" id="n2"><rect class="k" x="290" y="117" width="300" height="62" rx="8"/>
+          <text class="h" x="308" y="137">Commit input</text><text class="s" x="308" y="155">Build one user message, append it to</text><text class="s" x="308" y="170">history and persist it</text></g>
+        <line class="ar" x1="440" y1="179" x2="440" y2="209" marker-end="url(#a3)"/>
+        <text class="lbl" x="450" y="198">enter the step loop</text>
+
+        <g class="node" id="n3"><rect class="box" x="290" y="211" width="300" height="62" rx="8"/>
+          <text class="h" x="308" y="231">safe point</text><text class="s" x="308" y="249">Estimate the token count and compact</text><text class="s" x="308" y="264">automatically above the threshold</text></g>
+        <line class="ar" x1="440" y1="273" x2="440" y2="285" marker-end="url(#a3)"/>
+        <g class="node" id="n4"><rect class="box" x="290" y="287" width="300" height="62" rx="8"/>
+          <text class="h" x="308" y="307">Build request</text><text class="s" x="308" y="325">Made of the frozen system prompt,</text><text class="s" x="308" y="340">tool definitions and history</text></g>
+        <line class="ar" x1="440" y1="349" x2="440" y2="361" marker-end="url(#a3)"/>
+        <g class="node" id="n5"><rect class="p" x="290" y="363" width="300" height="62" rx="8"/>
+          <text class="h" x="308" y="383">Call model (streaming)</text><text class="s" x="308" y="401">Emit deltas in real time and retry</text><text class="s" x="308" y="416">automatically on retryable errors</text></g>
+        <line class="ar" x1="440" y1="425" x2="440" y2="437" marker-end="url(#a3)"/>
+        <g class="node" id="n6"><rect class="box" x="290" y="439" width="300" height="62" rx="8"/>
+          <text class="h" x="308" y="459">Commit reply</text><text class="s" x="308" y="477">Write the assistant message to history</text><text class="s" x="308" y="492">and record usage in the ledger</text></g>
+        <line class="ar" x1="440" y1="501" x2="440" y2="512" marker-end="url(#a3)"/>
+        <g class="node" id="n7"><polygon class="box" points="440,514 550,546 440,578 330,546"/>
+          <text class="h" x="440" y="551" text-anchor="middle">Tool calls?</text></g>
+        <line class="ar" x1="440" y1="578" x2="440" y2="607" marker-end="url(#a3)"/>
+        <text class="lbl" x="450" y="598">Yes</text>
+        <g class="node" id="n8"><rect class="e" x="290" y="609" width="300" height="62" rx="8"/>
+          <text class="h" x="308" y="629">Approval gate</text><text class="s" x="308" y="647">Hooks, then rules, then the approver;</text><text class="s" x="308" y="662">nothing runs until the batch is decided</text></g>
+        <line class="ar" x1="440" y1="671" x2="440" y2="683" marker-end="url(#a3)"/>
+        <g class="node" id="n9"><rect class="e" x="290" y="685" width="300" height="62" rx="8"/>
+          <text class="h" x="308" y="705">Run tools</text><text class="s" x="308" y="723">Parallel calls run in groups, Serial calls</text><text class="s" x="308" y="738">run alone; calls can be backgrounded</text></g>
+        <line class="ar" x1="440" y1="747" x2="440" y2="759" marker-end="url(#a3)"/>
+        <g class="node" id="n10"><rect class="box" x="290" y="761" width="300" height="62" rx="8"/>
+          <text class="h" x="308" y="781">Commit results</text><text class="s" x="308" y="799">The tool row, plus any next_loop input</text><text class="s" x="308" y="814">that has arrived by this point</text></g>
+
+        <path class="ar" d="M590,792 H624 V242 H593" marker-end="url(#a3)"/>
+        <text class="lbl" transform="rotate(-90 637 520)" x="637" y="520" text-anchor="middle">next step</text>
+
+        <line class="ar" x1="330" y1="546" x2="262" y2="546" marker-end="url(#a3)"/>
+        <text class="lbl" x="296" y="538" text-anchor="middle">No</text>
+        <g class="node" id="nend"><rect class="box" x="20" y="500" width="240" height="94" rx="8"/>
+          <text class="h" x="36" y="524">End-of-turn check</text>
+          <text class="s" x="36" y="546">A stop hook can ask to continue</text>
+          <text class="s" x="36" y="564">(at most 8 times per turn)</text>
+          <text class="s" x="36" y="582">Otherwise outcome = completed</text></g>
+        <path class="ar d" d="M140,500 V242 H288" marker-end="url(#a3)"/>
+        <text class="lbl" x="148" y="380">continue</text>
+        <line class="ar" x1="140" y1="594" x2="140" y2="648" marker-end="url(#a3)"/>
+        <text class="lbl" x="148" y="626">end</text>
+        <g class="node" id="nfin"><rect class="kk" x="20" y="650" width="240" height="184" rx="8"/>
+          <text class="h" x="36" y="674">finish (runs in a defer)</text>
+          <text class="c" x="36" y="698">Fill in results for any</text>
+          <text class="c" x="36" y="714">dangling tool_call</text>
+          <text class="c" x="36" y="736">Persist rows not yet written</text>
+          <text class="c" x="36" y="756">Run the turn_end hook</text>
+          <text class="c" x="36" y="776">Emit turn.completed</text>
+          <text class="s" x="36" y="802">Interrupts, max_steps, refusal</text>
+          <text class="s" x="36" y="820">and errors all pass through here</text></g>
+
+        <g>
+          <rect class="hk" x="650" y="49" width="210" height="22" rx="4"/><text class="mk" x="658" y="64">user_prompt_submit</text>
+          <rect class="hk" x="650" y="75" width="210" height="22" rx="4"/><text class="mk" x="658" y="90">ContextProvider</text>
+          <rect class="hk" x="650" y="219" width="210" height="22" rx="4"/><text class="mk" x="658" y="234">pre_compact</text>
+          <rect class="hk" x="650" y="245" width="210" height="22" rx="4"/><text class="mk" x="658" y="260">post_compact</text>
+          <rect class="hk" x="650" y="307" width="210" height="22" rx="4"/><text class="mk" x="658" y="322">pre_model_request</text>
+          <rect class="hk" x="650" y="459" width="210" height="22" rx="4"/><text class="mk" x="658" y="474">post_model_response</text>
+          <rect class="hk" x="650" y="617" width="210" height="22" rx="4"/><text class="mk" x="658" y="632">pre_tool_use</text>
+          <rect class="hk" x="650" y="643" width="210" height="22" rx="4"/><text class="mk" x="658" y="658">approval</text>
+          <rect class="hk" x="650" y="693" width="210" height="22" rx="4"/><text class="mk" x="658" y="708">post_tool_use</text>
+          <rect class="hk" x="650" y="719" width="210" height="22" rx="4"/><text class="mk" x="658" y="734">task_start (if backgrounded)</text>
+          <rect class="hk" x="650" y="768" width="210" height="22" rx="4"/><text class="mk" x="658" y="783">post_tool_batch</text>
+          <rect class="hk" x="650" y="794" width="210" height="22" rx="4"/><text class="mk" x="658" y="809">ContextProvider</text>
+        </g>
+        <g>
+          <text class="m" x="875" y="66">input.accepted</text>
+          <text class="m" x="875" y="84">turn.started</text>
+          <text class="m" x="875" y="152">message.completed</text>
+          <text class="m" x="875" y="246">context.compacted</text>
+          <text class="m" x="875" y="382">step.started</text>
+          <text class="m" x="875" y="396">message.delta</text>
+          <text class="m" x="875" y="410">tool_call.*</text>
+          <text class="m" x="875" y="424">model.retry</text>
+          <text class="m" x="875" y="466">message.completed</text>
+          <text class="m" x="875" y="482">usage.updated</text>
+          <text class="m" x="875" y="634">approval.requested</text>
+          <text class="m" x="875" y="650">approval.resolved</text>
+          <text class="m" x="875" y="710">tool.started</text>
+          <text class="m" x="875" y="726">tool.completed</text>
+          <text class="m" x="875" y="786">message.completed</text>
+          <text class="m" x="875" y="802">input.injected</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>The stop hook runs in the “End-of-turn check” box on the left, and the turn_end hook runs in finish. If the model reports an error because the context is too long, the kernel compacts once reactively and retries the same step. If a thinking signature is rejected, the kernel falls back to a degraded way of sending the reasoning back and retries once more.</figcaption>
+  </figure>
+
+  <div class="replay" id="replay">
+    <div class="bar">
+      <strong>Replay a real run</strong>
+      <span class="spacer"></span>
+      <button type="button" id="rp-prev">Previous</button>
+      <button type="button" id="rp-next">Next</button>
+      <button type="button" id="rp-play" aria-pressed="false">Autoplay</button>
+      <span class="pos" id="rp-pos" aria-live="polite">1 / 24</span>
+    </div>
+    <p class="note">In this run, the user asks “Weather in Tokyo?” and the model first calls <code>get_weather</code>. The approval rules set <code>ask</code> for this tool, so the call runs only after the approver approves it, and then the model gives its answer. The list below shows the 24 events that <code>sess.Run</code> produces, in order. Click a row to highlight the matching step in the diagram above. This turn does not trigger compaction, so the safe point and the request-building step have no events of their own.</p>
+    <ol class="evlist" id="rp-list">
+      <li tabindex="0" data-node="n1"><span class="i">1</span><span class="t">turn.started</span><span class="d">Input is taken from the queue and a new turn starts</span><span class="st">Take input</span></li>
+      <li tabindex="0" data-node="n2"><span class="i">2</span><span class="t">message.completed</span><span class="d">The user message is written to history</span><span class="st">Commit input</span></li>
+      <li tabindex="0" data-node="n5"><span class="i">3</span><span class="t">step.started</span><span class="d">Step 1 starts and the model request is sent</span><span class="st">Call model</span></li>
+      <li tabindex="0" data-node="n5"><span class="i">4</span><span class="t">message.started</span><span class="d">The model starts its reply</span><span class="st">Call model</span></li>
+      <li tabindex="0" data-node="n5"><span class="i">5</span><span class="t">tool_call.started</span><span class="d">The model starts generating a get_weather call</span><span class="st">Call model</span></li>
+      <li tabindex="0" data-node="n5"><span class="i">6</span><span class="t">tool_call.delta</span><span class="d">The arguments {"city":"Tokyo"} stream in</span><span class="st">Call model</span></li>
+      <li tabindex="0" data-node="n5"><span class="i">7</span><span class="t">tool_call.completed</span><span class="d">The call arguments are complete</span><span class="st">Call model</span></li>
+      <li tabindex="0" data-node="n6"><span class="i">8</span><span class="t">message.completed</span><span class="d">The assistant message with the tool_call is committed</span><span class="st">Commit reply</span></li>
+      <li tabindex="0" data-node="n6"><span class="i">9</span><span class="t">step.completed</span><span class="d">Step 1 ends</span><span class="st">Commit reply</span></li>
+      <li tabindex="0" data-node="n6"><span class="i">10</span><span class="t">usage.updated</span><span class="d">Token usage is recorded in the call ledger</span><span class="st">Commit reply</span></li>
+      <li tabindex="0" data-node="n8"><span class="i">11</span><span class="t">approval.requested</span><span class="d">A rule matches ask, so the call waits for the approver</span><span class="st">Approval gate</span></li>
+      <li tabindex="0" data-node="n8"><span class="i">12</span><span class="t">hook.started</span><span class="d">The approval hook (the approver) starts running</span><span class="st">Approval gate</span></li>
+      <li tabindex="0" data-node="n8"><span class="i">13</span><span class="t">hook.completed</span><span class="d">The approver reaches a decision</span><span class="st">Approval gate</span></li>
+      <li tabindex="0" data-node="n8"><span class="i">14</span><span class="t">approval.resolved</span><span class="d">The call is approved</span><span class="st">Approval gate</span></li>
+      <li tabindex="0" data-node="n9"><span class="i">15</span><span class="t">tool.started</span><span class="d">get_weather starts running</span><span class="st">Run tools</span></li>
+      <li tabindex="0" data-node="n9"><span class="i">16</span><span class="t">tool.completed</span><span class="d">The result is success</span><span class="st">Run tools</span></li>
+      <li tabindex="0" data-node="n10"><span class="i">17</span><span class="t">message.completed</span><span class="d">The tool row is committed and the flow returns to the safe point</span><span class="st">Commit results</span></li>
+      <li tabindex="0" data-node="n5"><span class="i">18</span><span class="t">step.started</span><span class="d">Step 2 starts</span><span class="st">Call model</span></li>
+      <li tabindex="0" data-node="n5"><span class="i">19</span><span class="t">message.started</span><span class="d">The model starts its reply</span><span class="st">Call model</span></li>
+      <li tabindex="0" data-node="n5"><span class="i">20</span><span class="t">message.delta</span><span class="d">The text “Tokyo is sunny.” streams in</span><span class="st">Call model</span></li>
+      <li tabindex="0" data-node="n6"><span class="i">21</span><span class="t">message.completed</span><span class="d">The final answer is committed</span><span class="st">Commit reply</span></li>
+      <li tabindex="0" data-node="n6"><span class="i">22</span><span class="t">step.completed</span><span class="d">Step 2 ends</span><span class="st">Commit reply</span></li>
+      <li tabindex="0" data-node="n6"><span class="i">23</span><span class="t">usage.updated</span><span class="d">Token usage is recorded in the call ledger</span><span class="st">Commit reply</span></li>
+      <li tabindex="0" data-node="nfin"><span class="i">24</span><span class="t">turn.completed</span><span class="d">outcome=completed, steps=2</span><span class="st">finish</span></li>
+    </ol>
+  </div>
+  <ul class="points">
+    <li><strong>Tools run only after the reply has been written to history.</strong> Retries apply only to the model call, and a failed attempt is never written to history, so the same tool call is never executed twice.</li>
+    <li><strong>Every run of delta events is always followed by one complete closing event.</strong> When a retry happens, the deltas already emitted are followed by a <code>message.discarded</code> event, which a UI can use to clear that content.</li>
+  </ul>
+</section>
+
+<section id="input">
+  <div class="head"><div class="num">05</div><h2>When new input reaches a running agent</h2></div>
+  <div class="prose">
+    <p>Messages from people, commands, messages from other agents, task notifications and context added by hooks all pass through the same input queue. While a turn is running, each input can choose one of the following three delivery modes.</p>
+  </div>
+  <figure>
+    <div class="scroll">
+      <svg class="dg" viewBox="0 0 960 270" role="img" aria-label="Timelines of the three input modes. interrupt stops the current turn at once and then starts a new turn to handle the input. next_loop joins the current turn at the next safe point. queue waits until the current turn ends and then starts a turn of its own.">
+        <defs>
+          <marker id="a4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead-hl" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+        <text class="h" x="20" y="50">turn A</text>
+        <rect class="seg-m" x="130" y="30" width="170" height="30" rx="4"/><text class="c" x="215" y="50" text-anchor="middle">Model</text>
+        <rect class="seg-t" x="300" y="30" width="100" height="30" rx="4"/><text class="c" x="350" y="50" text-anchor="middle">Tools</text>
+        <rect class="seg-m" x="400" y="30" width="170" height="30" rx="4"/><text class="c" x="485" y="50" text-anchor="middle">Model</text>
+        <rect class="seg-t" x="570" y="30" width="80" height="30" rx="4"/><text class="c" x="610" y="50" text-anchor="middle">Tools</text>
+        <rect class="seg-m" x="650" y="30" width="120" height="30" rx="4"/><text class="c" x="710" y="50" text-anchor="middle">Model answers</text>
+        <rect class="seg-b" x="800" y="30" width="140" height="30" rx="4"/><text class="c" x="870" y="50" text-anchor="middle">turn B</text>
+        <line class="sp" x1="400" y1="20" x2="400" y2="70"/>
+        <line class="sp" x1="650" y1="20" x2="650" y2="70"/>
+        <text class="mk" x="400" y="14" text-anchor="middle">safe point</text>
+        <text class="mk" x="650" y="14" text-anchor="middle">safe point</text>
+
+        <text class="h" x="20" y="115">interrupt</text>
+        <circle class="dot" cx="530" cy="110" r="5"/>
+        <path class="ar hl" d="M530,105 V68" marker-end="url(#a4)"/>
+        <line class="x" x1="522" y1="37" x2="538" y2="53"/>
+        <line class="x" x1="538" y1="37" x2="522" y2="53"/>
+        <text class="c" x="544" y="104">Interrupts turn A at once and gives</text>
+        <text class="c" x="544" y="120">its tools an interrupted result,</text>
+        <text class="c" x="544" y="136">then starts a new turn for this input</text>
+
+        <text class="h" x="20" y="175">next_loop</text>
+        <text class="s" x="20" y="192">Default mode</text>
+        <circle class="dot" cx="340" cy="170" r="5"/>
+        <path class="ar hl" d="M345,170 H392 Q400,170 400,160 V68" marker-end="url(#a4)"/>
+        <text class="c" x="412" y="175">Joins turn A at the next safe point</text>
+
+        <text class="h" x="20" y="235">queue</text>
+        <circle class="dot" cx="340" cy="230" r="5"/>
+        <path class="ar hl" d="M345,230 H792 Q800,230 800,220 V68" marker-end="url(#a4)"/>
+        <text class="c" x="420" y="222">Waits for turn A to end, then starts turn B on its own</text>
+      </svg>
+    </div>
+    <figcaption>Each dot marks the moment an input arrives, and the three lanes show the three cases on the same turn A. A command waiting in the queue (for example <code>/clear</code>) acts as a barrier: any input that arrives after it is delivered only once the command has finished.</figcaption>
+  </figure>
+</section>
+
+<section id="tools">
+  <div class="head"><div class="num">06</div><h2>Tools, approval and tasks</h2></div>
+  <h3>How the approval gate decides</h3>
+  <ul class="points">
+    <li>The kernel first runs the <code>pre_tool_use</code> hooks in call order, then evaluates the approval rules against the rewritten input. A <code>pre_tool_use</code> hook can rewrite the input, deny the call outright or supply a synthetic result.</li>
+    <li>Among the rules, <code>deny</code> takes the highest priority, an explicit <code>allow</code> can exempt a call from <code>ask</code>, and a call that matches no rule is allowed. Between hooks and rules, the stricter side wins: as soon as either side requires <code>ask</code>, an allow from the other side cannot exempt the call.</li>
+    <li>Calls that hit <code>ask</code> trigger the <code>approval</code> hook concurrently. By default this hook has no timeout and always waits until the approver answers. Execution starts only after every call in the batch has a decision. If no approver is registered, every <code>ask</code> is treated as a denial.</li>
+    <li>Tool calls made inside subagents and background tasks go through the same rules and approvers, so they never bypass approval.</li>
+  </ul>
+  <h3>Running tools</h3>
+  <ul class="points">
+    <li>Consecutive <code>Parallel</code> calls are merged into one group that runs concurrently, each <code>Serial</code> call forms a group of its own, and the groups run one after another. Read-only tools are therefore a good fit for <code>Parallel</code>, so that they run concurrently, and tools with side effects are a good fit for <code>Serial</code>, which keeps the order the model gave.</li>
+    <li>The results are written to a single tool row in call order. If an interrupt happens, every call still gets a result, so the history is never corrupted.</li>
+    <li>For a tool that declares <code>Background</code>, the model can pass <code>background:true</code> to turn the call into a background task. The call then returns a <code>task_id</code> immediately.</li>
+  </ul>
+  <h3>Tasks and result notifications</h3>
+  <p>A task is a capability that runs asynchronously, such as a subagent, an A2A call or a workflow you write yourself. Starting a task returns immediately. When a task finishes, fails or needs input, the kernel puts a notification into the input queue on its own, so the model never needs to poll for the task's status.</p>
+  <figure>
+    <div class="scroll">
+      <svg class="dg" viewBox="0 0 1000 318" role="img" aria-label="Task state machine. A pending task enters running when it starts. A running task can move to waiting_input through AskInput and returns to running once it gets an answer. A running task finally ends as succeeded, failed or canceled, and a task that has not finished when the process restarts is recorded as lost. Whenever a task ends or needs input, it sends a notification that enters the input queue, and an idle session starts a turn automatically. Restart or continuation begins a new attempt from pending.">
+        <defs>
+          <marker id="a5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+        <path class="ar d" d="M520,40 C520,20 90,20 90,118" marker-end="url(#a5)"/>
+        <text class="lbl" x="300" y="14" text-anchor="middle">Restart or continuation starts a new attempt</text>
+
+        <rect class="box" x="30" y="120" width="120" height="40" rx="20"/><text class="mk" x="90" y="145" text-anchor="middle">pending</text>
+        <line class="ar" x1="150" y1="140" x2="228" y2="140" marker-end="url(#a5)"/>
+        <text class="lbl" x="189" y="132" text-anchor="middle">Start</text>
+        <rect class="k" x="230" y="120" width="130" height="40" rx="20"/><text class="mk" x="295" y="145" text-anchor="middle">running</text>
+        <line class="ar" x1="280" y1="160" x2="280" y2="228" marker-end="url(#a5)"/>
+        <text class="lbl" x="272" y="198" text-anchor="end">AskInput</text>
+        <line class="ar" x1="310" y1="228" x2="310" y2="162" marker-end="url(#a5)"/>
+        <text class="lbl" x="318" y="198">answer via task_send</text>
+        <rect class="box" x="215" y="230" width="160" height="40" rx="20"/><text class="mk" x="295" y="255" text-anchor="middle">waiting_input</text>
+
+        <line class="ar" x1="360" y1="140" x2="448" y2="58" marker-end="url(#a5)"/>
+        <line class="ar" x1="360" y1="140" x2="448" y2="118" marker-end="url(#a5)"/>
+        <line class="ar" x1="360" y1="140" x2="448" y2="178" marker-end="url(#a5)"/>
+        <rect class="box" x="450" y="40" width="140" height="36" rx="18"/><text class="mk" x="520" y="63" text-anchor="middle">succeeded</text>
+        <rect class="box" x="450" y="100" width="140" height="36" rx="18"/><text class="mk" x="520" y="123" text-anchor="middle">failed</text>
+        <rect class="box" x="450" y="160" width="140" height="36" rx="18"/><text class="mk" x="520" y="183" text-anchor="middle">canceled</text>
+        <rect class="box" x="450" y="220" width="140" height="36" rx="18"/><text class="mk" x="520" y="243" text-anchor="middle">lost</text>
+        <text class="lbl" x="520" y="272" text-anchor="middle">Unfinished at process restart</text>
+
+        <path class="ar" d="M590,58 H620 M590,118 H620 M590,178 H620 M590,238 H620 M620,58 V300"/>
+        <path class="ar" d="M295,270 V300 H620"/>
+        <text class="lbl" x="330" y="294">Also notifies when input is needed</text>
+        <line class="ar" x1="620" y1="150" x2="678" y2="150" marker-end="url(#a5)"/>
+        <rect class="kk" x="680" y="90" width="300" height="120" rx="8"/>
+        <text class="h" x="698" y="116">Notification joins the input queue</text>
+        <text class="s" x="698" y="140">Reaches the model as &lt;task-notification&gt;</text>
+        <text class="s" x="698" y="162">An idle session starts a turn on its own</text>
+        <text class="s" x="698" y="184">At most 8 automatic turns in a row</text>
+      </svg>
+    </div>
+    <figcaption>When the tool is called in the foreground, the call waits for the task to finish. If the task needs input partway through or the tool timeout is reached, the call returns at once and the task moves to the background, where it keeps running and sends notifications as usual. By default <code>/clear</code> does not stop tasks, and interrupting a turn does not stop them either.</figcaption>
+  </figure>
+</section>
+
+<section id="context">
+  <div class="head"><div class="num">07</div><h2>Context and storage</h2></div>
+  <h3>The fixed structure of the system prompt</h3>
+  <p>The kernel decides the order of the sections in the system prompt. Extensions can write only into three open slots, and the user section can be written only through <code>WithInstructions</code>, <code>WithInstructionsFunc</code> or <code>SessionInstructions</code>. The whole system prompt stays frozen within an epoch, and dynamic content such as the current time or task notifications is appended to user-side messages as reminders.</p>
+  <ol class="skeleton">
+    <li><span class="n">1</span><span class="slot">core</span><span>Runtime conventions that explain what reminders, task notifications and messages from other agents mean. This section is the same for every agent.</span></li>
+    <li><span class="n">2</span><span class="slot">identity</span><span>The nickname and description, set with <code>WithNickname</code> and <code>WithDescription</code></span></li>
+    <li class="open"><span class="n">3</span><span class="slot">capabilities</span><span>Usage notes for extensions, written into the <code>SlotCapabilities</code> slot</span></li>
+    <li><span class="n">4</span><span class="slot">user</span><span>Your instructions, written in one of three ways such as <code>WithInstructions</code>. They take priority over the capability notes above.</span></li>
+    <li class="open"><span class="n">5</span><span class="slot">catalog</span><span>A catalog of the available skills and the agents you can call, written into the <code>SlotCatalog</code> slot</span></li>
+    <li class="open"><span class="n">6</span><span class="slot">environment</span><span>Facts about the environment, written into the <code>SlotEnvironment</code> slot</span></li>
+  </ol>
+  <h3>Session files stored as JSONL</h3>
+  <figure>
+    <div class="scroll">
+      <svg class="dg" viewBox="0 0 960 238" role="img" aria-label="A session file consists of append-only message rows. Each epoch begins with a system row that carries a boundary marker, followed by the epoch head and the conversation. Compaction writes a new boundary. Everything after the last boundary is the current context, and earlier rows are kept for auditing.">
+        <defs>
+          <marker id="a6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+        <line class="ar" x1="20" y1="40" x2="940" y2="40" marker-end="url(#a6)"/>
+        <text class="s" x="20" y="30">&lt;session_id&gt;.jsonl: one message per line, append-only</text>
+        <g>
+          <rect class="kk" x="20" y="60" width="78" height="72" rx="5"/><text class="mk" x="59" y="86" text-anchor="middle">system</text><text class="s" x="59" y="106" text-anchor="middle">new-session</text><text class="s" x="59" y="121" text-anchor="middle">boundary</text>
+          <rect class="k" x="104" y="60" width="78" height="72" rx="5"/><text class="m" x="143" y="86" text-anchor="middle">epoch head</text><text class="s" x="143" y="106" text-anchor="middle">memory</text><text class="s" x="143" y="121" text-anchor="middle">and Pins</text>
+          <rect class="box" x="188" y="60" width="78" height="72" rx="5"/><text class="m" x="227" y="86" text-anchor="middle">user</text><text class="s" x="227" y="106" text-anchor="middle">question</text>
+          <rect class="p" x="272" y="60" width="78" height="72" rx="5"/><text class="m" x="311" y="86" text-anchor="middle">assistant</text><text class="s" x="311" y="106" text-anchor="middle">tool_call</text>
+          <rect class="e" x="356" y="60" width="78" height="72" rx="5"/><text class="m" x="395" y="86" text-anchor="middle">tool</text><text class="s" x="395" y="106" text-anchor="middle">tool_result</text>
+          <rect class="p" x="440" y="60" width="78" height="72" rx="5"/><text class="m" x="479" y="86" text-anchor="middle">assistant</text><text class="s" x="479" y="106" text-anchor="middle">answer</text>
+          <rect class="box" x="524" y="60" width="78" height="72" rx="5"/><text class="m" x="563" y="86" text-anchor="middle">user</text><text class="s" x="563" y="106" text-anchor="middle">follow-up</text>
+          <rect class="p" x="608" y="60" width="78" height="72" rx="5"/><text class="m" x="647" y="86" text-anchor="middle">assistant</text><text class="s" x="647" y="106" text-anchor="middle">answer</text>
+          <rect class="kk" x="692" y="60" width="78" height="72" rx="5"/><text class="mk" x="731" y="86" text-anchor="middle">system</text><text class="s" x="731" y="106" text-anchor="middle">compaction</text><text class="s" x="731" y="121" text-anchor="middle">boundary</text>
+          <rect class="k" x="776" y="60" width="78" height="72" rx="5"/><text class="m" x="815" y="86" text-anchor="middle">epoch head</text><text class="s" x="815" y="106" text-anchor="middle">summary</text><text class="s" x="815" y="121" text-anchor="middle">and Pins</text>
+          <rect class="box" x="860" y="60" width="78" height="72" rx="5"/><text class="m" x="899" y="86" text-anchor="middle">user</text><text class="s" x="899" y="106" text-anchor="middle">continues</text>
+        </g>
+        <path class="ar" d="M20,144 V154 H686 V144"/>
+        <text class="s" x="353" y="176" text-anchor="middle">epoch 0 stays in the file for auditing and history search</text>
+        <path class="ar" d="M692,144 V154 H938 V144"/>
+        <text class="c" x="815" y="176" text-anchor="middle">epoch 1 is the current context</text>
+        <text class="s" x="20" y="218">On Resume, every row is read back, store.Current takes the part after the last boundary, and the session carries on</text>
+      </svg>
+    </div>
+    <figcaption>Automatic compaction starts when the context exceeds 90% of the usable window. Compaction happens only at a safe point, because the history is guaranteed to be valid there. The default strategy has the model write a summary, and it can clear out old tool results first. When compaction finishes, it writes a new boundary, and the next compaction also takes the previous summary as part of its input. <code>/clear</code> writes a new boundary as well.</figcaption>
+  </figure>
+  <ul class="points">
+    <li><strong>The message JSON schema is the storage format.</strong> A session written by the Go binding can be resumed directly by a binding in another language. If you store sessions in a database instead, each line becomes one record.</li>
+    <li><strong>The kernel provides all the context management interfaces.</strong> These are <code>Compact</code>, <code>Clear</code>, <code>Rewind</code>, <code>Fork</code>, <code>SideChat</code>, <code>SearchHistory</code>, <code>Context</code> and <code>Unpin</code>, and the matching slash commands live in <code>ext/cmd/*</code>.</li>
+  </ul>
+</section>
+
+<section id="rules">
+  <div class="head"><div class="num">08</div><h2>Runtime guarantees from the kernel</h2></div>
+  <ul class="guarantees">
+    <li><b>Tools never run twice</b><span>The reply is written to history before any tool runs, and after a failure only the model call is retried. Before running a call, the kernel also checks the ledger by call_id.</span></li>
+    <li><b>History is always valid</b><span>Whether the turn is interrupted, fails or is blocked by a hook, finish fills in a result for every dangling tool_call.</span></li>
+    <li><b>Requests never end with an assistant message</b><span>The only exception is Anthropic's pause_turn continuation.</span></li>
+    <li><b>Public methods never block the caller</b><span>Send, Interrupt and Snapshot all return immediately. If you need to wait for a result, use Receipt.Wait.</span></li>
+    <li><b>Events are ordered and, by default, never lost</b><span>A slow subscriber only makes the model stream wait. Events from a subagent carry a Path, which tells you which agent they came from.</span></li>
+    <li><b>Non-human input never counts as authorization</b><span>Reminders, task notifications and messages from other agents are delivered with tags, and the core section of the system prompt tells the model that this content is not something the user said.</span></li>
+  </ul>
+</section>
+
+<section id="map">
+  <div class="head"><div class="num">09</div><h2>Code map</h2></div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Topic</th><th>Entry files</th></tr></thead>
+      <tbody>
+        <tr><td>How an Agent is configured and which Options are available</td><td><code>kernel/agent.go</code></td></tr>
+        <tr><td>The public methods of Session</td><td><code>kernel/session.go</code></td></tr>
+        <tr><td>The actor main loop and when a turn starts</td><td><code>kernel/actor.go</code>, <code>kernel/mailbox.go</code>, <code>kernel/input.go</code></td></tr>
+        <tr><td>The full flow of a turn</td><td><code>runTurn</code> in <code>kernel/driver.go</code>; the commit and persistence logic is in <code>kernel/commit.go</code></td></tr>
+        <tr><td>Tools, the approval gate and approval rules</td><td><code>kernel/tool.go</code>, <code>kernel/approval.go</code>, <code>kernel/rules.go</code></td></tr>
+        <tr><td>Hook point definitions</td><td><code>kernel/hook.go</code>, <code>kernel/hookpoints.go</code></td></tr>
+        <tr><td>The task protocol and background tools</td><td><code>kernel/task.go</code>, <code>kernel/tasks.go</code>, <code>kernel/background.go</code></td></tr>
+        <tr><td>Compaction, fork, rewind and history search</td><td><code>kernel/compact.go</code>, <code>kernel/fork.go</code>, <code>kernel/rewind.go</code>, <code>kernel/history.go</code></td></tr>
+        <tr><td>Assembling the system prompt</td><td><code>kernel/prompt.go</code>, <code>spec/prompts/</code></td></tr>
+        <tr><td>Integration with each vendor's model API</td><td><code>provider/anthropic/</code>, <code>provider/openaichat/</code>, <code>provider/openairesponses/</code></td></tr>
+        <tr><td>Extensions installed by default</td><td><code>std/std.go</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+</main>
+</div>
+
+<script>
+(function () {
+  var list = document.getElementById('rp-list');
+  if (!list) return;
+  var rows = Array.prototype.slice.call(list.querySelectorAll('li'));
+  var pos = document.getElementById('rp-pos');
+  var playBtn = document.getElementById('rp-play');
+  var idx = 0, timer = null;
+  function show(i) {
+    idx = Math.max(0, Math.min(rows.length - 1, i));
+    rows.forEach(function (r, k) { r.classList.toggle('on', k === idx); });
+    document.querySelectorAll('#turnflow .node').forEach(function (n) { n.classList.remove('on'); });
+    var node = document.getElementById(rows[idx].dataset.node);
+    if (node) node.classList.add('on');
+    pos.textContent = (idx + 1) + ' / ' + rows.length;
+    var r = rows[idx], top = r.offsetTop - list.offsetTop;
+    if (top < list.scrollTop || top + r.offsetHeight > list.scrollTop + list.clientHeight) {
+      list.scrollTop = top - list.clientHeight / 2;
+    }
+  }
+  function stop() {
+    if (timer) { clearInterval(timer); timer = null; }
+    playBtn.setAttribute('aria-pressed', 'false');
+    playBtn.textContent = 'Autoplay';
+  }
+  rows.forEach(function (r, k) {
+    r.addEventListener('click', function () { stop(); show(k); });
+    r.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); stop(); show(k); }
+    });
+  });
+  document.getElementById('rp-prev').addEventListener('click', function () { stop(); show(idx - 1); });
+  document.getElementById('rp-next').addEventListener('click', function () { stop(); show(idx + 1); });
+  playBtn.addEventListener('click', function () {
+    if (timer) { stop(); return; }
+    if (idx >= rows.length - 1) show(0);
+    playBtn.setAttribute('aria-pressed', 'true');
+    playBtn.textContent = 'Pause';
+    timer = setInterval(function () {
+      if (idx >= rows.length - 1) { stop(); return; }
+      show(idx + 1);
+    }, 900);
+  });
+  show(0);
+})();
+</script>
+</body>
+</html>

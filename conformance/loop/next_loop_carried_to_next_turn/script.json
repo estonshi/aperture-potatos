@@ -1,0 +1,50 @@
+{
+  "spec_version": "0.1",
+  "description": "A next_loop input sent during the final reply finds no safe point, so it becomes the next turn's input.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": []
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        {
+          "sse": "responses/01.sse",
+          "hold_after_events": 3,
+          "hold_ms": 1000
+        },
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Plan day one."
+      }
+    },
+    {
+      "wait": {
+        "event": "message.delta",
+        "count": 1
+      }
+    },
+    {
+      "send": {
+        "text": "Also check the weather."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

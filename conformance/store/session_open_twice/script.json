@@ -1,0 +1,62 @@
+{
+  "spec_version": "0.1",
+  "description": "A second Resume of a session the agent already has open fails, so one session never has two writers; the open session keeps working.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "echo",
+        "description": "Echo the text back.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "echo"
+        }
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-29T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "resume": {
+    "session_id": "ses_s1",
+    "file": "session.jsonl"
+  },
+  "actions": [
+    {
+      "resume": "ses_s1",
+      "error": "already open"
+    },
+    {
+      "send": {
+        "text": "Still there?"
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

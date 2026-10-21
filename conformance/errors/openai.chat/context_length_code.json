@@ -1,0 +1,27 @@
+{
+  "body": {
+    "error": {
+      "code": "context_length_exceeded",
+      "message": "This model's maximum context length is 128000 tokens. However, your messages resulted in 130000 tokens.",
+      "param": "messages",
+      "type": "invalid_request_error"
+    }
+  },
+  "expected": {
+    "api": "openai.chat",
+    "class": "context_overflow",
+    "code": "context_length_exceeded",
+    "message": "This model's maximum context length is 128000 tokens. However, your messages resulted in 130000 tokens.",
+    "raw": {
+      "error": {
+        "code": "context_length_exceeded",
+        "message": "This model's maximum context length is 128000 tokens. However, your messages resulted in 130000 tokens.",
+        "param": "messages",
+        "type": "invalid_request_error"
+      }
+    },
+    "status": 400,
+    "type": "invalid_request_error"
+  },
+  "status": 400
+}

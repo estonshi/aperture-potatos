@@ -1,0 +1,6 @@
+{
+  "api": "anthropic.messages",
+  "model": "claude-opus-5-5",
+  "source": "synthetic",
+  "notes": "A stop sequence ends the message."
+}

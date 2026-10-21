@@ -1,0 +1,194 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/estonshi/aperture-potatos/spec/schema/task.schema.json",
+  "title": "Task",
+  "description": "Task protocol types: the spec a task starts from, instructions sent to it, its progress and the manager's view of it.",
+  "$defs": {
+    "task_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "running",
+        "waiting_input",
+        "succeeded",
+        "failed",
+        "canceled",
+        "lost"
+      ],
+      "description": "succeeded, failed, canceled and lost are terminal."
+    },
+    "input_mode": {
+      "type": "string",
+      "enum": [
+        "queue",
+        "next_loop",
+        "interrupt"
+      ]
+    },
+    "task_spec": {
+      "type": "object",
+      "description": "What a task starts from.",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]{1,64}$"
+        },
+        "title": {
+          "type": "string"
+        },
+        "input": {
+          "description": "The kind's own input, usually an object."
+        },
+        "foreground": {
+          "type": "boolean"
+        },
+        "notify_mode": {
+          "$ref": "#/$defs/input_mode"
+        }
+      },
+      "required": [
+        "kind",
+        "title",
+        "input"
+      ]
+    },
+    "task_instruction": {
+      "type": "object",
+      "description": "An instruction sent to a running or finished task.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "text": {
+          "type": "string"
+        },
+        "data": {},
+        "mode": {
+          "$ref": "#/$defs/input_mode"
+        },
+        "answer": {
+          "type": "boolean",
+          "description": "Set by the runtime on the first instruction accepted after the task asked a question."
+        }
+      },
+      "required": [
+        "id",
+        "text",
+        "mode"
+      ]
+    },
+    "task_progress": {
+      "type": "object",
+      "description": "The latest progress a task reported.",
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "percent": {
+          "type": "number",
+          "minimum": 0
+        },
+        "data": {}
+      }
+    },
+    "task_result": {
+      "type": "object",
+      "description": "What an attempt returned.",
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "content": {
+          "$ref": "message.schema.json#/$defs/content"
+        },
+        "data": {}
+      },
+      "required": [
+        "summary"
+      ]
+    },
+    "task_info": {
+      "type": "object",
+      "description": "The manager's view of a task; status, attempt and times describe the current attempt.",
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/task_status"
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "foreground": {
+          "type": "boolean"
+        },
+        "call_id": {
+          "type": "string",
+          "description": "The tool call that started this attempt; absent for host starts."
+        },
+        "turn_id": {
+          "type": "string",
+          "description": "The turn of that call; absent for host starts."
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ended_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "progress": {
+          "$ref": "#/$defs/task_progress"
+        },
+        "question": {
+          "type": "string",
+          "description": "Set only while waiting_input."
+        },
+        "result": {
+          "$ref": "#/$defs/task_result"
+        },
+        "error": {
+          "type": "string"
+        },
+        "abandoned": {
+          "type": "boolean",
+          "description": "The attempt did not return within the grace period after a stop; its run was abandoned, so its side effects are unknown."
+        },
+        "pending_instructions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unprocessed_instructions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/task_instruction"
+          }
+        },
+        "state": {
+          "description": "The last SaveState; not shown to the model."
+        }
+      },
+      "required": [
+        "task_id",
+        "kind",
+        "title",
+        "status",
+        "attempt",
+        "started_at",
+        "progress"
+      ]
+    }
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "api": "anthropic.messages",
+  "class": "capability",
+  "message": "no thinking budget fits below max_tokens; raise Params.MaxOutputTokens"
+}

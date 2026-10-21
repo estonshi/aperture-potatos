@@ -1,0 +1,29 @@
+[
+  {
+    "name": "mcp_search_tools",
+    "description": "Read the definitions of MCP server tools, or search them by keyword. The tools are listed by name in the system prompt, but their input schemas are not loaded: read a tool's definition here before running it with mcp_call_tool.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "names": {"type": "array", "items": {"type": "string"}, "description": "Full names of the tools to read, as listed."},
+        "query": {"type": "string", "description": "Keywords for what you want to do; matched against tool names and full descriptions."},
+        "servers": {"type": "array", "items": {"type": "string"}, "description": "Search only these servers."},
+        "detail": {"type": "string", "enum": ["names", "descriptions", "schemas"], "description": "How much to return for each tool: the name, the name with its full description, or the full definition with its input schema. Defaults to schemas when names are given, descriptions otherwise."}
+      },
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "mcp_call_tool",
+    "description": "Run an MCP server tool. Read its definition with mcp_search_tools first, then pass arguments that match its input schema.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "name": {"type": "string", "description": "The tool's full name, as listed."},
+        "arguments": {"type": "object", "description": "Arguments matching the tool's input schema."}
+      },
+      "required": ["name", "arguments"],
+      "additionalProperties": false
+    }
+  }
+]

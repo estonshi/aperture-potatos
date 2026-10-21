@@ -1,0 +1,16 @@
+{
+  "name": "A",
+  "description": "",
+  "supportedInterfaces": [
+    {
+      "url": "https://a.test/old",
+      "protocolBinding": "JSONRPC",
+      "protocolVersion": "0.3"
+    },
+    {
+      "url": "https://a.test/api",
+      "protocolBinding": "HTTP+JSON",
+      "protocolVersion": "1.0"
+    }
+  ]
+}

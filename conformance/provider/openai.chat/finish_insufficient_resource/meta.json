@@ -1,0 +1,6 @@
+{
+  "api": "openai.chat",
+  "model": "deepseek-v4.1-flash",
+  "source": "synthetic",
+  "notes": "DeepSeek reports a server-side failure as a finish reason, which is a transient error."
+}

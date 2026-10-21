@@ -1,0 +1,76 @@
+{
+  "spec_version": "0.1",
+  "description": "An async hook started in a turn that a rewind then takes out answers a context that no longer exists, so its context is dropped and never reaches a later request.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "hooks": [
+      {
+        "point": "turn_end",
+        "name": "ci",
+        "async": true,
+        "calls": [
+          {
+            "output": {
+              "additional_context": "The build finished."
+            },
+            "sleep_ms": 50
+          },
+          {
+            "output": {},
+            "sleep_ms": 1
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Start the build."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "rewind": "turn_01"
+    },
+    {
+      "wait": {
+        "event": "hook.completed"
+      }
+    },
+    {
+      "send": {
+        "text": "Anything new?"
+      }
+    },
+    {
+      "wait": {
+        "event": "hook.completed",
+        "count": 2
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

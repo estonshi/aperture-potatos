@@ -1,0 +1,8 @@
+{
+  "template": "{{#desc}}<{{#name}}{{name}}{{/name}}{{^empty}}!{{/empty}}>{{/desc}}",
+  "vars": {
+    "name": "Tater",
+    "desc": "Plans trips.",
+    "empty": ""
+  }
+}

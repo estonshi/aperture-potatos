@@ -1,0 +1,23 @@
+{
+  "max_tokens": 64000,
+  "messages": [
+    {
+      "content": "Q1",
+      "role": "user"
+    },
+    {
+      "content": "A1",
+      "role": "assistant"
+    },
+    {
+      "content": "Q2",
+      "role": "user"
+    }
+  ],
+  "model": "deepseek-v4.1-flash",
+  "stream": true,
+  "stream_options": {
+    "include_obfuscation": false,
+    "include_usage": true
+  }
+}

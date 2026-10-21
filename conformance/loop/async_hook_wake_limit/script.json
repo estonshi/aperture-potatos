@@ -1,0 +1,76 @@
+{
+  "spec_version": "0.1",
+  "description": "An async hook may wake the session once per window; its next injection waits as a passenger and rides the next human turn.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "hooks": [
+      {
+        "point": "turn_end",
+        "name": "ticker",
+        "wake_limit": {
+          "n": 1,
+          "per_ms": 60000
+        },
+        "async": true,
+        "calls": [
+          {
+            "output": {
+              "additional_context": "tick",
+              "wake": true
+            },
+            "sleep_ms": 1
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Watch the queue."
+      }
+    },
+    {
+      "wait": {
+        "event": "hook.completed",
+        "count": 2
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Anything?"
+      }
+    },
+    {
+      "wait": {
+        "event": "hook.completed",
+        "count": 3
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "spec_version": "0.1",
+  "description": "At the queue limit a waking reminder merges into a sleeping one of the same source; the merged item wakes and starts a turn.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "limits": {
+      "max_queued_inputs": 2
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Note A.",
+        "origin": {
+          "kind": "reminder",
+          "source": "app:a"
+        },
+        "no_wake": true
+      }
+    },
+    {
+      "send": {
+        "text": "Note B.",
+        "origin": {
+          "kind": "reminder",
+          "source": "app:b"
+        },
+        "no_wake": true
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Note C.",
+        "origin": {
+          "kind": "reminder",
+          "source": "app:a"
+        }
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

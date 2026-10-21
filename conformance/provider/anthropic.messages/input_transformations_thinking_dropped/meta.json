@@ -1,0 +1,6 @@
+{
+  "api": "anthropic.messages",
+  "model": "claude-opus-5-5",
+  "source": "synthetic",
+  "notes": "Under thinking-binding-controls, message_start lists dropped thinking blocks; the adapter reports it and keeps the list on the message."
+}

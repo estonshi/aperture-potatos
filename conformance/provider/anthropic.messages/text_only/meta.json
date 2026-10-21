@@ -1,0 +1,6 @@
+{
+  "api": "anthropic.messages",
+  "model": "claude-opus-5-5",
+  "source": "synthetic",
+  "notes": "Plain text; response headers carry the request id and a gateway header the request asked to capture."
+}

@@ -1,0 +1,78 @@
+{
+  "spec_version": "0.1",
+  "description": "WithRequestHeaders tags every request of the turn with the root session, the turn and the bucket; WithCaptureHeaders keeps the gateway's call id on each ledger entry and on the committed message's producer.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "echo",
+        "description": "Echo the text back.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "echo"
+        }
+      }
+    ],
+    "request_headers": {
+      "x-root-session": "root_session_id",
+      "x-turn": "turn_id",
+      "x-bucket": "bucket"
+    },
+    "capture_headers": [
+      "x-gateway-id"
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        {
+          "sse": "responses/01.sse",
+          "headers": {
+            "x-gateway-id": "gw_01"
+          }
+        },
+        {
+          "sse": "responses/02.sse",
+          "headers": {
+            "x-gateway-id": "gw_02"
+          }
+        }
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Echo hi, then tell me."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "ledger": {
+        "turn": "turn_01"
+      }
+    }
+  ]
+}

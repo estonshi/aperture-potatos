@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="280" viewBox="0 0 800 280" role="img" aria-label="一轮处理的流程：你的程序通过 Send 或 Run 把输入交给 Session，Session 调用模型。模型要调用工具时，调用先经过审查，再执行工具，结果交回模型；模型不再调用工具时，本轮结束并返回 TurnResult。整个过程中 Session 持续向你的程序发出事件。" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="14" fill="none" stroke="currentColor" stroke-width="1.5">
+<style>svg{color:#1f2328}.bg{fill:#ffffff}@media (prefers-color-scheme: dark){svg{color:#e6edf3}.bg{fill:#0d1117}}</style>
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor" stroke="none"/></marker></defs>
+<rect class="bg" x="0" y="0" width="800" height="280" rx="8" stroke="none"/>
+<rect x="10" y="40" width="110" height="40" rx="6"/>
+<rect x="160" y="40" width="110" height="40" rx="6"/>
+<rect x="310" y="40" width="110" height="40" rx="6"/>
+<path d="M530,22 L612,60 L530,98 L448,60 Z"/>
+<rect x="650" y="35" width="140" height="50" rx="6"/>
+<rect x="475" y="150" width="110" height="40" rx="6"/>
+<rect x="310" y="150" width="110" height="40" rx="6"/>
+<line x1="120" y1="60" x2="158" y2="60" marker-end="url(#arr)"/>
+<line x1="270" y1="60" x2="308" y2="60" marker-end="url(#arr)"/>
+<line x1="420" y1="60" x2="446" y2="60" marker-end="url(#arr)"/>
+<line x1="612" y1="60" x2="648" y2="60" marker-end="url(#arr)"/>
+<line x1="530" y1="98" x2="530" y2="148" marker-end="url(#arr)"/>
+<line x1="475" y1="170" x2="422" y2="170" marker-end="url(#arr)"/>
+<line x1="365" y1="150" x2="365" y2="82" marker-end="url(#arr)"/>
+<path d="M215,80 L215,240 L65,240 L65,82" stroke-dasharray="5 4" marker-end="url(#arr)"/>
+<g fill="currentColor" stroke="none" text-anchor="middle">
+<text x="65" y="65">你的程序</text>
+<text x="215" y="65">Session</text>
+<text x="365" y="65">调用模型</text>
+<text x="530" y="65" font-size="13">要调用工具？</text>
+<text x="720" y="56">本轮结束</text>
+<text x="720" y="75" font-size="12">返回 TurnResult</text>
+<text x="530" y="175">审查</text>
+<text x="365" y="175">执行工具</text>
+<text x="140" y="30" font-size="12">Send 或 Run</text>
+<text x="630" y="50" font-size="12">否</text>
+<text x="545" y="128" font-size="12">是</text>
+<text x="448" y="162" font-size="12">通过</text>
+<text x="400" y="120" font-size="12">工具结果</text>
+<text x="140" y="262" font-size="12">事件流：流式文本、工具调用、用量等</text>
+</g>
+</svg>

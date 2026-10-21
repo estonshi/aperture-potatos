@@ -1,0 +1,26 @@
+{
+  "body": {
+    "error": {
+      "code": null,
+      "message": "Item with id 'rs_123' not found. Items are not persisted when `store` is set to false.",
+      "param": "input",
+      "type": "invalid_request_error"
+    }
+  },
+  "expected": {
+    "api": "openai.responses",
+    "class": "reasoning_replay",
+    "message": "Item with id 'rs_123' not found. Items are not persisted when `store` is set to false.",
+    "raw": {
+      "error": {
+        "code": null,
+        "message": "Item with id 'rs_123' not found. Items are not persisted when `store` is set to false.",
+        "param": "input",
+        "type": "invalid_request_error"
+      }
+    },
+    "status": 404,
+    "type": "invalid_request_error"
+  },
+  "status": 404
+}

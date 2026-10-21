@@ -1,0 +1,26 @@
+{
+  "body": {
+    "error": {
+      "code": null,
+      "message": "The engine is currently overloaded, please try again later",
+      "param": null,
+      "type": "server_error"
+    }
+  },
+  "expected": {
+    "api": "openai.chat",
+    "class": "transient",
+    "message": "The engine is currently overloaded, please try again later",
+    "raw": {
+      "error": {
+        "code": null,
+        "message": "The engine is currently overloaded, please try again later",
+        "param": null,
+        "type": "server_error"
+      }
+    },
+    "status": 503,
+    "type": "server_error"
+  },
+  "status": 503
+}

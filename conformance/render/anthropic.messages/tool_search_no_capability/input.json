@@ -1,0 +1,78 @@
+{
+  "model": "claude-opus-5-5",
+  "system": [
+    {
+      "slot": "core",
+      "text": "<runtime-conventions>\n...\n</runtime-conventions>"
+    }
+  ],
+  "tools": [
+    {
+      "name": "mcp__gh__create_issue",
+      "description": "Create a GitHub issue.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "deferred": true
+    },
+    {
+      "name": "mcp__gh__list_prs",
+      "description": "List open pull requests.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "repo": {
+            "type": "string"
+          }
+        }
+      },
+      "deferred": true
+    },
+    {
+      "name": "read_file",
+      "description": "Read a file from the workspace.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ],
+  "hosted_tools": [
+    {
+      "name": "tool_search",
+      "tool_search": {}
+    }
+  ],
+  "caps": {
+    "no_tool_search": true
+  },
+  "messages": [
+    {
+      "v": 1,
+      "id": "msg_01",
+      "session_id": "ses_01",
+      "seq": 1,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Open an issue about the flaky test."
+        }
+      ],
+      "ts": "2026-10-16T08:00:00Z"
+    }
+  ]
+}

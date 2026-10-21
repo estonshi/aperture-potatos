@@ -1,0 +1,23 @@
+{
+  "description": "As stream_reconnect, but the peer answers the POST subscribe with 405, so the client subscribes with GET.",
+  "base_url": "https://agent.test",
+  "calls": [
+    {
+      "op": "send",
+      "message": {
+        "message_id": "m-1",
+        "role": "user",
+        "parts": [
+          {
+            "text": "Hello"
+          }
+        ],
+        "metadata": {
+          "agent_call_chain": [
+            "Tater"
+          ]
+        }
+      }
+    }
+  ]
+}

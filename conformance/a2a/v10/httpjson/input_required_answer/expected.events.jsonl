@@ -1,0 +1,7 @@
+{"kind":"task","task_id":"t-1","context_id":"c-1","state":"submitted"}
+{"kind":"status","task_id":"t-1","context_id":"c-1","state":"input_required","message":{"message_id":"s-input-required","role":"agent","parts":[{"text":"Which language?"}]}}
+{"end":"ok"}
+{"kind":"status","task_id":"t-1","context_id":"c-1","state":"working"}
+{"kind":"artifact","task_id":"t-1","context_id":"c-1","artifact":{"artifact_id":"a-1","parts":[{"text":"Hola"}]},"last_chunk":true}
+{"kind":"status","task_id":"t-1","context_id":"c-1","state":"completed"}
+{"end":"ok"}

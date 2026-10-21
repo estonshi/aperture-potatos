@@ -1,0 +1,6 @@
+{
+  "api": "openai.chat",
+  "model": "gpt-5.6",
+  "source": "synthetic",
+  "notes": "A server repeats the whole name in a later fragment, which is ignored; another splits its name, which is appended."
+}

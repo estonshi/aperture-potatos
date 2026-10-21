@@ -1,0 +1,6 @@
+{
+  "api": "openai.responses",
+  "model": "gpt-5.6",
+  "source": "synthetic",
+  "notes": "response.failed with server_error is transient."
+}

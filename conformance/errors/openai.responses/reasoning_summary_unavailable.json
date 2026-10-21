@@ -1,0 +1,28 @@
+{
+  "body": {
+    "error": {
+      "code": "unsupported_value",
+      "message": "Your organization must be verified to generate reasoning summaries. Please go to: https://platform.openai.com/settings/organization/general and click on Verify Organization.",
+      "param": "reasoning.summary",
+      "type": "invalid_request_error"
+    }
+  },
+  "expected": {
+    "api": "openai.responses",
+    "class": "invalid_request",
+    "code": "unsupported_value",
+    "message": "Your organization must be verified to generate reasoning summaries. Please go to: https://platform.openai.com/settings/organization/general and click on Verify Organization.",
+    "raw": {
+      "error": {
+        "code": "unsupported_value",
+        "message": "Your organization must be verified to generate reasoning summaries. Please go to: https://platform.openai.com/settings/organization/general and click on Verify Organization.",
+        "param": "reasoning.summary",
+        "type": "invalid_request_error"
+      }
+    },
+    "rule": "reasoning_summary_unavailable",
+    "status": 400,
+    "type": "invalid_request_error"
+  },
+  "status": 400
+}

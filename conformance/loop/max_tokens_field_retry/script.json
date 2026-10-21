@@ -1,0 +1,50 @@
+{
+  "spec_version": "0.1",
+  "description": "A Chat server refuses max_tokens; the step retries once with max_completion_tokens, and the next turn keeps that field.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": []
+  },
+  "providers": [
+    {
+      "name": "gpt",
+      "api": "openai.chat",
+      "model": "o5-mini",
+      "responses": [
+        {
+          "sse": "responses/01.json",
+          "status": 400,
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "responses/02.sse",
+        "responses/03.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Hi."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Again."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

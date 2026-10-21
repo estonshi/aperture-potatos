@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="760" height="285" viewBox="0 0 760 285" role="img" aria-label="三种忙时模式的时间线。next_loop 是默认模式，新输入在下一次调用模型之前送入当前 turn。queue 等前面的 turn 全部结束后，为新输入单独开启一轮 turn B。interrupt 立即打断当前 turn，为执行中的工具补上已中断的结果，然后开启 turn B 处理新输入。" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="14" fill="none" stroke="currentColor" stroke-width="1.5">
+<style>svg{color:#1f2328}.bg{fill:#ffffff}.t1{fill:#eef1f5}.t2{fill:#dde9fb}.mute{opacity:.55}@media (prefers-color-scheme: dark){svg{color:#e6edf3}.bg{fill:#0d1117}.t1{fill:#1f2630}.t2{fill:#1a2c4d}}</style>
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor" stroke="none"/></marker></defs>
+<rect class="bg" x="0" y="0" width="760" height="285" rx="8" stroke="none"/>
+<line x1="290" y1="30" x2="290" y2="282" stroke-dasharray="3 4" class="mute"/>
+<text x="290" y="22" text-anchor="middle" fill="currentColor" stroke="none" font-size="12">新输入到达</text>
+<text x="20" y="62" text-anchor="start" fill="currentColor" stroke="none" font-size="13">next_loop（默认）</text>
+<text x="20" y="147" text-anchor="start" fill="currentColor" stroke="none" font-size="13">queue</text>
+<text x="20" y="232" text-anchor="start" fill="currentColor" stroke="none" font-size="13">interrupt</text>
+<rect class="t1" x="150" y="40" width="100" height="34" rx="6"/>
+<text x="200.0" y="62.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">调用模型</text>
+<rect class="t1" x="250" y="40" width="130" height="34" rx="6"/>
+<text x="315.0" y="62.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">执行工具</text>
+<rect class="t1" x="380" y="40" width="150" height="34" rx="6"/>
+<text x="455.0" y="62.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">调用模型</text>
+<line x1="290" y1="86" x2="378" y2="86" marker-end="url(#arr)"/>
+<text x="300" y="104" text-anchor="start" fill="currentColor" stroke="none" font-size="12">在下一次调用模型之前送入当前 turn</text>
+<rect class="t1" x="150" y="125" width="100" height="34" rx="6"/>
+<text x="200.0" y="147.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">调用模型</text>
+<rect class="t1" x="250" y="125" width="130" height="34" rx="6"/>
+<text x="315.0" y="147.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">执行工具</text>
+<rect class="t1" x="380" y="125" width="150" height="34" rx="6"/>
+<text x="455.0" y="147.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">调用模型</text>
+<rect class="t2" x="545" y="125" width="160" height="34" rx="6"/>
+<text x="625.0" y="147.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">turn B</text>
+<line x1="290" y1="171" x2="543" y2="171" marker-end="url(#arr)"/>
+<text x="300" y="189" text-anchor="start" fill="currentColor" stroke="none" font-size="12">等前面的 turn 全部结束后，单独开启一轮</text>
+<rect class="t1" x="150" y="210" width="100" height="34" rx="6"/>
+<text x="200.0" y="232.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">调用模型</text>
+<rect class="t1" x="250" y="210" width="40" height="34" rx="6"/>
+<text x="270.0" y="232.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14"></text>
+<path d="M282,218 L298,236 M298,218 L282,236" stroke-width="2"/>
+<rect class="t2" x="305" y="210" width="200" height="34" rx="6"/>
+<text x="405.0" y="232.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">turn B</text>
+<text x="300" y="266" text-anchor="start" fill="currentColor" stroke="none" font-size="12">立即打断当前 turn，为执行中的工具补上“已中断”的结果</text>
+<text x="152" y="34" text-anchor="start" fill="currentColor" stroke="none" font-size="11" class="mute">turn A</text>
+<text x="152" y="119" text-anchor="start" fill="currentColor" stroke="none" font-size="11" class="mute">turn A</text>
+<text x="152" y="204" text-anchor="start" fill="currentColor" stroke="none" font-size="11" class="mute">turn A</text>
+</svg>

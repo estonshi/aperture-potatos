@@ -1,0 +1,27 @@
+{
+  "body": {
+    "error": {
+      "message": "Your API key does not have permission to use the specified resource.",
+      "type": "permission_error"
+    },
+    "request_id": "req_011CErr",
+    "type": "error"
+  },
+  "expected": {
+    "api": "anthropic.messages",
+    "class": "auth",
+    "message": "Your API key does not have permission to use the specified resource.",
+    "raw": {
+      "error": {
+        "message": "Your API key does not have permission to use the specified resource.",
+        "type": "permission_error"
+      },
+      "request_id": "req_011CErr",
+      "type": "error"
+    },
+    "request_id": "req_011CErr",
+    "status": 403,
+    "type": "permission_error"
+  },
+  "status": 403
+}

@@ -1,0 +1,61 @@
+{
+  "spec_version": "0.1",
+  "description": "An async turn_end hook answers later with context that wakes the idle session: it starts a reminder turn.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "hooks": [
+      {
+        "point": "turn_end",
+        "name": "ci",
+        "async": true,
+        "calls": [
+          {
+            "output": {
+              "additional_context": "The build finished.",
+              "wake": true
+            },
+            "sleep_ms": 1
+          },
+          {
+            "output": {},
+            "sleep_ms": 1
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Start the build."
+      }
+    },
+    {
+      "wait": {
+        "event": "hook.completed",
+        "count": 2
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"session_id": "ses_01", "agent": "Tater", "turn_id": "turn_03", "spec": {"kind": "research", "title": "Kyoto hotels", "input": {"city": "Kyoto"}}, "call_id": "toolu_07", "attempt": 2, "continuation": true, "instruction": {"id": "ins_02", "text": "Now look at Osaka.", "mode": "next_loop"}}

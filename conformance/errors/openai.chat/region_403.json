@@ -1,0 +1,27 @@
+{
+  "body": {
+    "error": {
+      "code": "unsupported_country_region_territory",
+      "message": "Country, region, or territory not supported",
+      "param": null,
+      "type": "request_forbidden"
+    }
+  },
+  "expected": {
+    "api": "openai.chat",
+    "class": "auth",
+    "code": "unsupported_country_region_territory",
+    "message": "Country, region, or territory not supported",
+    "raw": {
+      "error": {
+        "code": "unsupported_country_region_territory",
+        "message": "Country, region, or territory not supported",
+        "param": null,
+        "type": "request_forbidden"
+      }
+    },
+    "status": 403,
+    "type": "request_forbidden"
+  },
+  "status": 403
+}

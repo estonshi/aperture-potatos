@@ -1,0 +1,6 @@
+{
+  "api": "anthropic.messages",
+  "model": "claude-opus-5-5",
+  "source": "synthetic",
+  "notes": "An unknown block type becomes an opaque block with its raw JSON; unknown delta and event types are ignored."
+}

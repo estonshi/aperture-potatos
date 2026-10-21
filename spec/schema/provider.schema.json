@@ -1,0 +1,537 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/estonshi/aperture-potatos/spec/schema/provider.schema.json",
+  "title": "Provider",
+  "description": "The provider layer's neutral request, stream events, errors and capabilities, which layer-1 conformance compares. Optional fields are omitted, never null.",
+  "$defs": {
+    "api": {
+      "type": "string",
+      "description": "anthropic.messages | openai.chat | openai.responses; other values name third-party adapters."
+    },
+    "system_block": {
+      "type": "object",
+      "description": "One system prompt section.",
+      "properties": {
+        "slot": {
+          "type": "string",
+          "enum": [
+            "core",
+            "identity",
+            "capabilities",
+            "user",
+            "catalog",
+            "environment"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "cache": {
+          "type": "boolean",
+          "description": "A cache breakpoint after this block."
+        }
+      },
+      "required": [
+        "slot",
+        "text"
+      ]
+    },
+    "tool_choice": {
+      "type": "object",
+      "description": "Which tools the model may or must call.",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "none",
+            "required",
+            "named"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "disable_parallel": {
+          "type": "boolean"
+        }
+      }
+    },
+    "reasoning_params": {
+      "type": "object",
+      "description": "What the caller asks of reasoning; every field is optional and nothing is sent for an unset one.",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "on",
+            "off"
+          ]
+        },
+        "effort": {
+          "type": "string",
+          "enum": [
+            "none",
+            "minimal",
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        },
+        "budget": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "hide": {
+          "type": "boolean",
+          "description": "Do not ask for readable reasoning text."
+        }
+      }
+    },
+    "params": {
+      "type": "object",
+      "description": "Sampling and output settings the caller configured.",
+      "properties": {
+        "max_output_tokens": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "0 or absent means the default output cap."
+        },
+        "temperature": {
+          "type": "number"
+        },
+        "top_p": {
+          "type": "number"
+        },
+        "stop_sequences": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reasoning": {
+          "$ref": "#/$defs/reasoning_params"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "extra": {
+          "type": "object",
+          "description": "Merged into the wire body last."
+        }
+      }
+    },
+    "reasoning_caps": {
+      "type": "object",
+      "description": "Known reasoning abilities; zero or absent means unknown.",
+      "properties": {
+        "visible": {
+          "type": "string",
+          "enum": [
+            "none",
+            "summary",
+            "raw"
+          ]
+        },
+        "modes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "default_on": {
+          "type": "boolean"
+        },
+        "no_disable": {
+          "type": "boolean"
+        },
+        "efforts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "budget_min": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "interleaved_beta": {
+          "type": "boolean"
+        }
+      }
+    },
+    "cache_caps": {
+      "type": "object",
+      "description": "Known prompt cache abilities; zero or absent means unknown.",
+      "properties": {
+        "explicit": {
+          "type": "boolean"
+        },
+        "max_breakpoints": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "min_prefix_tokens": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "description": "What a model can do. Every absent or zero field means unknown, and unknown never rewrites a request.",
+      "properties": {
+        "family": {
+          "type": "string"
+        },
+        "context_window": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_output_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "no_tools": {
+          "type": "boolean"
+        },
+        "no_parallel_tools": {
+          "type": "boolean"
+        },
+        "no_web_search": {
+          "type": "boolean",
+          "description": "The model cannot use the neutral web search, which is then not sent."
+        },
+        "no_tool_search": {
+          "type": "boolean",
+          "description": "The model cannot use the neutral tool search, which is then not sent; deferred tools go as ordinary tools."
+        },
+        "no_tools_with_reasoning": {
+          "type": "boolean"
+        },
+        "reasoning": {
+          "$ref": "#/$defs/reasoning_caps"
+        },
+        "no_sampling": {
+          "type": "boolean"
+        },
+        "sampling_with_thinking": {
+          "type": "string",
+          "enum": [
+            "all",
+            "top_p_only",
+            "none"
+          ]
+        },
+        "no_forced_tool_choice": {
+          "type": "boolean"
+        },
+        "no_tool_choice_none": {
+          "type": "boolean"
+        },
+        "no_images_in_tool_result": {
+          "type": "boolean"
+        },
+        "no_mid_conversation_system": {
+          "type": "boolean"
+        },
+        "thinking_prefix_bound": {
+          "type": "boolean"
+        },
+        "prompt_cache": {
+          "$ref": "#/$defs/cache_caps"
+        },
+        "system_role": {
+          "type": "string"
+        },
+        "max_tokens_field": {
+          "type": "string"
+        }
+      }
+    },
+    "request": {
+      "type": "object",
+      "description": "A provider-neutral request; layer-1 render cases give one as input.json.",
+      "properties": {
+        "model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "system": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/system_block"
+          }
+        },
+        "messages": {
+          "type": "array",
+          "items": {
+            "$ref": "message.schema.json"
+          }
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "$ref": "message.schema.json#/$defs/tool_def"
+          }
+        },
+        "hosted_tools": {
+          "type": "array",
+          "items": {
+            "$ref": "message.schema.json#/$defs/hosted_tool"
+          },
+          "description": "Tools the provider runs itself, sent after the function tools; an API without them gets a hosted_tool_unsupported notice instead."
+        },
+        "tool_choice": {
+          "$ref": "#/$defs/tool_choice"
+        },
+        "params": {
+          "$ref": "#/$defs/params"
+        },
+        "caps": {
+          "$ref": "#/$defs/capabilities"
+        },
+        "cache_key": {
+          "type": "string"
+        },
+        "replay": {
+          "type": "string",
+          "enum": [
+            "full",
+            "fallback"
+          ]
+        },
+        "pause_tail": {
+          "type": "boolean",
+          "description": "The one request allowed to end with an assistant message: a pause_turn continuation."
+        },
+        "cache_tail": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "The rolling cache breakpoint stays within the first cache_tail messages: it goes on the last block of the last user-side message among them, so a side call reads the prefix the main loop cached. Absent means all messages."
+        },
+        "shared_prefix": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "The first shared_prefix messages are another session's, a side chat's main part: an adapter that places breakpoints also puts one on the last block of the last user-side message among them, where that session's request wrote its cache. Absent means none."
+        },
+        "emit_raw": {
+          "type": "boolean"
+        },
+        "capture_headers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "model",
+        "messages"
+      ]
+    },
+    "stop": {
+      "type": "object",
+      "description": "Why the model stopped.",
+      "properties": {
+        "reason": {
+          "type": "string",
+          "enum": [
+            "end_turn",
+            "tool_use",
+            "max_tokens",
+            "stop_sequence",
+            "pause",
+            "refusal",
+            "content_filter",
+            "context_window_exceeded",
+            "other"
+          ]
+        },
+        "raw": {
+          "type": "string",
+          "description": "The wire value."
+        },
+        "details": {},
+        "reasoning_exhausted": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "reason"
+      ]
+    },
+    "notice": {
+      "type": "object",
+      "description": "A model.notice the adapter raises.",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "detail": {}
+      },
+      "required": [
+        "kind"
+      ]
+    },
+    "stream_event": {
+      "type": "object",
+      "description": "One normalized stream event. Fields that do not apply to a kind are absent.",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "start",
+            "block_start",
+            "text_delta",
+            "reasoning_delta",
+            "tool_args_delta",
+            "block_stop",
+            "usage",
+            "notice",
+            "raw",
+            "end"
+          ]
+        },
+        "index": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Block index within the assistant message; absent means 0."
+        },
+        "block_type": {
+          "type": "string"
+        },
+        "channel": {
+          "type": "string",
+          "enum": [
+            "text",
+            "refusal"
+          ]
+        },
+        "text": {
+          "type": "string",
+          "description": "Delta text; for kind raw, the wire event name."
+        },
+        "reasoning_kind": {
+          "$ref": "message.schema.json#/$defs/reasoning_kind"
+        },
+        "tool_call_id": {
+          "type": "string"
+        },
+        "tool_name": {
+          "type": "string"
+        },
+        "block": {
+          "$ref": "message.schema.json#/$defs/block"
+        },
+        "usage": {
+          "$ref": "common.schema.json#/$defs/usage"
+        },
+        "stop": {
+          "$ref": "#/$defs/stop"
+        },
+        "message": {
+          "type": "object",
+          "description": "The assistant message the stream produced, in message.schema.json form. The commit envelope (v, id, session_id, seq, epoch, ts) is filled only when the kernel commits it, and fixtures compare the message without it."
+        },
+        "notice": {
+          "$ref": "#/$defs/notice"
+        },
+        "raw": {},
+        "response_id": {
+          "type": "string"
+        },
+        "request_id": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "kind"
+      ]
+    },
+    "error": {
+      "type": "object",
+      "description": "A classified provider error.",
+      "properties": {
+        "class": {
+          "type": "string",
+          "enum": [
+            "transient",
+            "rate_limited",
+            "quota",
+            "auth",
+            "invalid_request",
+            "context_overflow",
+            "reasoning_replay",
+            "not_found",
+            "capability",
+            "canceled"
+          ]
+        },
+        "api": {
+          "type": "string"
+        },
+        "status": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "type": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "retry_after_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "request_id": {
+          "type": "string"
+        },
+        "mid_stream": {
+          "type": "boolean"
+        },
+        "raw": {},
+        "rule": {
+          "type": "string",
+          "description": "The named errors.json sub-rule that matched."
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "max_output_too_large: the output cap parsed from the message."
+        },
+        "no_retry": {
+          "type": "boolean",
+          "description": "The server said not to retry."
+        }
+      },
+      "required": [
+        "class",
+        "message"
+      ]
+    }
+  }
+}

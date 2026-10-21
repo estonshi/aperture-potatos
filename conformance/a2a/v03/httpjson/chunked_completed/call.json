@@ -1,0 +1,23 @@
+{
+  "description": "A streamed exchange: the task, a working status, a reply in two chunks, then completed.",
+  "base_url": "https://agent.test",
+  "calls": [
+    {
+      "op": "send",
+      "message": {
+        "message_id": "m-1",
+        "role": "user",
+        "parts": [
+          {
+            "text": "Hello"
+          }
+        ],
+        "metadata": {
+          "agent_call_chain": [
+            "Tater"
+          ]
+        }
+      }
+    }
+  ]
+}

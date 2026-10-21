@@ -1,0 +1,6 @@
+{
+  "api": "anthropic.messages",
+  "model": "claude-opus-5-5",
+  "source": "synthetic",
+  "notes": "The deferred search of a mixed call runs once the client results arrive: its result opens the next message and pairs with the hosted call in the request history."
+}

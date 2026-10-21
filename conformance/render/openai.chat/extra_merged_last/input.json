@@ -1,0 +1,37 @@
+{
+  "model": "deepseek-v4.1-flash",
+  "params": {
+    "max_output_tokens": 8000,
+    "extra": {
+      "extra_body": {
+        "thinking": {
+          "type": "enabled"
+        },
+        "reasoning_effort": "high"
+      },
+      "stream_options": {
+        "include_usage": false
+      }
+    }
+  },
+  "messages": [
+    {
+      "v": 1,
+      "id": "msg_01",
+      "session_id": "ses_01",
+      "seq": 1,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Hi"
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z"
+    }
+  ]
+}

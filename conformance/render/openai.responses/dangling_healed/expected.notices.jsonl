@@ -1,0 +1,2 @@
+{"detail":{"call_ids":["call_b"]},"kind":"dangling_tool_call_healed"}
+{"detail":{"field":"tools.now.strict","from":true,"to":false},"kind":"capability_adjusted"}

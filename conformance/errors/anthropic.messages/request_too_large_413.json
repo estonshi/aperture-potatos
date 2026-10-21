@@ -1,0 +1,27 @@
+{
+  "body": {
+    "error": {
+      "message": "Request exceeds the maximum allowed number of bytes.",
+      "type": "request_too_large"
+    },
+    "request_id": "req_011CErr",
+    "type": "error"
+  },
+  "expected": {
+    "api": "anthropic.messages",
+    "class": "invalid_request",
+    "message": "Request exceeds the maximum allowed number of bytes.",
+    "raw": {
+      "error": {
+        "message": "Request exceeds the maximum allowed number of bytes.",
+        "type": "request_too_large"
+      },
+      "request_id": "req_011CErr",
+      "type": "error"
+    },
+    "request_id": "req_011CErr",
+    "status": 413,
+    "type": "request_too_large"
+  },
+  "status": 413
+}

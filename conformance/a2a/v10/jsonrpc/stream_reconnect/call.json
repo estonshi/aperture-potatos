@@ -1,0 +1,23 @@
+{
+  "description": "The stream closes while the task works: one second later GetTask fills in the artifact, and a new subscription follows the task to its end.",
+  "base_url": "https://agent.test",
+  "calls": [
+    {
+      "op": "send",
+      "message": {
+        "message_id": "m-1",
+        "role": "user",
+        "parts": [
+          {
+            "text": "Hello"
+          }
+        ],
+        "metadata": {
+          "agent_call_chain": [
+            "Tater"
+          ]
+        }
+      }
+    }
+  ]
+}

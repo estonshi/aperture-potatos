@@ -1,0 +1,1 @@
+{"input":{"agent":"Tater","attempt":1,"call_id":"toolu_01","continuation":false,"session_id":"ses_01","spec":{"foreground":true,"input":{"title":"Count rows"},"kind":"job","title":"Count rows"},"turn_id":"turn_01"},"name":"settle","point":"task_start"}

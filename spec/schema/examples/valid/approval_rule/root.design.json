@@ -1,0 +1,93 @@
+[
+  {
+    "id": "no-drop",
+    "tool": "sql_exec",
+    "when": {
+      "statement": {
+        "regex": "\\s*[dD][rR][oO][pP]\\b[\\s\\S]*"
+      }
+    },
+    "action": "deny",
+    "reason": "DROP statements are never allowed"
+  },
+  {
+    "id": "prod-writes",
+    "tool": "sql_exec",
+    "when": {
+      "database": {
+        "eq": "prod"
+      }
+    },
+    "action": "ask",
+    "reason": "writes to the production database"
+  },
+  {
+    "id": "prod-read-only",
+    "tool": "sql_exec",
+    "when": {
+      "database": {
+        "eq": "prod"
+      },
+      "read_only": {
+        "eq": true
+      }
+    },
+    "action": "allow"
+  },
+  {
+    "id": "http-mutations",
+    "tool": "http_*",
+    "when": {
+      "method": {
+        "in": [
+          "POST",
+          "PUT",
+          "DELETE"
+        ]
+      }
+    },
+    "action": "ask",
+    "reason": "changes remote state"
+  },
+  {
+    "id": "system-files",
+    "tool": "write_file",
+    "when": {
+      "files.*.path": {
+        "prefix": "/etc/",
+        "normalize": "path"
+      }
+    },
+    "action": "deny",
+    "reason": "system configuration is read-only"
+  },
+  {
+    "id": "bg-subagent",
+    "tool": "subagent",
+    "when": {
+      "background": {
+        "eq": true
+      }
+    },
+    "action": "ask",
+    "reason": "starts long-running delegated work"
+  },
+  {
+    "id": "task-restarts",
+    "tool": "task_restart",
+    "action": "ask"
+  },
+  {
+    "id": "has-token",
+    "tool": "*",
+    "when": {
+      "auth.token": {
+        "exists": true
+      },
+      "url": {
+        "glob": "https://*.internal/*"
+      }
+    },
+    "action": "ask"
+  }
+]

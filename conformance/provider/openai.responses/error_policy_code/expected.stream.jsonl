@@ -1,0 +1,2 @@
+{"kind":"start","response_id":"resp_01"}
+{"error":{"api":"openai.responses","class":"invalid_request","code":"image_content_policy_violation","message":"The image was flagged.","mid_stream":true,"raw":{"error":{"code":"image_content_policy_violation","message":"The image was flagged."}}}}

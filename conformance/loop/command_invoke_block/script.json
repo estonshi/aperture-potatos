@@ -1,0 +1,86 @@
+{
+  "spec_version": "0.1",
+  "description": "A command_invoke hook blocks one command, which completes with error blocked and never starts; it rewrites another's arguments before it starts.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "commands": [
+      {
+        "name": "deploy",
+        "description": "Deploy.",
+        "busy": "run_now",
+        "text": "Deploying."
+      },
+      {
+        "name": "status",
+        "description": "Status.",
+        "busy": "run_now",
+        "text": "All green."
+      }
+    ],
+    "hooks": [
+      {
+        "point": "command_invoke",
+        "name": "freeze",
+        "cases": [
+          {
+            "when": {
+              "name": "deploy"
+            },
+            "call": {
+              "output": {
+                "block": true,
+                "reason": "deploys are frozen"
+              }
+            }
+          },
+          {
+            "when": {
+              "name": "status"
+            },
+            "call": {
+              "output": {
+                "updated_args": "short"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "/deploy prod"
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "command": {
+        "name": "status",
+        "args": "all"
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

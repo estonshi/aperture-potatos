@@ -1,0 +1,68 @@
+{
+  "spec_version": "0.1",
+  "description": "A next_loop input sent while a tool runs reaches the same turn at the next safe point, right after the tool line.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "slow_lookup",
+        "description": "Look something up; it takes a while.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "query"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "fixed",
+          "text": "Found three options.",
+          "sleep_ms": 1000
+        }
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Find a hotel in Kyoto."
+      }
+    },
+    {
+      "wait": {
+        "event": "tool.started",
+        "count": 1
+      }
+    },
+    {
+      "send": {
+        "text": "Skip anything above 30000 yen."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

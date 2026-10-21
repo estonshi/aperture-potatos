@@ -1,0 +1,67 @@
+{
+  "spec_version": "0.1",
+  "description": "/rewind undoes the last turn: the next request continues from the turn before it, and the result carries the undone input.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "extensions": {
+      "cmd.rewind": {}
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "First question."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Second question."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "command": {
+        "name": "rewind",
+        "args": ""
+      }
+    },
+    {
+      "wait": {
+        "event": "command.completed",
+        "count": 1
+      }
+    },
+    {
+      "send": {
+        "text": "Second question, rephrased."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

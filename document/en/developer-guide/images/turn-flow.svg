@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="280" viewBox="0 0 800 280" role="img" aria-label="How a turn runs: your program hands input to the Session with Send or Run, and the Session calls the model. When the model wants to call a tool, the call goes through approval first, then the tool runs and its result goes back to the model. When the model calls no more tools, the turn ends and returns a TurnResult. Throughout the turn, the Session keeps emitting events to your program." xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="14" fill="none" stroke="currentColor" stroke-width="1.5">
+<style>svg{color:#1f2328}.bg{fill:#ffffff}@media (prefers-color-scheme: dark){svg{color:#e6edf3}.bg{fill:#0d1117}}</style>
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor" stroke="none"/></marker></defs>
+<rect class="bg" x="0" y="0" width="800" height="280" rx="8" stroke="none"/>
+<rect x="10" y="40" width="110" height="40" rx="6"/>
+<rect x="160" y="40" width="110" height="40" rx="6"/>
+<rect x="310" y="40" width="110" height="40" rx="6"/>
+<path d="M530,22 L612,60 L530,98 L448,60 Z"/>
+<rect x="650" y="35" width="140" height="50" rx="6"/>
+<rect x="475" y="150" width="110" height="40" rx="6"/>
+<rect x="310" y="150" width="110" height="40" rx="6"/>
+<line x1="120" y1="60" x2="158" y2="60" marker-end="url(#arr)"/>
+<line x1="270" y1="60" x2="308" y2="60" marker-end="url(#arr)"/>
+<line x1="420" y1="60" x2="446" y2="60" marker-end="url(#arr)"/>
+<line x1="612" y1="60" x2="648" y2="60" marker-end="url(#arr)"/>
+<line x1="530" y1="98" x2="530" y2="148" marker-end="url(#arr)"/>
+<line x1="475" y1="170" x2="422" y2="170" marker-end="url(#arr)"/>
+<line x1="365" y1="150" x2="365" y2="82" marker-end="url(#arr)"/>
+<path d="M215,80 L215,240 L65,240 L65,82" stroke-dasharray="5 4" marker-end="url(#arr)"/>
+<g fill="currentColor" stroke="none" text-anchor="middle">
+<text x="65" y="65">Your program</text>
+<text x="215" y="65">Session</text>
+<text x="365" y="65">Call model</text>
+<text x="530" y="65" font-size="13">Tool calls?</text>
+<text x="720" y="56">Turn ends</text>
+<text x="720" y="75" font-size="12">Returns TurnResult</text>
+<text x="530" y="175">Approval</text>
+<text x="365" y="175">Run tools</text>
+<text x="140" y="30" font-size="12">Send or Run</text>
+<text x="630" y="50" font-size="12">No</text>
+<text x="548" y="128" font-size="12">Yes</text>
+<text x="448" y="162" font-size="12">Allowed</text>
+<text x="373" y="120" font-size="12" text-anchor="start">Tool results</text>
+<text x="65" y="262" font-size="12" text-anchor="start">Event stream: streamed text, tool calls, usage and more</text>
+</g>
+</svg>

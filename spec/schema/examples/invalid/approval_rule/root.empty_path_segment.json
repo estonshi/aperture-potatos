@@ -1,0 +1,12 @@
+[
+  {
+    "id": "r",
+    "tool": "x",
+    "action": "deny",
+    "when": {
+      "a..b": {
+        "exists": true
+      }
+    }
+  }
+]

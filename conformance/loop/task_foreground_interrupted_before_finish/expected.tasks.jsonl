@@ -1,0 +1,1 @@
+{"attempt":1,"call_id":"toolu_01","error":"the call that started it was interrupted","kind":"job","progress":{},"result":{"content":[{"text":"42 rows.","type":"text"}],"summary":"42 rows."},"status":"canceled","task_id":"task_01","title":"Count rows","turn_id":"turn_01"}

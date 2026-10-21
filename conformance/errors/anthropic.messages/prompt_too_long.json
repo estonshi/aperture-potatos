@@ -1,0 +1,27 @@
+{
+  "body": {
+    "error": {
+      "message": "prompt is too long: 215000 tokens > 200000 maximum",
+      "type": "invalid_request_error"
+    },
+    "request_id": "req_011CErr",
+    "type": "error"
+  },
+  "expected": {
+    "api": "anthropic.messages",
+    "class": "context_overflow",
+    "message": "prompt is too long: 215000 tokens > 200000 maximum",
+    "raw": {
+      "error": {
+        "message": "prompt is too long: 215000 tokens > 200000 maximum",
+        "type": "invalid_request_error"
+      },
+      "request_id": "req_011CErr",
+      "type": "error"
+    },
+    "request_id": "req_011CErr",
+    "status": 400,
+    "type": "invalid_request_error"
+  },
+  "status": 400
+}

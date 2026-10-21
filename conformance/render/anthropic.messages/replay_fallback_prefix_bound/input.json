@@ -1,0 +1,160 @@
+{
+  "model": "claude-opus-5-5",
+  "system": [
+    {
+      "slot": "core",
+      "text": "<runtime-conventions>\nConventions of the runtime you are running in: ...\n</runtime-conventions>"
+    },
+    {
+      "slot": "identity",
+      "text": "<identity>\nYour name is Tater.\n</identity>"
+    }
+  ],
+  "messages": [
+    {
+      "v": 1,
+      "id": "msg_01",
+      "session_id": "ses_01",
+      "seq": 1,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "q1"
+        }
+      ],
+      "ts": "2026-09-27T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_02",
+      "session_id": "ses_01",
+      "seq": 2,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "kind": "summary",
+          "text": "old thought",
+          "native": {
+            "api": "anthropic.messages",
+            "raw": {
+              "type": "thinking",
+              "thinking": "old thought",
+              "signature": "sig1"
+            }
+          }
+        },
+        {
+          "type": "text",
+          "text": "a1"
+        }
+      ],
+      "ts": "2026-09-27T08:00:00Z",
+      "producer": {
+        "api": "anthropic.messages",
+        "endpoint": "api.anthropic.com",
+        "model": "claude-opus-5-5"
+      }
+    },
+    {
+      "v": 1,
+      "id": "msg_03",
+      "session_id": "ses_01",
+      "seq": 3,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "q2"
+        }
+      ],
+      "ts": "2026-09-27T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_04",
+      "session_id": "ses_01",
+      "seq": 4,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "kind": "summary",
+          "text": "new thought",
+          "native": {
+            "api": "anthropic.messages",
+            "raw": {
+              "type": "thinking",
+              "thinking": "new thought",
+              "signature": "sig2"
+            }
+          }
+        },
+        {
+          "type": "tool_call",
+          "id": "toolu_09",
+          "name": "run",
+          "input": {}
+        }
+      ],
+      "ts": "2026-09-27T08:00:00Z",
+      "producer": {
+        "api": "anthropic.messages",
+        "endpoint": "api.anthropic.com",
+        "model": "claude-opus-5-5"
+      }
+    },
+    {
+      "v": 1,
+      "id": "msg_05",
+      "session_id": "ses_01",
+      "seq": 5,
+      "epoch": 1,
+      "role": "tool",
+      "origin": {
+        "kind": "tool"
+      },
+      "content": [
+        {
+          "type": "tool_result",
+          "call_id": "toolu_09",
+          "content": [
+            {
+              "type": "text",
+              "text": "done"
+            }
+          ],
+          "outcome": "success"
+        }
+      ],
+      "ts": "2026-09-27T08:00:00Z"
+    }
+  ],
+  "replay": "fallback",
+  "caps": {
+    "thinking_prefix_bound": true,
+    "reasoning": {
+      "modes": [
+        "adaptive"
+      ],
+      "default_on": true
+    }
+  }
+}

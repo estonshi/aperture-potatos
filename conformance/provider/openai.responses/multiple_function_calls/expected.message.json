@@ -1,0 +1,88 @@
+{
+  "content": [
+    {
+      "id": "call_a",
+      "input": {
+        "p": 1
+      },
+      "name": "read",
+      "native": {
+        "api": "openai.responses",
+        "raw": {
+          "arguments": "{\"p\":1}",
+          "call_id": "call_a",
+          "id": "fc_a",
+          "name": "read",
+          "status": "completed",
+          "type": "function_call"
+        }
+      },
+      "type": "tool_call"
+    },
+    {
+      "id": "call_b",
+      "input": {
+        "p": 2
+      },
+      "name": "read",
+      "native": {
+        "api": "openai.responses",
+        "raw": {
+          "arguments": "{\"p\":2}",
+          "call_id": "call_b",
+          "id": "fc_b",
+          "name": "read",
+          "status": "completed",
+          "type": "function_call"
+        }
+      },
+      "type": "tool_call"
+    },
+    {
+      "id": "call_c",
+      "input": {},
+      "name": "now",
+      "native": {
+        "api": "openai.responses",
+        "raw": {
+          "arguments": "",
+          "call_id": "call_c",
+          "id": "fc_c",
+          "name": "now",
+          "status": "completed",
+          "type": "function_call"
+        }
+      },
+      "type": "tool_call"
+    }
+  ],
+  "origin": {
+    "kind": "model"
+  },
+  "producer": {
+    "api": "openai.responses",
+    "endpoint": "api.openai.com",
+    "model": "gpt-5.6",
+    "response_id": "resp_01"
+  },
+  "role": "assistant",
+  "stop_reason": "tool_use",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 40,
+    "output_tokens": 30,
+    "raw": {
+      "input_tokens": 40,
+      "input_tokens_details": {
+        "cached_tokens": 0
+      },
+      "output_tokens": 30,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 70
+    },
+    "reasoning_tokens": 0
+  }
+}

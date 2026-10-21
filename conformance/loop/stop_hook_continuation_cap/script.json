@@ -1,0 +1,53 @@
+{
+  "spec_version": "0.1",
+  "description": "A stop hook keeps asking to continue; the turn continues max_stop_continuations times, each time with the hook's reason as the continuation, then ends and the hook's last request is ignored.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "limits": {
+      "max_stop_continuations": 2
+    },
+    "hooks": [
+      {
+        "point": "stop",
+        "name": "keep-going",
+        "calls": [
+          {
+            "output": {
+              "continue": true,
+              "reason": "Check your answer once more."
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Draft a title."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

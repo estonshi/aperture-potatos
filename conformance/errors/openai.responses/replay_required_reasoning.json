@@ -1,0 +1,26 @@
+{
+  "body": {
+    "error": {
+      "code": null,
+      "message": "Item 'fc_123' of type 'function_call' was provided without its required 'reasoning' item: 'rs_123'.",
+      "param": "input",
+      "type": "invalid_request_error"
+    }
+  },
+  "expected": {
+    "api": "openai.responses",
+    "class": "reasoning_replay",
+    "message": "Item 'fc_123' of type 'function_call' was provided without its required 'reasoning' item: 'rs_123'.",
+    "raw": {
+      "error": {
+        "code": null,
+        "message": "Item 'fc_123' of type 'function_call' was provided without its required 'reasoning' item: 'rs_123'.",
+        "param": "input",
+        "type": "invalid_request_error"
+      }
+    },
+    "status": 400,
+    "type": "invalid_request_error"
+  },
+  "status": 400
+}

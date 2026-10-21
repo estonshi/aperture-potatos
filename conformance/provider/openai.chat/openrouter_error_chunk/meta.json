@@ -1,0 +1,6 @@
+{
+  "api": "openai.chat",
+  "model": "anthropic/claude-sonnet-5",
+  "source": "synthetic",
+  "notes": "The only event is a top-level error chunk after a processing comment."
+}

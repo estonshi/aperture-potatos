@@ -1,0 +1,7 @@
+{
+  "api": "openai.responses",
+  "model": "deepseek-v4-pro",
+  "notes": "Recorded from a Responses-compatible endpoint with the neutral web search: a search action that names queries instead of query, no action.sources despite include, no citations, and no search count in usage.",
+  "recorded_at": "2026-10-14",
+  "source": "recorded"
+}

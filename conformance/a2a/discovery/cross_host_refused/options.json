@@ -1,0 +1,4 @@
+{
+  "description": "The card came from a.test but its only interface is on b.test, which would receive the client's headers.",
+  "base_url": "https://a.test"
+}

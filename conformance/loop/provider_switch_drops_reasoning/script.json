@@ -1,0 +1,55 @@
+{
+  "spec_version": "0.1",
+  "description": "A switch takes effect at the next turn's start; the history is not converted, and the thinking and server tool blocks the new API cannot take are counted and left out of its requests.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": []
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    },
+    {
+      "name": "ds",
+      "api": "openai.chat",
+      "model": "deepseek-v4.1-flash",
+      "responses": [
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Search the weather."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "switch_model": {
+        "provider": "ds"
+      }
+    },
+    {
+      "send": {
+        "text": "And tomorrow?"
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

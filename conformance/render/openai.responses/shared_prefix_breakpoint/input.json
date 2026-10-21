@@ -1,0 +1,164 @@
+{
+  "model": "gpt-5.6",
+  "system": [
+    {
+      "slot": "core",
+      "text": "<runtime-conventions>\n...\n</runtime-conventions>"
+    }
+  ],
+  "caps": {
+    "prompt_cache": {
+      "explicit": true
+    }
+  },
+  "tools": [
+    {
+      "name": "lookup",
+      "description": "Look up a price.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "item"
+        ]
+      }
+    }
+  ],
+  "messages": [
+    {
+      "v": 1,
+      "id": "msg_01",
+      "session_id": "ses_01",
+      "seq": 1,
+      "epoch": 2,
+      "role": "user",
+      "origin": {
+        "kind": "epoch_head"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Summary of the earlier conversation: the user is pricing items."
+        }
+      ],
+      "ts": "2026-10-14T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_02",
+      "session_id": "ses_01",
+      "seq": 2,
+      "epoch": 2,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "What does item 12 cost?"
+        }
+      ],
+      "ts": "2026-10-14T08:00:00Z",
+      "turn_id": "turn_01"
+    },
+    {
+      "v": 1,
+      "id": "msg_03",
+      "session_id": "ses_01",
+      "seq": 3,
+      "epoch": 2,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "tool_call",
+          "id": "call_1",
+          "name": "lookup",
+          "input": {
+            "item": "12"
+          }
+        }
+      ],
+      "ts": "2026-10-14T08:00:00Z",
+      "producer": {
+        "api": "openai.responses",
+        "endpoint": "api.openai.com",
+        "model": "gpt-5.6"
+      },
+      "stop_reason": "tool_use",
+      "turn_id": "turn_01"
+    },
+    {
+      "v": 1,
+      "id": "msg_04",
+      "session_id": "ses_01",
+      "seq": 4,
+      "epoch": 2,
+      "role": "tool",
+      "origin": {
+        "kind": "tool"
+      },
+      "content": [
+        {
+          "type": "tool_result",
+          "call_id": "call_1",
+          "name": "lookup",
+          "content": [
+            {
+              "type": "text",
+              "text": "36 yen."
+            }
+          ],
+          "outcome": "success"
+        }
+      ],
+      "ts": "2026-10-14T08:00:00Z",
+      "turn_id": "turn_01"
+    },
+    {
+      "v": 1,
+      "id": "msg_s1",
+      "session_id": "ses_01.side.s",
+      "seq": 2,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "epoch_head"
+      },
+      "content": [
+        {
+          "type": "reminder",
+          "source": "side_chat",
+          "text": "The messages above are the main conversation as it stands now."
+        }
+      ],
+      "ts": "2026-10-14T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_s2",
+      "session_id": "ses_01.side.s",
+      "seq": 3,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "What did the main chat cover?"
+        }
+      ],
+      "ts": "2026-10-14T08:00:00Z"
+    }
+  ],
+  "shared_prefix": 4
+}

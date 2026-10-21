@@ -1,0 +1,46 @@
+{
+  "model": "gpt-5.6",
+  "messages": [
+    {
+      "v": 1,
+      "id": "msg_01",
+      "session_id": "ses_01",
+      "seq": 1,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Hi"
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_02",
+      "session_id": "ses_01",
+      "seq": 2,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Hello"
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z",
+      "producer": {
+        "api": "openai.chat",
+        "endpoint": "api.openai.com",
+        "model": "gpt-5.6"
+      }
+    }
+  ]
+}

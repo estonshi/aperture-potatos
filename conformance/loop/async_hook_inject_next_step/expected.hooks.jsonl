@@ -1,0 +1,2 @@
+{"input":{"agent":"Tater","inputs":[{"id":"in_01","origin":{"kind":"human"},"text":"Echo hello with the tool."}],"session_id":"ses_01","turn_id":"turn_01"},"name":"lookup","point":"user_prompt_submit"}
+{"input":{"agent":"Tater","inputs":[{"id":"in_02","origin":{"kind":"reminder","source":"hook:lookup"},"text":"The ticket is P1."}],"session_id":"ses_01","step":1,"turn_id":"turn_01"},"name":"lookup","point":"user_prompt_submit"}

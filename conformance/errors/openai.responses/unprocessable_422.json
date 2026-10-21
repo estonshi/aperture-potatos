@@ -1,0 +1,26 @@
+{
+  "body": {
+    "error": {
+      "code": null,
+      "message": "The request could not be processed right now.",
+      "param": null,
+      "type": "invalid_request_error"
+    }
+  },
+  "expected": {
+    "api": "openai.responses",
+    "class": "transient",
+    "message": "The request could not be processed right now.",
+    "raw": {
+      "error": {
+        "code": null,
+        "message": "The request could not be processed right now.",
+        "param": null,
+        "type": "invalid_request_error"
+      }
+    },
+    "status": 422,
+    "type": "invalid_request_error"
+  },
+  "status": 422
+}

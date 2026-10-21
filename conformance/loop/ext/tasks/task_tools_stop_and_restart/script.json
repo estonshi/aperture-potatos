@@ -1,0 +1,99 @@
+{
+  "spec_version": "0.1",
+  "description": "task_stop waits for the attempt it stopped, which returns late because it ignores its context, and reports it stopped without a notification; stopping it again says it had already finished. task_restart runs it again and reports the new attempt, whose end is notified.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "task_kinds": [
+      {
+        "name": "job",
+        "caps": {
+          "restart": true
+        },
+        "auto": [
+          {
+            "ignore_ctx": true
+          }
+        ],
+        "start_tool": {
+          "name": "start_job",
+          "description": "Start a job.",
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "title"
+            ]
+          }
+        }
+      }
+    ],
+    "extensions": {
+      "tasks": {}
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse",
+        "responses/04.sse",
+        "responses/05.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-29T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Crawl, then change your mind."
+      }
+    },
+    {
+      "wait": {
+        "event": "tool.started",
+        "where": {
+          "name": "task_stop"
+        }
+      }
+    },
+    {
+      "task": {
+        "step": "task_01",
+        "do": {
+          "succeed": "First run."
+        }
+      }
+    },
+    {
+      "wait": {
+        "event": "task.started",
+        "count": 2
+      }
+    },
+    {
+      "task": {
+        "step": "task_01",
+        "do": {
+          "succeed": "Second run."
+        }
+      }
+    },
+    {
+      "wait_quiet": true
+    }
+  ]
+}

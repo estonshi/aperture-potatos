@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/estonshi/aperture-potatos/spec/schema/command.schema.json",
+  "title": "Commands",
+  "description": "What a command returns, and the reports of the session methods that commands commonly wrap.",
+  "$defs": {
+    "command_result": {
+      "type": "object",
+      "description": "What a command handler returns.",
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "For people; command.completed carries it as text."
+        },
+        "data": {
+          "description": "Structured result; command.completed carries it as data."
+        },
+        "prompt": {
+          "$ref": "#/$defs/input",
+          "description": "Present turns into a normal input with origin command."
+        },
+        "pin": {
+          "$ref": "tool.schema.json#/$defs/pin",
+          "description": "Joins the in-memory pins, not the session file; compaction re-injects it like a tool result's pin."
+        }
+      }
+    },
+    "input": {
+      "type": "object",
+      "description": "One input to a session.",
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "parts": {
+          "$ref": "message.schema.json#/$defs/content",
+          "description": "Images and documents."
+        },
+        "origin": {
+          "$ref": "message.schema.json#/$defs/origin",
+          "description": "Absent means human."
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Opaque to the kernel; tools read it."
+        }
+      }
+    },
+    "compact_report": {
+      "type": "object",
+      "description": "What a compaction did.",
+      "properties": {
+        "strategy": {
+          "type": "string"
+        },
+        "pre_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "post_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "epoch": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "The epoch the compaction opened."
+        }
+      },
+      "required": [
+        "strategy",
+        "pre_tokens",
+        "post_tokens",
+        "epoch"
+      ]
+    },
+    "usage_report": {
+      "type": "object",
+      "description": "Running totals of a session.",
+      "properties": {
+        "total": {
+          "$ref": "common.schema.json#/$defs/usage"
+        },
+        "buckets": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "common.schema.json#/$defs/usage"
+          }
+        },
+        "by_model": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "common.schema.json#/$defs/usage"
+          }
+        },
+        "last_step": {
+          "$ref": "common.schema.json#/$defs/usage"
+        },
+        "turns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "steps": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "retries": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "discards": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "abandoned_tools": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "total",
+        "buckets",
+        "by_model",
+        "last_step",
+        "turns",
+        "steps",
+        "retries",
+        "discards",
+        "abandoned_tools"
+      ]
+    }
+  }
+}

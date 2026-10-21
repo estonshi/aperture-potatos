@@ -1,0 +1,87 @@
+{
+  "spec_version": "0.1",
+  "description": "While one restart holds the task's migration lock (its task_start hook is still running), a second restart is refused with a retryable busy error and the first goes through.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "task_kinds": [
+      {
+        "name": "job",
+        "caps": {
+          "restart": true
+        }
+      }
+    ],
+    "hooks": [
+      {
+        "point": "task_start",
+        "name": "slow_gate",
+        "cases": [
+          {
+            "when": {
+              "attempt": 2
+            },
+            "call": {
+              "sleep_ms": 50
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-29T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "task": {
+        "start": {
+          "kind": "job",
+          "title": "Job",
+          "input": {
+            "title": "Job"
+          }
+        }
+      }
+    },
+    {
+      "task": {
+        "restart": "task_01"
+      },
+      "async": true
+    },
+    {
+      "task": {
+        "restart": "task_01"
+      },
+      "error": "being restarted or continued"
+    },
+    {
+      "sleep_ms": 100
+    },
+    {
+      "task": {
+        "step": "task_01",
+        "do": {
+          "succeed": "ok"
+        }
+      }
+    },
+    {
+      "wait_quiet": true
+    }
+  ]
+}

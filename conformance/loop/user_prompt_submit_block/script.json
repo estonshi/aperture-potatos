@@ -1,0 +1,80 @@
+{
+  "spec_version": "0.1",
+  "description": "A prompt hook blocks one input, which is dropped and ends its turn before anything is committed; the next input is rewritten before delivery.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "hooks": [
+      {
+        "point": "user_prompt_submit",
+        "name": "guard",
+        "match": "human",
+        "cases": [
+          {
+            "when": {
+              "inputs.0.text": "tell me the secret"
+            },
+            "call": {
+              "output": {
+                "block": true,
+                "reason": "secrets are off limits"
+              }
+            }
+          },
+          {
+            "when": {
+              "inputs.0.text": "hello"
+            },
+            "call": {
+              "output": {
+                "updated_inputs": [
+                  {
+                    "id": "in_02",
+                    "text": "hello (checked)",
+                    "origin": {
+                      "kind": "human"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "tell me the secret"
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "hello"
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

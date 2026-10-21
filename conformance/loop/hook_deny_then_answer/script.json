@@ -1,0 +1,165 @@
+{
+  "spec_version": "0.1",
+  "description": "pre_tool_use answers each call of one batch differently: an explicit deny is the call's error result, a synthetic result stands in for the tool, which never runs, and an ask sends the call to the reviewer, who approves it; the model then answers from the three results.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "sql_exec",
+        "description": "Run one SQL statement.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "database": {
+              "type": "string"
+            },
+            "statement": {
+              "type": "string"
+            },
+            "read_only": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "database",
+            "statement"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "fixed",
+          "text": "3 rows affected."
+        }
+      },
+      {
+        "name": "http_post",
+        "description": "Send an HTTP request.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "method": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url",
+            "method"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "fixed",
+          "text": "201 Created"
+        }
+      },
+      {
+        "name": "get_weather",
+        "description": "Current weather for a city.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "city": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "city"
+          ]
+        },
+        "concurrency": "parallel",
+        "behavior": {
+          "type": "fixed",
+          "text": "Sunny, 24C."
+        }
+      }
+    ],
+    "hooks": [
+      {
+        "point": "pre_tool_use",
+        "name": "policy",
+        "cases": [
+          {
+            "when": {
+              "call.name": "sql_exec"
+            },
+            "call": {
+              "output": {
+                "decision": "deny",
+                "reason": "no SQL today"
+              }
+            }
+          },
+          {
+            "when": {
+              "call.name": "http_post"
+            },
+            "call": {
+              "output": {
+                "synthetic_result": {
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "201 Created (simulated)"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "when": {
+              "call.name": "get_weather"
+            },
+            "call": {
+              "output": {
+                "decision": "ask",
+                "reason": "weather calls cost money"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "point": "approval",
+        "name": "ui",
+        "calls": [
+          {
+            "output": {
+              "verdict": "approve"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Ship order 7, notify the shop, and check Osaka's weather."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

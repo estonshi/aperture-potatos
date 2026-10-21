@@ -1,0 +1,61 @@
+{
+  "spec_version": "0.1",
+  "description": "/fork stores a copy of the context as a new session, closes it and reports its id, which resumes; the source goes on as before.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "extensions": {
+      "cmd.fork": {}
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Hello."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "command": {
+        "name": "fork",
+        "args": ""
+      }
+    },
+    {
+      "wait": {
+        "event": "command.completed",
+        "count": 1
+      }
+    },
+    {
+      "resume": "ses_02"
+    },
+    {
+      "send": {
+        "text": "Main goes on."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

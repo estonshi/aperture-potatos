@@ -1,0 +1,20 @@
+{
+  "extra_body": {
+    "reasoning_effort": "high",
+    "thinking": {
+      "type": "enabled"
+    }
+  },
+  "max_tokens": 8000,
+  "messages": [
+    {
+      "content": "Hi",
+      "role": "user"
+    }
+  ],
+  "model": "deepseek-v4.1-flash",
+  "stream": true,
+  "stream_options": {
+    "include_usage": false
+  }
+}

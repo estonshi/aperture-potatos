@@ -1,0 +1,73 @@
+{
+  "content": [
+    {
+      "native": {
+        "api": "openai.responses",
+        "raw": {
+          "content": [
+            {
+              "annotations": [],
+              "text": "Let me check.",
+              "type": "output_text"
+            }
+          ],
+          "id": "msg_c",
+          "phase": "commentary",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      },
+      "text": "Let me check.",
+      "type": "text"
+    },
+    {
+      "id": "call_p",
+      "input": {
+        "q": "x"
+      },
+      "name": "search",
+      "native": {
+        "api": "openai.responses",
+        "raw": {
+          "arguments": "{\"q\":\"x\"}",
+          "call_id": "call_p",
+          "id": "fc_p",
+          "name": "search",
+          "status": "completed",
+          "type": "function_call"
+        }
+      },
+      "type": "tool_call"
+    }
+  ],
+  "origin": {
+    "kind": "model"
+  },
+  "producer": {
+    "api": "openai.responses",
+    "endpoint": "api.openai.com",
+    "model": "gpt-5.6",
+    "response_id": "resp_01"
+  },
+  "role": "assistant",
+  "stop_reason": "tool_use",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 40,
+    "output_tokens": 20,
+    "raw": {
+      "input_tokens": 40,
+      "input_tokens_details": {
+        "cached_tokens": 0
+      },
+      "output_tokens": 20,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 60
+    },
+    "reasoning_tokens": 0
+  }
+}

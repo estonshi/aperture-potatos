@@ -1,0 +1,6 @@
+{
+  "api": "anthropic.messages",
+  "model": "claude-opus-5-5",
+  "source": "synthetic",
+  "notes": "With eager input streaming the input may be invalid; the call keeps the raw text and a parse error and is never run."
+}

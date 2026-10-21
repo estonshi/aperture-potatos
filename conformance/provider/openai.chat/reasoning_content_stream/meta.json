@@ -1,0 +1,6 @@
+{
+  "api": "openai.chat",
+  "model": "deepseek-v4.1-flash",
+  "source": "synthetic",
+  "notes": "DeepSeek-style reasoning_content before the answer; one chunk also carries the same text in reasoning, which vLLM double-sends, so it appears once."
+}

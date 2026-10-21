@@ -1,0 +1,1 @@
+{"session_id": "ses_01", "agent": "Tater", "turn_id": "turn_02", "result": {"turn_id": "turn_02", "outcome": "error", "steps": 1, "usage": {"input_tokens": 10, "cache_read_tokens": 0, "cache_write_tokens": 0, "output_tokens": 0, "reasoning_tokens": 0}, "error": "retries exhausted"}}

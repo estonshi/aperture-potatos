@@ -1,0 +1,102 @@
+{
+  "spec_version": "0.1",
+  "description": "After a compaction the new epoch head lists the tasks still unfinished, one line each, so the model keeps their ids when the summary does not.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "task_kinds": [
+      {
+        "name": "job",
+        "caps": {}
+      }
+    ],
+    "extensions": {
+      "tasks": {}
+    },
+    "compactor": {
+      "summary": "Two jobs were started earlier.",
+      "keep": "none"
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-29T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "task": {
+        "start": {
+          "kind": "job",
+          "title": "Crawl",
+          "input": {
+            "title": "Crawl"
+          }
+        }
+      }
+    },
+    {
+      "task": {
+        "start": {
+          "kind": "job",
+          "title": "Index",
+          "input": {
+            "title": "Index"
+          }
+        }
+      }
+    },
+    {
+      "task": {
+        "step": "task_02",
+        "do": {
+          "succeed": "Indexed."
+        }
+      }
+    },
+    {
+      "wait": {
+        "event": "turn.completed",
+        "count": 1
+      }
+    },
+    {
+      "compact": {}
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "What is still running?"
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "task": {
+        "step": "task_01",
+        "do": {
+          "succeed": "Crawled."
+        }
+      }
+    },
+    {
+      "wait_quiet": true
+    }
+  ]
+}

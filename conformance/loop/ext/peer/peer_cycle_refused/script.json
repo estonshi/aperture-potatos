@@ -1,0 +1,64 @@
+{
+  "spec_version": "0.1",
+  "description": "Tater asks the in-process peer Bee, whose call back to Tater is refused: Tater is on the chain the message carried. Bee's events reach Tater under the task's hop.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "extensions": {
+      "peer": {
+        "local": [
+          {
+            "nickname": "Bee",
+            "description": "Knows the answer.",
+            "instructions": "Be brief.",
+            "replies": [
+              {
+                "tool": "a2a_send",
+                "input": {
+                  "agent": "Tater",
+                  "message": "What do you mean?"
+                }
+              },
+              {
+                "text": "I cannot ask Tater back, so: 42."
+              }
+            ],
+            "peers": [
+              {
+                "name": "Tater",
+                "description": "The agent that asked."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-02T00:00:00.000Z",
+    "step_ms": 1,
+    "interleaved": true
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Ask Bee for the answer."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "max_tokens": 64000,
+  "messages": [
+    {
+      "content": "<runtime-conventions>\n...\n</runtime-conventions>",
+      "role": "system"
+    },
+    {
+      "content": "Open an issue about the flaky test.",
+      "role": "user"
+    }
+  ],
+  "model": "gpt-5.6",
+  "stream": true,
+  "stream_options": {
+    "include_obfuscation": false,
+    "include_usage": true
+  },
+  "tools": [
+    {
+      "function": {
+        "description": "Create a GitHub issue.",
+        "name": "mcp__gh__create_issue",
+        "parameters": {
+          "properties": {
+            "title": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "function"
+    },
+    {
+      "function": {
+        "description": "List open pull requests.",
+        "name": "mcp__gh__list_prs",
+        "parameters": {
+          "properties": {
+            "repo": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "function"
+    },
+    {
+      "function": {
+        "description": "Read a file from the workspace.",
+        "name": "read_file",
+        "parameters": {
+          "properties": {
+            "path": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "function"
+    }
+  ]
+}

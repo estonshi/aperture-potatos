@@ -1,0 +1,85 @@
+{
+  "spec_version": "0.1",
+  "description": "Two pre_tool_use hooks rewrite the input in turn: the second sees the first one's rewrite, and the tool runs with the second one's.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "echo",
+        "description": "Echo the text back.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "echo"
+        }
+      }
+    ],
+    "hooks": [
+      {
+        "point": "pre_tool_use",
+        "name": "upper",
+        "priority": 0,
+        "calls": [
+          {
+            "output": {
+              "updated_input": {
+                "text": "HELLO"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "point": "pre_tool_use",
+        "name": "bang",
+        "priority": 1,
+        "calls": [
+          {
+            "output": {
+              "updated_input": {
+                "text": "HELLO!"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Echo hello with the tool."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

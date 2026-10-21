@@ -1,0 +1,5 @@
+{
+  "description": "WithAllowedHosts lets an interface live on another host.",
+  "base_url": "https://a.test",
+  "allowed_hosts": ["b.test"]
+}

@@ -1,0 +1,38 @@
+{
+  "spec_version": "0.1",
+  "description": "A turn that is not in the current epoch after its head cannot be a rewind target.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": []
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Hello."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "rewind": "turn_09",
+      "error": "turn is not in the current epoch"
+    }
+  ]
+}

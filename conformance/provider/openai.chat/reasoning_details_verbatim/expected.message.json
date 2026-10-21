@@ -1,0 +1,67 @@
+{
+  "content": [
+    {
+      "kind": "raw",
+      "native": {
+        "api": "openai.chat",
+        "raw": {
+          "field": "reasoning"
+        }
+      },
+      "text": "Step one. Step two.",
+      "type": "reasoning"
+    },
+    {
+      "text": "Answer.",
+      "type": "text"
+    }
+  ],
+  "native": {
+    "api": "openai.chat",
+    "raw": {
+      "reasoning_details": [
+        {
+          "format": "unknown",
+          "index": 0,
+          "text": "Step one. ",
+          "type": "reasoning.text"
+        },
+        {
+          "format": "unknown",
+          "index": 0,
+          "text": "Step two.",
+          "type": "reasoning.text"
+        },
+        {
+          "data": "ZW5j",
+          "format": "unknown",
+          "index": 1,
+          "type": "reasoning.encrypted"
+        }
+      ]
+    }
+  },
+  "origin": {
+    "kind": "model"
+  },
+  "producer": {
+    "api": "openai.chat",
+    "endpoint": "api.openai.com",
+    "model": "openai/gpt-oss-120b",
+    "response_id": "chatcmpl-1"
+  },
+  "role": "assistant",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 15,
+    "output_tokens": 10,
+    "raw": {
+      "completion_tokens": 10,
+      "prompt_tokens": 15,
+      "total_tokens": 25
+    },
+    "reasoning_tokens": 0
+  }
+}

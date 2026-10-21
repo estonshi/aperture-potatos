@@ -1,0 +1,29 @@
+{
+  "body": {
+    "error": {
+      "code": "invalid_request_error",
+      "message": "Invalid max_tokens value, the valid range of max_tokens is [1, 393216] (request_id: f8ed8d0c-aaab-4460-95a5-2ca02159063d)",
+      "param": null,
+      "type": "invalid_request_error"
+    }
+  },
+  "expected": {
+    "api": "openai.responses",
+    "class": "invalid_request",
+    "code": "invalid_request_error",
+    "limit": 393216,
+    "message": "Invalid max_tokens value, the valid range of max_tokens is [1, 393216] (request_id: f8ed8d0c-aaab-4460-95a5-2ca02159063d)",
+    "raw": {
+      "error": {
+        "code": "invalid_request_error",
+        "message": "Invalid max_tokens value, the valid range of max_tokens is [1, 393216] (request_id: f8ed8d0c-aaab-4460-95a5-2ca02159063d)",
+        "param": null,
+        "type": "invalid_request_error"
+      }
+    },
+    "rule": "max_output_too_large",
+    "status": 400,
+    "type": "invalid_request_error"
+  },
+  "status": 400
+}

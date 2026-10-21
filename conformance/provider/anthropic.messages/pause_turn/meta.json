@@ -1,0 +1,6 @@
+{
+  "api": "anthropic.messages",
+  "model": "claude-opus-5-5",
+  "source": "synthetic",
+  "notes": "A server tool loop paused: server_tool_use and its result become a hosted call and result whose native blocks are replayed verbatim."
+}

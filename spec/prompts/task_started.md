@@ -1,0 +1,1 @@
+Task {{task_id}} {{#moved}}is still running and continues in the background{{/moved}}{{^moved}}started in the background{{/moved}}. You will be notified when it finishes or needs input; do not poll it.

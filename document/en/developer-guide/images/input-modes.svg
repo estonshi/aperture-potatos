@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="760" height="300" viewBox="0 0 760 300" role="img" aria-label="Timelines of the three busy modes. next_loop is the default mode: the new input joins the current turn before the next model call. queue waits until all earlier turns finish, then starts a separate turn B for the new input. interrupt interrupts the current turn at once, gives tools that are still running an interrupted result, and then starts turn B to handle the new input." xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="14" fill="none" stroke="currentColor" stroke-width="1.5">
+<style>svg{color:#1f2328}.bg{fill:#ffffff}.t1{fill:#eef1f5}.t2{fill:#dde9fb}.mute{opacity:.55}@media (prefers-color-scheme: dark){svg{color:#e6edf3}.bg{fill:#0d1117}.t1{fill:#1f2630}.t2{fill:#1a2c4d}}</style>
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor" stroke="none"/></marker></defs>
+<rect class="bg" x="0" y="0" width="760" height="300" rx="8" stroke="none"/>
+<line x1="290" y1="30" x2="290" y2="297" stroke-dasharray="3 4" class="mute"/>
+<text x="290" y="22" text-anchor="middle" fill="currentColor" stroke="none" font-size="12">New input arrives</text>
+<text x="20" y="62" text-anchor="start" fill="currentColor" stroke="none" font-size="13"><tspan x="20" y="54">next_loop</tspan><tspan x="20" y="70">(default)</tspan></text>
+<text x="20" y="147" text-anchor="start" fill="currentColor" stroke="none" font-size="13">queue</text>
+<text x="20" y="232" text-anchor="start" fill="currentColor" stroke="none" font-size="13">interrupt</text>
+<rect class="t1" x="150" y="40" width="100" height="34" rx="6"/>
+<text x="200.0" y="62.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">Call model</text>
+<rect class="t1" x="250" y="40" width="130" height="34" rx="6"/>
+<text x="315.0" y="62.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">Run tools</text>
+<rect class="t1" x="380" y="40" width="150" height="34" rx="6"/>
+<text x="455.0" y="62.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">Call model</text>
+<line x1="290" y1="86" x2="378" y2="86" marker-end="url(#arr)"/>
+<text x="300" y="104" text-anchor="start" fill="currentColor" stroke="none" font-size="12">Joins the current turn before the next model call</text>
+<rect class="t1" x="150" y="125" width="100" height="34" rx="6"/>
+<text x="200.0" y="147.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">Call model</text>
+<rect class="t1" x="250" y="125" width="130" height="34" rx="6"/>
+<text x="315.0" y="147.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">Run tools</text>
+<rect class="t1" x="380" y="125" width="150" height="34" rx="6"/>
+<text x="455.0" y="147.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">Call model</text>
+<rect class="t2" x="545" y="125" width="160" height="34" rx="6"/>
+<text x="625.0" y="147.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">turn B</text>
+<line x1="290" y1="171" x2="543" y2="171" marker-end="url(#arr)"/>
+<text x="300" y="189" text-anchor="start" fill="currentColor" stroke="none" font-size="12">Runs as its own turn after all earlier turns finish</text>
+<rect class="t1" x="150" y="210" width="100" height="34" rx="6"/>
+<text x="200.0" y="232.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">Call model</text>
+<rect class="t1" x="250" y="210" width="40" height="34" rx="6"/>
+<text x="270.0" y="232.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14"></text>
+<path d="M282,218 L298,236 M298,218 L282,236" stroke-width="2"/>
+<rect class="t2" x="305" y="210" width="200" height="34" rx="6"/>
+<text x="405.0" y="232.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">turn B</text>
+<text x="300" y="266" text-anchor="start" fill="currentColor" stroke="none" font-size="12"><tspan x="300" y="266">Interrupts the current turn at once; tools that are still running</tspan><tspan x="300" y="282">get an “interrupted” result</tspan></text>
+<text x="152" y="34" text-anchor="start" fill="currentColor" stroke="none" font-size="11" class="mute">turn A</text>
+<text x="152" y="119" text-anchor="start" fill="currentColor" stroke="none" font-size="11" class="mute">turn A</text>
+<text x="152" y="204" text-anchor="start" fill="currentColor" stroke="none" font-size="11" class="mute">turn A</text>
+</svg>

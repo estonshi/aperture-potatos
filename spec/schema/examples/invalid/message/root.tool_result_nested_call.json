@@ -1,0 +1,28 @@
+{
+  "v": 1,
+  "id": "msg_02",
+  "session_id": "ses_01",
+  "seq": 2,
+  "epoch": 1,
+  "role": "tool",
+  "origin": {
+    "kind": "tool"
+  },
+  "content": [
+    {
+      "type": "tool_result",
+      "call_id": "c",
+      "outcome": "success",
+      "content": [
+        {
+          "type": "tool_call",
+          "id": "c2",
+          "name": "n",
+          "input": {}
+        }
+      ]
+    }
+  ],
+  "turn_id": "turn_01",
+  "ts": "2026-09-27T08:00:00Z"
+}

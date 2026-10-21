@@ -1,0 +1,83 @@
+{
+  "spec_version": "0.1",
+  "description": "A wait_idle command is a barrier: input sent after it waits for it, and its prompt keeps the command's place ahead of that input.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "slow_lookup",
+        "description": "Look something up; it takes a while.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "query"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "fixed",
+          "text": "Found three options.",
+          "sleep_ms": 1000
+        }
+      }
+    ],
+    "commands": [
+      {
+        "name": "plan",
+        "description": "Plan a trip.",
+        "busy": "wait_idle",
+        "text": "Planning.",
+        "prompt": "Plan a trip: $ARGUMENTS"
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Check flights."
+      }
+    },
+    {
+      "wait": {
+        "event": "tool.started",
+        "count": 1
+      }
+    },
+    {
+      "send": {
+        "text": "/plan Tokyo, three days"
+      }
+    },
+    {
+      "send": {
+        "text": "Budget 30000 yen."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

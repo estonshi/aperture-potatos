@@ -1,0 +1,6 @@
+{
+  "api": "openai.chat",
+  "model": "llama-3.3",
+  "source": "synthetic",
+  "notes": "The server numbers calls from call_0 in every response; call_0 already ran earlier in the request, so the new call gets a fresh id rather than reusing the old result."
+}

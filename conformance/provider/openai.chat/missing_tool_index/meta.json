@@ -1,0 +1,6 @@
+{
+  "api": "openai.chat",
+  "model": "llama-3.3",
+  "source": "synthetic",
+  "notes": "Tool call chunks carry no index; a chunk with a new id opens a new call instead of merging its name and arguments into the previous one."
+}

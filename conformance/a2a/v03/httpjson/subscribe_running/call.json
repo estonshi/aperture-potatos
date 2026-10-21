@@ -1,0 +1,10 @@
+{
+  "description": "Subscribe starts with the task as GetTask has it, then follows it; a repeated snapshot adds nothing.",
+  "base_url": "https://agent.test",
+  "calls": [
+    {
+      "op": "subscribe",
+      "task_id": "t-1"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "api": "openai.responses",
+  "model": "deepseek-v4.1-flash",
+  "notes": "Recorded through a gateway that bridges Responses to a Chat model: reasoning_text items without encrypted content, then a function call.",
+  "recorded_at": "2026-09-28",
+  "source": "recorded"
+}

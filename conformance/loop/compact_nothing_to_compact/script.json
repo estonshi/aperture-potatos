@@ -1,0 +1,50 @@
+{
+  "spec_version": "0.1",
+  "description": "A compactor that finds nothing to compact ends the compaction with context.compaction_failed{nothing_to_compact}; the manual call reports it and the history is unchanged.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "compactor": {
+      "fail": "nothing_to_compact"
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Hi."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "compact": {},
+      "error": "nothing to compact"
+    },
+    {
+      "send": {
+        "text": "Still here?"
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

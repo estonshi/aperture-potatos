@@ -1,0 +1,49 @@
+{
+  "content": [
+    {
+      "kind": "raw",
+      "text": "Summarized plan.",
+      "type": "reasoning"
+    },
+    {
+      "text": "Plan ready.",
+      "type": "text"
+    }
+  ],
+  "native": {
+    "api": "openai.chat",
+    "raw": {
+      "reasoning_details": [
+        {
+          "format": "openai-responses-v1",
+          "index": 0,
+          "summary": "Summarized plan.",
+          "type": "reasoning.summary"
+        }
+      ]
+    }
+  },
+  "origin": {
+    "kind": "model"
+  },
+  "producer": {
+    "api": "openai.chat",
+    "endpoint": "api.openai.com",
+    "model": "openai/o4-mini",
+    "response_id": "chatcmpl-1"
+  },
+  "role": "assistant",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 5,
+    "output_tokens": 6,
+    "raw": {
+      "completion_tokens": 6,
+      "prompt_tokens": 5,
+      "total_tokens": 11
+    },
+    "reasoning_tokens": 0
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "api": "openai.chat",
+  "model": "openai/gpt-oss-120b",
+  "source": "synthetic",
+  "notes": "OpenRouter sends reasoning and reasoning_details together; the text comes from reasoning only and the details array is kept verbatim in order, the encrypted item included."
+}

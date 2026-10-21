@@ -1,0 +1,27 @@
+{
+  "body": {
+    "error": {
+      "message": "model: claude-nope",
+      "type": "not_found_error"
+    },
+    "request_id": "req_011CErr",
+    "type": "error"
+  },
+  "expected": {
+    "api": "anthropic.messages",
+    "class": "not_found",
+    "message": "model: claude-nope",
+    "raw": {
+      "error": {
+        "message": "model: claude-nope",
+        "type": "not_found_error"
+      },
+      "request_id": "req_011CErr",
+      "type": "error"
+    },
+    "request_id": "req_011CErr",
+    "status": 404,
+    "type": "not_found_error"
+  },
+  "status": 404
+}

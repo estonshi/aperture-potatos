@@ -1,0 +1,6 @@
+{
+  "api": "openai.responses",
+  "model": "gpt-5.6",
+  "source": "synthetic",
+  "notes": "A sequence_number that goes backwards raises a sequence_regression notice and nothing else changes."
+}

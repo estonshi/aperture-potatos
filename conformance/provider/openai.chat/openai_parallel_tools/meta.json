@@ -1,0 +1,6 @@
+{
+  "api": "openai.chat",
+  "model": "gpt-5.6",
+  "source": "synthetic",
+  "notes": "Two parallel tool calls with arguments in fragments, then a usage chunk with empty choices."
+}

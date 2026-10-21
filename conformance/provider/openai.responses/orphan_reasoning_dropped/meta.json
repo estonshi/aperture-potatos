@@ -1,0 +1,6 @@
+{
+  "api": "openai.responses",
+  "model": "gpt-5.6",
+  "source": "synthetic",
+  "notes": "A trailing reasoning item with no item after it is removed; the one followed by a message stays."
+}

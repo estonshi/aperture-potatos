@@ -1,0 +1,50 @@
+{
+  "model": "claude-opus-5-5",
+  "system": [
+    {
+      "slot": "core",
+      "text": "<runtime-conventions>\nConventions of the runtime you are running in: ...\n</runtime-conventions>"
+    },
+    {
+      "slot": "identity",
+      "text": "<identity>\nYour name is Tater.\n</identity>"
+    }
+  ],
+  "messages": [
+    {
+      "v": 1,
+      "id": "msg_01",
+      "session_id": "ses_01",
+      "seq": 1,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Hi"
+        }
+      ],
+      "ts": "2026-09-27T08:00:00Z"
+    }
+  ],
+  "params": {
+    "extra": {
+      "metadata": {
+        "user_id": "u-1"
+      },
+      "top_k": 5,
+      "max_tokens": 1234
+    },
+    "headers": {
+      "X-Test": [
+        "yes"
+      ],
+      "anthropic-beta": [
+        "context-management-2025-06-27"
+      ]
+    }
+  }
+}

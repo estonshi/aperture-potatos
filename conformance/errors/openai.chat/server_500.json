@@ -1,0 +1,26 @@
+{
+  "body": {
+    "error": {
+      "code": null,
+      "message": "The server had an error while processing your request.",
+      "param": null,
+      "type": "server_error"
+    }
+  },
+  "expected": {
+    "api": "openai.chat",
+    "class": "transient",
+    "message": "The server had an error while processing your request.",
+    "raw": {
+      "error": {
+        "code": null,
+        "message": "The server had an error while processing your request.",
+        "param": null,
+        "type": "server_error"
+      }
+    },
+    "status": 500,
+    "type": "server_error"
+  },
+  "status": 500
+}

@@ -1,0 +1,5 @@
+{
+  "api": "openai.chat",
+  "endpoint": "api.deepseek.com",
+  "model": "deepseek-chat"
+}

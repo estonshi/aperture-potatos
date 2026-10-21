@@ -1,0 +1,6 @@
+{
+  "api": "openai.chat",
+  "model": "local-model",
+  "source": "synthetic",
+  "notes": "A server that never reports usage gets an estimated usage at the end."
+}

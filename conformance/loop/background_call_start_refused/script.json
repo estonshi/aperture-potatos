@@ -1,0 +1,112 @@
+{
+  "spec_version": "0.1",
+  "description": "A task_start hook refuses the task a move would start, so BackgroundCall fails and the call runs on in the foreground; with the task limit taken by a host-started task a second move fails the same way, and the call ends with its own result.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "run_build",
+        "description": "Run the build.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "target"
+          ]
+        },
+        "background": true,
+        "behavior": {
+          "type": "echo",
+          "sleep_ms": 5000,
+          "progress": [
+            "compiling"
+          ]
+        }
+      }
+    ],
+    "limits": {
+      "max_running_tasks": 1
+    },
+    "hooks": [
+      {
+        "point": "task_start",
+        "name": "gate",
+        "calls": [
+          {
+            "output": {
+              "deny": true,
+              "reason": "no background builds"
+            }
+          },
+          {}
+        ]
+      }
+    ],
+    "task_kinds": [
+      {
+        "name": "job",
+        "caps": {}
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-15T00:00:00.000Z",
+    "step_ms": 1,
+    "interleaved": true
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Build everything."
+      }
+    },
+    {
+      "wait": {
+        "event": "tool.started",
+        "where": {
+          "call_id": "toolu_01"
+        }
+      }
+    },
+    {
+      "background_call": "toolu_01",
+      "error": "no background builds"
+    },
+    {
+      "task": {
+        "start": {
+          "kind": "job",
+          "title": "hold",
+          "input": {}
+        }
+      }
+    },
+    {
+      "background_call": "toolu_01",
+      "error": "too many running tasks"
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "close": true
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "content": [
+    {
+      "kind": "raw",
+      "native": {
+        "api": "openai.chat",
+        "raw": {
+          "field": "reasoning_content"
+        }
+      },
+      "text": "First idea. Second.",
+      "type": "reasoning"
+    },
+    {
+      "text": "Done.",
+      "type": "text"
+    }
+  ],
+  "native": {
+    "api": "openai.chat",
+    "raw": {
+      "thinking_blocks": [
+        {
+          "signature": "sig-one",
+          "thinking": "First idea.",
+          "type": "thinking"
+        },
+        {
+          "signature": "sig-two",
+          "thinking": " Second.",
+          "type": "thinking"
+        },
+        {
+          "data": "cmVkYWN0ZWQ=",
+          "type": "redacted_thinking"
+        }
+      ]
+    }
+  },
+  "origin": {
+    "kind": "model"
+  },
+  "producer": {
+    "api": "openai.chat",
+    "endpoint": "api.openai.com",
+    "model": "claude-sonnet-5",
+    "response_id": "chatcmpl-1"
+  },
+  "role": "assistant",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 30,
+    "output_tokens": 20,
+    "raw": {
+      "completion_tokens": 20,
+      "prompt_tokens": 30,
+      "total_tokens": 50
+    },
+    "reasoning_tokens": 0
+  }
+}

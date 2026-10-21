@@ -1,0 +1,6 @@
+{
+  "api": "openai.responses",
+  "model": "gpt-5.6",
+  "source": "synthetic",
+  "notes": "A commentary message keeps its phase in native raw, so a same-API replay sends it back."
+}

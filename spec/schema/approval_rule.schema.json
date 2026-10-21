@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/estonshi/aperture-potatos/spec/schema/approval_rule.schema.json",
+  "title": "Approval rules",
+  "description": "A rule file as ParseApprovalRules reads it. Among matching rules deny wins; allow exempts from ask but never from deny.",
+  "type": "array",
+  "items": {
+    "$ref": "#/$defs/rule"
+  },
+  "$defs": {
+    "rule": {
+      "type": "object",
+      "description": "One rule. Rules on free-text fields (SQL, shell) are not a security boundary: the same intent always has another spelling.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique within one rule set; the schema cannot check uniqueness, the parser does."
+        },
+        "tool": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Exact name or whole-string glob; * matches every tool."
+        },
+        "when": {
+          "type": "object",
+          "description": "Keys are dot-separated input paths: a number segment indexes an array, * matches any element. Every condition must hold.",
+          "propertyNames": {
+            "pattern": "^[^.]+(\\.[^.]+)*$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/condition"
+          }
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "allow",
+            "ask",
+            "deny"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "tool",
+        "action"
+      ]
+    },
+    "condition": {
+      "type": "object",
+      "description": "Exactly one operator; normalize only qualifies prefix.",
+      "properties": {
+        "eq": {
+          "description": "JSON equality: numbers compare by value, objects ignore key order."
+        },
+        "glob": {
+          "type": "string",
+          "description": "Whole-string match with * and ?."
+        },
+        "regex": {
+          "type": "string",
+          "description": "Whole-string match in the portable subset: ASCII \\d \\w \\s \\b, quantifiers, (?:), |. Inline flags, ^, $, backreferences and lookaround are rejected."
+        },
+        "prefix": {
+          "type": "string"
+        },
+        "normalize": {
+          "const": "path",
+          "description": "Clean the field value and the prefix with POSIX path rules and compare whole segments; a relative value never matches an absolute prefix, except a value starting with .. in a deny rule (runtime.md 11)."
+        },
+        "in": {
+          "type": "array",
+          "description": "JSON-equal to any element."
+        },
+        "exists": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "eq"
+          ]
+        },
+        {
+          "required": [
+            "glob"
+          ]
+        },
+        {
+          "required": [
+            "regex"
+          ]
+        },
+        {
+          "required": [
+            "prefix"
+          ]
+        },
+        {
+          "required": [
+            "in"
+          ]
+        },
+        {
+          "required": [
+            "exists"
+          ]
+        }
+      ],
+      "dependentRequired": {
+        "normalize": [
+          "prefix"
+        ]
+      }
+    }
+  }
+}

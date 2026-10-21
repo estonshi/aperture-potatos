@@ -1,0 +1,59 @@
+{
+  "content": [
+    {
+      "kind": "raw",
+      "native": {
+        "api": "openai.chat",
+        "raw": {
+          "field": "reasoning_content"
+        }
+      },
+      "text": "The user asks for the weather in Osaka right now. I should call the get_weather tool.",
+      "type": "reasoning"
+    },
+    {
+      "text": "I'll check the current weather in Osaka for you.",
+      "type": "text"
+    },
+    {
+      "id": "call_77a2f324534445ad8a791c0e",
+      "input": {
+        "city": "Osaka"
+      },
+      "name": "get_weather",
+      "type": "tool_call"
+    }
+  ],
+  "origin": {
+    "kind": "model"
+  },
+  "producer": {
+    "api": "openai.chat",
+    "endpoint": "api.openai.com",
+    "model": "deepseek-v4.1-flash",
+    "request_id": "0f0e0d0c0b0a09080706050403020102",
+    "response_id": "chatcmpl-de9c340a-efcd-9a0f-86fe-b1814e6a1fc4"
+  },
+  "role": "assistant",
+  "stop_reason": "tool_use",
+  "usage": {
+    "cache_read_tokens": 512,
+    "cache_write_tokens": 0,
+    "input_tokens": 594,
+    "output_tokens": 70,
+    "raw": {
+      "completion_tokens": 70,
+      "completion_tokens_details": {
+        "reasoning_tokens": 20,
+        "text_tokens": 49
+      },
+      "prompt_tokens": 594,
+      "prompt_tokens_details": {
+        "cached_tokens": 512,
+        "text_tokens": 594
+      },
+      "total_tokens": 664
+    },
+    "reasoning_tokens": 20
+  }
+}

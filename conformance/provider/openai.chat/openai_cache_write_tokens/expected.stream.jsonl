@@ -1,0 +1,7 @@
+{"kind":"start","response_id":"chatcmpl-1"}
+{"block_type":"text","kind":"block_start"}
+{"channel":"text","kind":"text_delta","text":"Hello"}
+{"channel":"text","kind":"text_delta","text":" there."}
+{"kind":"usage","usage":{"cache_read_tokens":32,"cache_write_tokens":16,"input_tokens":50,"output_tokens":30,"raw":{"completion_tokens":30,"completion_tokens_details":{"reasoning_tokens":18},"prompt_tokens":50,"prompt_tokens_details":{"cache_write_tokens":16,"cached_tokens":32},"total_tokens":80},"reasoning_tokens":18}}
+{"block":{"text":"Hello there.","type":"text"},"block_type":"text","kind":"block_stop"}
+{"kind":"end","message":{"content":[{"text":"Hello there.","type":"text"}],"origin":{"kind":"model"},"producer":{"api":"openai.chat","endpoint":"api.openai.com","model":"gpt-5.6","response_id":"chatcmpl-1"},"role":"assistant","stop_reason":"end_turn","usage":{"cache_read_tokens":32,"cache_write_tokens":16,"input_tokens":50,"output_tokens":30,"raw":{"completion_tokens":30,"completion_tokens_details":{"reasoning_tokens":18},"prompt_tokens":50,"prompt_tokens_details":{"cache_write_tokens":16,"cached_tokens":32},"total_tokens":80},"reasoning_tokens":18}},"stop":{"raw":"stop","reason":"end_turn"},"usage":{"cache_read_tokens":32,"cache_write_tokens":16,"input_tokens":50,"output_tokens":30,"raw":{"completion_tokens":30,"completion_tokens_details":{"reasoning_tokens":18},"prompt_tokens":50,"prompt_tokens_details":{"cache_write_tokens":16,"cached_tokens":32},"total_tokens":80},"reasoning_tokens":18}}

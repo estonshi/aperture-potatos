@@ -1,0 +1,80 @@
+{
+  "spec_version": "0.1",
+  "description": "A fork's first epoch is the source's system line and lines verbatim, with a fork boundary and copy_of on every copy: its first request is the source's next request up to the new input, and the source goes on unaffected.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "echo",
+        "description": "Echo the text back.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "echo"
+        }
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse",
+        "responses/04.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Echo hi."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "fork": {
+        "as": "f"
+      }
+    },
+    {
+      "send": {
+        "text": "A fork question."
+      },
+      "on": "f"
+    },
+    {
+      "wait": "idle",
+      "on": "f"
+    },
+    {
+      "send": {
+        "text": "Main goes on."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

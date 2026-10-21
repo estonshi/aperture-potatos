@@ -1,0 +1,206 @@
+{
+  "model": "claude-opus-5-5",
+  "system": [
+    {
+      "slot": "core",
+      "text": "<runtime-conventions>\n...\n</runtime-conventions>"
+    }
+  ],
+  "tools": [
+    {
+      "name": "mcp__gh__create_issue",
+      "description": "Create a GitHub issue.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "deferred": true
+    },
+    {
+      "name": "read_file",
+      "description": "Read a file from the workspace.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ],
+  "hosted_tools": [
+    {
+      "name": "tool_search",
+      "tool_search": {}
+    }
+  ],
+  "messages": [
+    {
+      "v": 1,
+      "id": "msg_01",
+      "session_id": "ses_01",
+      "seq": 1,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Open an issue about the flaky test."
+        }
+      ],
+      "ts": "2026-10-16T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_02",
+      "session_id": "ses_01",
+      "seq": 2,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "hosted_call",
+          "id": "srvtoolu_01",
+          "name": "tool_search",
+          "input": {
+            "query": "github issue"
+          },
+          "native": {
+            "api": "anthropic.messages",
+            "raw": {
+              "type": "server_tool_use",
+              "id": "srvtoolu_01",
+              "name": "tool_search_tool_bm25",
+              "input": {
+                "query": "github issue"
+              }
+            }
+          }
+        },
+        {
+          "type": "hosted_result",
+          "call_id": "srvtoolu_01",
+          "name": "tool_search",
+          "tools": [
+            "mcp__gh__create_issue",
+            "mcp__gh__file_bug"
+          ],
+          "native": {
+            "api": "anthropic.messages",
+            "raw": {
+              "type": "tool_search_tool_result",
+              "tool_use_id": "srvtoolu_01",
+              "content": {
+                "type": "tool_search_tool_search_result",
+                "tool_references": [
+                  {
+                    "type": "tool_reference",
+                    "tool_name": "mcp__gh__create_issue"
+                  },
+                  {
+                    "type": "tool_reference",
+                    "tool_name": "mcp__gh__file_bug"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "type": "tool_call",
+          "id": "toolu_01",
+          "name": "mcp__gh__create_issue",
+          "input": {
+            "title": "Flaky test"
+          }
+        }
+      ],
+      "ts": "2026-10-16T08:00:00Z",
+      "producer": {
+        "api": "anthropic.messages",
+        "endpoint": "api.anthropic.com",
+        "model": "claude-opus-5-5"
+      },
+      "stop_reason": "tool_use"
+    },
+    {
+      "v": 1,
+      "id": "msg_03",
+      "session_id": "ses_01",
+      "seq": 3,
+      "epoch": 1,
+      "role": "tool",
+      "origin": {
+        "kind": "tool"
+      },
+      "content": [
+        {
+          "type": "tool_result",
+          "call_id": "toolu_01",
+          "name": "mcp__gh__create_issue",
+          "content": [
+            {
+              "type": "text",
+              "text": "Issue #42 opened."
+            }
+          ],
+          "outcome": "success"
+        }
+      ],
+      "ts": "2026-10-16T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_04",
+      "session_id": "ses_01",
+      "seq": 4,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Opened issue #42."
+        }
+      ],
+      "ts": "2026-10-16T08:00:00Z",
+      "producer": {
+        "api": "anthropic.messages",
+        "endpoint": "api.anthropic.com",
+        "model": "claude-opus-5-5"
+      },
+      "stop_reason": "end_turn"
+    },
+    {
+      "v": 1,
+      "id": "msg_05",
+      "session_id": "ses_01",
+      "seq": 5,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "File the bug too."
+        }
+      ],
+      "ts": "2026-10-16T08:00:00Z"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "api": "anthropic.messages",
+  "model": "claude-opus-5-5",
+  "source": "synthetic",
+  "notes": "An end_turn with an empty text block yields a message with no content, which the kernel will not commit."
+}

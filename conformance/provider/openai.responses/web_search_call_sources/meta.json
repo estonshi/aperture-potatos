@@ -1,0 +1,6 @@
+{
+  "api": "openai.responses",
+  "model": "gpt-5.6",
+  "source": "synthetic",
+  "notes": "Each web_search_call becomes a hosted call (the item as native, the action as input) followed by a hosted result whose sources come from action.sources; only search actions count in hosted_calls."
+}

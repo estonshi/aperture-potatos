@@ -1,0 +1,1 @@
+{"params_patch": {"temperature": 0.2, "tool_choice": {"mode": "none"}, "headers": {"x-trace": "1"}}, "next_turn_reasoning": {"effort": "high"}}

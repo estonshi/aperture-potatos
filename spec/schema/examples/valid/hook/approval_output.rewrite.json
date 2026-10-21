@@ -1,0 +1,1 @@
+{"verdict": "approve", "updated_input": {"database": "prod", "statement": "SELECT * FROM orders LIMIT 100"}}

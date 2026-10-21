@@ -1,0 +1,31 @@
+{
+  "body": {
+    "error": {
+      "message": "Internal server error",
+      "type": "api_error"
+    },
+    "request_id": "req_011CErr",
+    "type": "error"
+  },
+  "expected": {
+    "api": "anthropic.messages",
+    "class": "transient",
+    "message": "Internal server error",
+    "no_retry": true,
+    "raw": {
+      "error": {
+        "message": "Internal server error",
+        "type": "api_error"
+      },
+      "request_id": "req_011CErr",
+      "type": "error"
+    },
+    "request_id": "req_011CErr",
+    "status": 500,
+    "type": "api_error"
+  },
+  "headers": {
+    "x-should-retry": "false"
+  },
+  "status": 500
+}

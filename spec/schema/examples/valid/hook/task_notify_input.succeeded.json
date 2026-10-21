@@ -1,0 +1,1 @@
+{"session_id": "ses_01", "agent": "Tater", "info": {"task_id": "task_01", "kind": "research", "title": "Kyoto hotels", "status": "succeeded", "attempt": 1, "started_at": "2026-09-29T08:00:00Z", "ended_at": "2026-09-29T08:02:00Z", "progress": {}, "result": {"summary": "Found 3 hotels."}}, "text": "Task \"Kyoto hotels\" (attempt 1) succeeded.\nSummary:\nFound 3 hotels."}

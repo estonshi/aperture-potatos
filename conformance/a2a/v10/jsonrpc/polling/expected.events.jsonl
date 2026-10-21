@@ -1,0 +1,5 @@
+{"kind":"task","task_id":"t-1","context_id":"c-1","state":"submitted"}
+{"kind":"status","task_id":"t-1","context_id":"c-1","state":"working","message":{"message_id":"s-working","role":"agent","parts":[{"text":"Thinking"}]}}
+{"kind":"artifact","task_id":"t-1","context_id":"c-1","artifact":{"artifact_id":"a-1","parts":[{"text":"Done."}]}}
+{"kind":"status","task_id":"t-1","context_id":"c-1","state":"completed"}
+{"end":"ok"}

@@ -1,0 +1,86 @@
+{
+  "spec_version": "0.1",
+  "description": "Interrupting while a tool runs gives it interrupted, the later call not started, and the tool line keeps history paired.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "slow_lookup",
+        "description": "Look something up; it takes a while.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "query"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "fixed",
+          "text": "Found three options.",
+          "sleep_ms": 1000
+        }
+      },
+      {
+        "name": "echo",
+        "description": "Echo the text back.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "echo"
+        }
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Look it up, then echo."
+      }
+    },
+    {
+      "wait": {
+        "event": "tool.started",
+        "count": 1
+      }
+    },
+    {
+      "interrupt": {
+        "reason": "stop"
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

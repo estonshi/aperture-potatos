@@ -1,0 +1,12 @@
+data: {"id":"chatcmpl-1","object":"chat.completion.chunk","created":1790000000,"model":"gpt-5.6","choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-1","object":"chat.completion.chunk","created":1790000000,"model":"gpt-5.6","choices":[{"index":0,"delta":{"content":"Hello"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-1","object":"chat.completion.chunk","created":1790000000,"model":"gpt-5.6","choices":[{"index":0,"delta":{"content":" there."},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-1","object":"chat.completion.chunk","created":1790000000,"model":"gpt-5.6","choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}
+
+data: {"id":"chatcmpl-1","object":"chat.completion.chunk","created":1790000000,"model":"gpt-5.6","choices":[],"usage":{"prompt_tokens":50,"completion_tokens":30,"total_tokens":80,"prompt_tokens_details":{"cached_tokens":32,"cache_write_tokens":16},"completion_tokens_details":{"reasoning_tokens":18}}}
+
+data: [DONE]
+

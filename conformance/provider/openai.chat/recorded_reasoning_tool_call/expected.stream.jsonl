@@ -1,0 +1,21 @@
+{"kind":"start","request_id":"0f0e0d0c0b0a09080706050403020102","response_id":"chatcmpl-de9c340a-efcd-9a0f-86fe-b1814e6a1fc4"}
+{"block_type":"reasoning","kind":"block_start","reasoning_kind":"raw"}
+{"kind":"reasoning_delta","reasoning_kind":"raw","text":"The"}
+{"kind":"reasoning_delta","reasoning_kind":"raw","text":" user asks"}
+{"kind":"reasoning_delta","reasoning_kind":"raw","text":" for the weather in Osaka right"}
+{"kind":"reasoning_delta","reasoning_kind":"raw","text":" now. I should call"}
+{"kind":"reasoning_delta","reasoning_kind":"raw","text":" the get"}
+{"kind":"reasoning_delta","reasoning_kind":"raw","text":"_weather tool."}
+{"block":{"kind":"raw","native":{"api":"openai.chat","raw":{"field":"reasoning_content"}},"text":"The user asks for the weather in Osaka right now. I should call the get_weather tool.","type":"reasoning"},"block_type":"reasoning","kind":"block_stop"}
+{"block_type":"text","index":1,"kind":"block_start"}
+{"channel":"text","index":1,"kind":"text_delta","text":"I"}
+{"channel":"text","index":1,"kind":"text_delta","text":"'ll check the current weather in"}
+{"channel":"text","index":1,"kind":"text_delta","text":" Osaka for"}
+{"channel":"text","index":1,"kind":"text_delta","text":" you."}
+{"block":{"text":"I'll check the current weather in Osaka for you.","type":"text"},"block_type":"text","index":1,"kind":"block_stop"}
+{"block_type":"tool_call","index":2,"kind":"block_start","tool_call_id":"call_77a2f324534445ad8a791c0e","tool_name":"get_weather"}
+{"index":2,"kind":"tool_args_delta","text":"{","tool_call_id":"call_77a2f324534445ad8a791c0e"}
+{"index":2,"kind":"tool_args_delta","text":"\"city\": \"Osaka\"}","tool_call_id":"call_77a2f324534445ad8a791c0e"}
+{"kind":"usage","usage":{"cache_read_tokens":512,"cache_write_tokens":0,"input_tokens":594,"output_tokens":70,"raw":{"completion_tokens":70,"completion_tokens_details":{"reasoning_tokens":20,"text_tokens":49},"prompt_tokens":594,"prompt_tokens_details":{"cached_tokens":512,"text_tokens":594},"total_tokens":664},"reasoning_tokens":20}}
+{"block":{"id":"call_77a2f324534445ad8a791c0e","input":{"city":"Osaka"},"name":"get_weather","type":"tool_call"},"block_type":"tool_call","index":2,"kind":"block_stop"}
+{"kind":"end","message":{"content":[{"kind":"raw","native":{"api":"openai.chat","raw":{"field":"reasoning_content"}},"text":"The user asks for the weather in Osaka right now. I should call the get_weather tool.","type":"reasoning"},{"text":"I'll check the current weather in Osaka for you.","type":"text"},{"id":"call_77a2f324534445ad8a791c0e","input":{"city":"Osaka"},"name":"get_weather","type":"tool_call"}],"origin":{"kind":"model"},"producer":{"api":"openai.chat","endpoint":"api.openai.com","model":"deepseek-v4.1-flash","request_id":"0f0e0d0c0b0a09080706050403020102","response_id":"chatcmpl-de9c340a-efcd-9a0f-86fe-b1814e6a1fc4"},"role":"assistant","stop_reason":"tool_use","usage":{"cache_read_tokens":512,"cache_write_tokens":0,"input_tokens":594,"output_tokens":70,"raw":{"completion_tokens":70,"completion_tokens_details":{"reasoning_tokens":20,"text_tokens":49},"prompt_tokens":594,"prompt_tokens_details":{"cached_tokens":512,"text_tokens":594},"total_tokens":664},"reasoning_tokens":20}},"stop":{"raw":"tool_calls","reason":"tool_use"},"usage":{"cache_read_tokens":512,"cache_write_tokens":0,"input_tokens":594,"output_tokens":70,"raw":{"completion_tokens":70,"completion_tokens_details":{"reasoning_tokens":20,"text_tokens":49},"prompt_tokens":594,"prompt_tokens_details":{"cached_tokens":512,"text_tokens":594},"total_tokens":664},"reasoning_tokens":20}}

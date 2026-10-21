@@ -1,0 +1,6 @@
+{
+  "api": "anthropic.messages",
+  "model": "claude-opus-5-5",
+  "source": "synthetic",
+  "notes": "An overloaded error event after HTTP 200 ends the stream with a transient mid-stream error."
+}

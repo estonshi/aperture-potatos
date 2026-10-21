@@ -1,0 +1,70 @@
+{
+  "spec_version": "0.1",
+  "description": "A provider_switch hook blocks the switch at the turn boundary; the turn keeps the old model.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "hooks": [
+      {
+        "point": "provider_switch",
+        "name": "pin",
+        "calls": [
+          {
+            "output": {
+              "block": true,
+              "reason": "the model is pinned"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    },
+    {
+      "name": "gpt",
+      "api": "openai.chat",
+      "model": "deepseek-v4.1-flash",
+      "responses": [
+        "responses/unused.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Hi."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "switch_model": {
+        "provider": "gpt"
+      }
+    },
+    {
+      "send": {
+        "text": "Again."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

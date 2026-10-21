@@ -1,0 +1,36 @@
+{
+  "max_tokens": 1234,
+  "messages": [
+    {
+      "content": [
+        {
+          "cache_control": {
+            "type": "ephemeral"
+          },
+          "text": "Hi",
+          "type": "text"
+        }
+      ],
+      "role": "user"
+    }
+  ],
+  "metadata": {
+    "user_id": "u-1"
+  },
+  "model": "claude-opus-5-5",
+  "stream": true,
+  "system": [
+    {
+      "text": "<runtime-conventions>\nConventions of the runtime you are running in: ...\n</runtime-conventions>",
+      "type": "text"
+    },
+    {
+      "cache_control": {
+        "type": "ephemeral"
+      },
+      "text": "<identity>\nYour name is Tater.\n</identity>",
+      "type": "text"
+    }
+  ],
+  "top_k": 5
+}

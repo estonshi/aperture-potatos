@@ -1,0 +1,69 @@
+{
+  "spec_version": "0.1",
+  "description": "Closing a session asks the model, over the conversation and with the current memory and its limits, for the changes to long-term memory, applies them all at once and reports memory.saved with trigger session_end.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "extensions": {
+      "memory": {
+        "items": [
+          {
+            "user": "u1",
+            "project": "p1",
+            "content": "In this project the user wants answers in one sentence."
+          },
+          {
+            "user": "",
+            "project": "p1",
+            "content": "The project builds with make."
+          }
+        ],
+        "consolidate_on": [
+          "session_end"
+        ],
+        "no_tools": true
+      }
+    }
+  },
+  "session": {
+    "labels": {
+      "user_id": "u1",
+      "project_id": "p1"
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        {
+          "sse": "responses/02.sse",
+          "hold_after_events": 1,
+          "hold_ms": 10
+        }
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-30T00:00:00.000Z",
+    "step_ms": 1,
+    "interleaved": true
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "From now on, answer in Chinese."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "close": true
+    }
+  ]
+}

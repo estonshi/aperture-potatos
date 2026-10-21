@@ -1,0 +1,40 @@
+{
+  "description": "A request refused with 401 ends with an auth error naming the challenge; a task that needs credentials ends its round at auth_required.",
+  "base_url": "https://agent.test",
+  "calls": [
+    {
+      "op": "send",
+      "message": {
+        "message_id": "m-1",
+        "role": "user",
+        "parts": [
+          {
+            "text": "Balance?"
+          }
+        ],
+        "metadata": {
+          "agent_call_chain": [
+            "Tater"
+          ]
+        }
+      }
+    },
+    {
+      "op": "send",
+      "message": {
+        "message_id": "m-1",
+        "role": "user",
+        "parts": [
+          {
+            "text": "Balance?"
+          }
+        ],
+        "metadata": {
+          "agent_call_chain": [
+            "Tater"
+          ]
+        }
+      }
+    }
+  ]
+}

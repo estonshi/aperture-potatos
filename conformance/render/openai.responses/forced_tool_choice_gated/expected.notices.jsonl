@@ -1,0 +1,3 @@
+{"detail":{"field":"tools.now.strict","from":true,"to":false},"kind":"capability_adjusted"}
+{"detail":{"field":"tool_choice","from":"named","to":"auto"},"kind":"capability_adjusted"}
+{"detail":{"field":"sampling","from":"set","to":"removed"},"kind":"capability_adjusted"}

@@ -1,0 +1,6 @@
+{
+  "kind": "subagent",
+  "title": "Research flights",
+  "foreground": true,
+  "notify_mode": "queue"
+}

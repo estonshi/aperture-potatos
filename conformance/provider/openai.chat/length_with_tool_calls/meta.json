@@ -1,0 +1,6 @@
+{
+  "api": "openai.chat",
+  "model": "gpt-5.6",
+  "source": "synthetic",
+  "notes": "finish_reason length wins over an accumulated call whose arguments were cut off; the call is marked incomplete."
+}

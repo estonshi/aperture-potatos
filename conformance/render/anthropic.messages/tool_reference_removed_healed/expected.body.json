@@ -1,0 +1,138 @@
+{
+  "max_tokens": 64000,
+  "messages": [
+    {
+      "content": [
+        {
+          "text": "Open an issue about the flaky test.",
+          "type": "text"
+        }
+      ],
+      "role": "user"
+    },
+    {
+      "content": [
+        {
+          "id": "srvtoolu_01",
+          "input": {
+            "query": "github issue"
+          },
+          "name": "tool_search_tool_bm25",
+          "type": "server_tool_use"
+        },
+        {
+          "content": {
+            "tool_references": [
+              {
+                "tool_name": "mcp__gh__create_issue",
+                "type": "tool_reference"
+              },
+              {
+                "tool_name": "mcp__gh__file_bug",
+                "type": "tool_reference"
+              }
+            ],
+            "type": "tool_search_tool_search_result"
+          },
+          "tool_use_id": "srvtoolu_01",
+          "type": "tool_search_tool_result"
+        },
+        {
+          "id": "toolu_01",
+          "input": {
+            "title": "Flaky test"
+          },
+          "name": "mcp__gh__create_issue",
+          "type": "tool_use"
+        }
+      ],
+      "role": "assistant"
+    },
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "text": "Issue #42 opened.",
+              "type": "text"
+            }
+          ],
+          "tool_use_id": "toolu_01",
+          "type": "tool_result"
+        }
+      ],
+      "role": "user"
+    },
+    {
+      "content": [
+        {
+          "text": "Opened issue #42.",
+          "type": "text"
+        }
+      ],
+      "role": "assistant"
+    },
+    {
+      "content": [
+        {
+          "cache_control": {
+            "type": "ephemeral"
+          },
+          "text": "File the bug too.",
+          "type": "text"
+        }
+      ],
+      "role": "user"
+    }
+  ],
+  "model": "claude-opus-5-5",
+  "stream": true,
+  "system": [
+    {
+      "cache_control": {
+        "type": "ephemeral"
+      },
+      "text": "<runtime-conventions>\n...\n</runtime-conventions>",
+      "type": "text"
+    }
+  ],
+  "tools": [
+    {
+      "defer_loading": true,
+      "description": "Create a GitHub issue.",
+      "input_schema": {
+        "properties": {
+          "title": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "mcp__gh__create_issue"
+    },
+    {
+      "description": "Read a file from the workspace.",
+      "input_schema": {
+        "properties": {
+          "path": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "read_file"
+    },
+    {
+      "defer_loading": true,
+      "description": "This tool is no longer available. Do not call it.",
+      "input_schema": {
+        "type": "object"
+      },
+      "name": "mcp__gh__file_bug"
+    },
+    {
+      "name": "tool_search_tool_bm25",
+      "type": "tool_search_tool_bm25_20251119"
+    }
+  ]
+}

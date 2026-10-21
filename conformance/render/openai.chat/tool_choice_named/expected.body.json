@@ -1,0 +1,53 @@
+{
+  "max_tokens": 64000,
+  "messages": [
+    {
+      "content": "Search.",
+      "role": "user"
+    }
+  ],
+  "model": "gpt-5.6",
+  "stream": true,
+  "stream_options": {
+    "include_obfuscation": false,
+    "include_usage": true
+  },
+  "tool_choice": {
+    "function": {
+      "name": "search"
+    },
+    "type": "function"
+  },
+  "tools": [
+    {
+      "function": {
+        "description": "Search the web.",
+        "name": "search",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "q": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "q"
+          ],
+          "type": "object"
+        },
+        "strict": true
+      },
+      "type": "function"
+    },
+    {
+      "function": {
+        "description": "Current time.",
+        "name": "now",
+        "parameters": {
+          "type": "object"
+        }
+      },
+      "type": "function"
+    }
+  ]
+}

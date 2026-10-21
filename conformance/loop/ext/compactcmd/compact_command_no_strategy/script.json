@@ -1,0 +1,49 @@
+{
+  "spec_version": "0.1",
+  "description": "Without a compaction strategy, /compact says none is installed.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "extensions": {
+      "cmd.compact": {}
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Hello."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "command": {
+        "name": "compact",
+        "args": ""
+      }
+    },
+    {
+      "wait": {
+        "event": "command.completed",
+        "count": 1
+      }
+    }
+  ]
+}

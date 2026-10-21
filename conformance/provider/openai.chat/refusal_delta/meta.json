@@ -1,0 +1,6 @@
+{
+  "api": "openai.chat",
+  "model": "gpt-5.6",
+  "source": "synthetic",
+  "notes": "delta.refusal streams into a refusal block on the refusal channel."
+}

@@ -1,0 +1,64 @@
+{
+  "spec_version": "0.1",
+  "description": "Rewinding to a turn opens an epoch whose system line and kept lines are the current ones verbatim: the request after it is the second turn's request up to that turn's input, byte for byte, so its cache and signatures still hold.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": []
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse",
+        "responses/04.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "First question."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Second question."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Third question."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "rewind": "turn_02"
+    },
+    {
+      "send": {
+        "text": "Second question, rephrased."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "nickname": "Tater",
+  "instructions": "Be brief.",
+  "sections": [
+    {
+      "slot": "environment",
+      "name": "clock",
+      "order": 0,
+      "text": "<env>Today is 2026-10-13.</env>"
+    },
+    {
+      "slot": "catalog",
+      "name": "servers",
+      "order": 0,
+      "text": "<servers>github</servers>"
+    },
+    {
+      "slot": "capabilities",
+      "name": "zeta",
+      "order": 1,
+      "text": "zeta, order 1"
+    },
+    {
+      "slot": "capabilities",
+      "name": "beta",
+      "order": 0,
+      "text": "beta, order 0"
+    },
+    {
+      "slot": "capabilities",
+      "name": "alpha",
+      "order": 0,
+      "text": "alpha, order 0"
+    },
+    {
+      "slot": "catalog",
+      "name": "agents",
+      "order": -5,
+      "text": "<agents>billing</agents>"
+    }
+  ]
+}

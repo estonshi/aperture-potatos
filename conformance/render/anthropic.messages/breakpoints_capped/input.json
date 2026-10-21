@@ -1,0 +1,112 @@
+{
+  "model": "claude-opus-5-5",
+  "system": [
+    {
+      "slot": "core",
+      "text": "<runtime-conventions>\nConventions of the runtime you are running in: ...\n</runtime-conventions>"
+    },
+    {
+      "slot": "identity",
+      "text": "<identity>\nYour name is Tater.\n</identity>"
+    },
+    {
+      "slot": "user",
+      "text": "# Instructions from the agent developer\n\nBe brief.",
+      "cache": true
+    },
+    {
+      "slot": "catalog",
+      "text": "<available_skills>\n...\n</available_skills>"
+    }
+  ],
+  "messages": [
+    {
+      "v": 1,
+      "id": "msg_01",
+      "session_id": "ses_01",
+      "seq": 1,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "epoch_head"
+      },
+      "content": [
+        {
+          "type": "reminder",
+          "source": "instructions",
+          "text": "Answer in metric units."
+        },
+        {
+          "type": "reminder",
+          "source": "pin:plan",
+          "text": "Step 2 of 3."
+        }
+      ],
+      "ts": "2026-09-27T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_02",
+      "session_id": "ses_01",
+      "seq": 2,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "First question"
+        }
+      ],
+      "ts": "2026-09-27T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_03",
+      "session_id": "ses_01",
+      "seq": 3,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "First answer"
+        }
+      ],
+      "ts": "2026-09-27T08:00:00Z",
+      "producer": {
+        "api": "anthropic.messages",
+        "endpoint": "api.anthropic.com",
+        "model": "claude-opus-5-5"
+      }
+    },
+    {
+      "v": 1,
+      "id": "msg_04",
+      "session_id": "ses_01",
+      "seq": 4,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Second question"
+        }
+      ],
+      "ts": "2026-09-27T08:00:00Z"
+    }
+  ],
+  "caps": {
+    "prompt_cache": {
+      "max_breakpoints": 2
+    }
+  }
+}

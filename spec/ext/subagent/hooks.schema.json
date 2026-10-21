@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/estonshi/aperture-potatos/spec/ext/subagent/hooks.schema.json",
+  "title": "Subagent hook points",
+  "description": "The JSON form of this extension's hook points: <point>_input carries the kernel hook environment, <point>_output is what a hook answers.",
+  "$defs": {
+    "subagent_start_input": {
+      "type": "object",
+      "description": "A subagent task is about to start its child session.",
+      "allOf": [
+        {
+          "$ref": "../../schema/hook.schema.json#/$defs/env"
+        }
+      ],
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "agent_type": {
+          "type": "string"
+        },
+        "prompt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "attempt",
+        "agent_type",
+        "prompt"
+      ]
+    },
+    "subagent_start_output": {
+      "type": "object",
+      "description": "Deny refuses the task; additional_context rides along with the child's first turn.",
+      "properties": {
+        "deny": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "updated_prompt": {
+          "type": "string"
+        },
+        "additional_context": {
+          "type": "string"
+        }
+      }
+    },
+    "subagent_stop_input": {
+      "type": "object",
+      "description": "The child session ended a turn.",
+      "allOf": [
+        {
+          "$ref": "../../schema/hook.schema.json#/$defs/env"
+        }
+      ],
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "agent_type": {
+          "type": "string"
+        },
+        "outcome": {
+          "type": "string"
+        },
+        "last_assistant_text": {
+          "type": "string"
+        },
+        "continuations": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "task_id",
+        "agent_type",
+        "outcome",
+        "last_assistant_text",
+        "continuations"
+      ]
+    },
+    "subagent_stop_output": {
+      "type": "object",
+      "description": "Continue sends reason to the child as its next instruction.",
+      "properties": {
+        "continue": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

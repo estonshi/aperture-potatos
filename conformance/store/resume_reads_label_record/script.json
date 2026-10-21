@@ -1,0 +1,61 @@
+{
+  "spec_version": "0.1",
+  "description": "A resumed session takes its labels from the label record, not from the first line, which keeps the labels at creation; set_labels merges into them and a query finds the session by the new values.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": []
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-29T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "resume": {
+    "session_id": "ses_s1",
+    "file": "session.jsonl",
+    "labels": "labels.json"
+  },
+  "actions": [
+    {
+      "labels": true
+    },
+    {
+      "set_labels": {
+        "tier": "",
+        "region": "eu"
+      }
+    },
+    {
+      "labels": true
+    },
+    {
+      "find_sessions": {
+        "user_id": "u2"
+      }
+    },
+    {
+      "find_sessions": {
+        "user_id": "u1"
+      }
+    },
+    {
+      "send": {
+        "text": "Hello again."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

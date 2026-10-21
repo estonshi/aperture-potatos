@@ -1,0 +1,1 @@
+The messages above are summaries of consecutive parts of one conversation, oldest first. Merge them into one summary that follows the same instructions, keeping what the later parts changed. Write only the summary and do not call any tool.

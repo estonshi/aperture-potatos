@@ -1,0 +1,13 @@
+{
+  "body": "<html><body>502 Bad Gateway</body></html>",
+  "expected": {
+    "api": "anthropic.messages",
+    "class": "transient",
+    "message": "<html><body>502 Bad Gateway</body></html>",
+    "status": 502
+  },
+  "headers": {
+    "content-type": "text/html"
+  },
+  "status": 502
+}

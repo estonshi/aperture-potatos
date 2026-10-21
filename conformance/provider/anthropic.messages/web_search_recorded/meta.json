@@ -1,0 +1,7 @@
+{
+  "api": "anthropic.messages",
+  "model": "deepseek-flash",
+  "notes": "Recorded from an Anthropic-compatible endpoint with the neutral web search: two parallel searches, results with encrypted_content, text without structured citations.",
+  "recorded_at": "2026-10-13",
+  "source": "recorded"
+}

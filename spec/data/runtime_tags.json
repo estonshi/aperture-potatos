@@ -1,0 +1,4 @@
+{
+  "description": "Tags only the runtime may open or close. Every binding escapes the opening and closing form of each tag in foreign text (human input, tool results, task results, agent messages, memory, skills) by replacing the leading '<' with '&lt;'; names match in any letter case, with blanks allowed after '<' and around '/' (runtime.md 5.7).",
+  "tags": ["system-reminder", "task-notification", "agent-message", "runtime-conventions"]
+}

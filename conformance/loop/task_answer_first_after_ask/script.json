@@ -1,0 +1,88 @@
+{
+  "spec_version": "0.1",
+  "description": "An instruction accepted before the task asks is not its answer: the first instruction accepted after AskInput carries answer, the earlier one does not.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "task_kinds": [
+      {
+        "name": "job",
+        "caps": {
+          "instructions": true
+        }
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-29T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "task": {
+        "start": {
+          "kind": "job",
+          "title": "Job",
+          "input": {
+            "title": "Job"
+          }
+        }
+      }
+    },
+    {
+      "task": {
+        "send": "task_01",
+        "text": "use metric units"
+      }
+    },
+    {
+      "task": {
+        "step": "task_01",
+        "do": {
+          "ask": "Which city?"
+        }
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "task": {
+        "send": "task_01",
+        "text": "Kyoto"
+      }
+    },
+    {
+      "task": {
+        "step": "task_01",
+        "do": {
+          "await": true
+        }
+      }
+    },
+    {
+      "task": {
+        "step": "task_01",
+        "do": {
+          "succeed": "Booked."
+        }
+      }
+    },
+    {
+      "wait_quiet": true
+    }
+  ]
+}

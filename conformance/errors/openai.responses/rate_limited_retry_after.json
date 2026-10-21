@@ -1,0 +1,31 @@
+{
+  "body": {
+    "error": {
+      "code": "rate_limit_exceeded",
+      "message": "Rate limit reached.",
+      "param": null,
+      "type": "requests"
+    }
+  },
+  "expected": {
+    "api": "openai.responses",
+    "class": "rate_limited",
+    "code": "rate_limit_exceeded",
+    "message": "Rate limit reached.",
+    "raw": {
+      "error": {
+        "code": "rate_limit_exceeded",
+        "message": "Rate limit reached.",
+        "param": null,
+        "type": "requests"
+      }
+    },
+    "retry_after_ms": 2000,
+    "status": 429,
+    "type": "requests"
+  },
+  "headers": {
+    "retry-after": "2"
+  },
+  "status": 429
+}

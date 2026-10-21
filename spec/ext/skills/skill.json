@@ -1,0 +1,13 @@
+{
+  "name": "skill",
+  "description": "Load the full instructions of a skill listed in <available_skills>, or one of its resource files.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "name": { "type": "string", "enum": [], "description": "The skill to load." },
+      "resource": { "type": "string", "description": "Optional relative path listed in <skill_resources>; returns that file instead of the instructions." }
+    },
+    "required": ["name"],
+    "additionalProperties": false
+  }
+}

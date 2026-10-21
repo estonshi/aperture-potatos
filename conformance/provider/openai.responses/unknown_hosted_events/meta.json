@@ -1,0 +1,6 @@
+{
+  "api": "openai.responses",
+  "model": "gpt-5.6",
+  "source": "synthetic",
+  "notes": "Hosted tool progress events and unknown events are skipped; a done web_search_call becomes a hosted call followed by a hosted result."
+}

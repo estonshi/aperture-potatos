@@ -1,0 +1,104 @@
+{
+  "spec_version": "0.1",
+  "description": "Compaction re-injects pins into the new epoch head, newest first within the budgets: a pin over pin_tokens is cut with a note, and once pin_total_tokens is spent the oldest pin is dropped. A command's pin joins the set too.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "load_note",
+        "description": "Load load_note.",
+        "input_schema": {
+          "type": "object"
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "fixed",
+          "text": "Loaded.",
+          "pin": {
+            "key": "note",
+            "content": "Use metric units."
+          }
+        }
+      },
+      {
+        "name": "load_skill",
+        "description": "Load load_skill.",
+        "input_schema": {
+          "type": "object"
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "fixed",
+          "text": "Loaded.",
+          "pin": {
+            "key": "skill:review",
+            "content": "Review every change for correctness first, then for style, then for tests; Review every change for correctness first, then for style, then for tests; Review every change for correctness first, then for style, then for tests; Review every change for correctness first, then for style, then for tests; "
+          }
+        }
+      }
+    ],
+    "commands": [
+      {
+        "name": "remember",
+        "busy": "wait_idle",
+        "text": "Remembered.",
+        "pin": {
+          "key": "cmd:greeting",
+          "content": "Greet the user by name, always and politely, at the start."
+        }
+      }
+    ],
+    "context_policy": {
+      "pin_tokens": 30,
+      "pin_total_tokens": 50
+    },
+    "compactor": {
+      "summary": "Two pins were loaded.",
+      "keep": "none"
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "command": {
+        "name": "remember"
+      }
+    },
+    {
+      "send": {
+        "text": "Load both."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "compact": {}
+    },
+    {
+      "send": {
+        "text": "Next."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

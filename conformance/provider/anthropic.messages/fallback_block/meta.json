@@ -1,0 +1,6 @@
+{
+  "api": "anthropic.messages",
+  "model": "claude-opus-5-5",
+  "source": "synthetic",
+  "notes": "Server-side fallback: thinking and the client tool call of the abandoned generation are trimmed before the last fallback block, so the call never runs."
+}

@@ -1,0 +1,35 @@
+{
+  "content": [
+    {
+      "id": "call_1",
+      "input": {
+        "path": "b.txt"
+      },
+      "name": "read",
+      "type": "tool_call"
+    }
+  ],
+  "origin": {
+    "kind": "model"
+  },
+  "producer": {
+    "api": "openai.chat",
+    "endpoint": "api.openai.com",
+    "model": "llama-3.3",
+    "response_id": "chatcmpl-1"
+  },
+  "role": "assistant",
+  "stop_reason": "tool_use",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 30,
+    "output_tokens": 12,
+    "raw": {
+      "completion_tokens": 12,
+      "prompt_tokens": 30,
+      "total_tokens": 42
+    },
+    "reasoning_tokens": 0
+  }
+}

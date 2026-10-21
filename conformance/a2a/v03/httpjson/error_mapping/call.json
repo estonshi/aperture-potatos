@@ -1,0 +1,27 @@
+{
+  "description": "An A2A error fails the exchange; TaskNotFound means the peer no longer knows the task.",
+  "base_url": "https://agent.test",
+  "calls": [
+    {
+      "op": "send",
+      "message": {
+        "message_id": "m-1",
+        "role": "user",
+        "parts": [
+          {
+            "text": "Hello"
+          }
+        ],
+        "metadata": {
+          "agent_call_chain": [
+            "Tater"
+          ]
+        }
+      }
+    },
+    {
+      "op": "subscribe",
+      "task_id": "t-9"
+    }
+  ]
+}

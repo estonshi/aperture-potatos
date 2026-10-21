@@ -1,0 +1,119 @@
+{
+  "max_tokens": 64000,
+  "messages": [
+    {
+      "content": [
+        {
+          "text": "Crawl the site in the background.",
+          "type": "text"
+        }
+      ],
+      "role": "user"
+    },
+    {
+      "content": [
+        {
+          "id": "toolu_s1",
+          "input": {
+            "background": true,
+            "title": "Crawl"
+          },
+          "name": "start_job",
+          "type": "tool_use"
+        }
+      ],
+      "role": "assistant"
+    },
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "text": "Task task_s1 started in the background. You will be notified when it finishes or needs input; do not poll it.",
+              "type": "text"
+            }
+          ],
+          "tool_use_id": "toolu_s1",
+          "type": "tool_result"
+        }
+      ],
+      "role": "user"
+    },
+    {
+      "content": [
+        {
+          "text": "Crawling.",
+          "type": "text"
+        }
+      ],
+      "role": "assistant"
+    },
+    {
+      "content": [
+        {
+          "text": "<task-notification task_id=\"task_s2\" kind=\"job\" status=\"succeeded\">\nTask \"Index\" (attempt 1) succeeded.\nSummary:\nIndexed.\n</task-notification>",
+          "type": "text"
+        }
+      ],
+      "role": "user"
+    },
+    {
+      "content": [
+        {
+          "text": "Indexing is done.",
+          "type": "text"
+        }
+      ],
+      "role": "assistant"
+    },
+    {
+      "content": [
+        {
+          "text": "<task-notification task_id=\"task_s1\" kind=\"job\" status=\"lost\">\nTask \"Crawl\" (attempt 1) was still running when the process restarted, so its outcome is unknown; do not assume it finished.\n</task-notification>",
+          "type": "text"
+        },
+        {
+          "cache_control": {
+            "type": "ephemeral"
+          },
+          "text": "What happened to the crawl?",
+          "type": "text"
+        }
+      ],
+      "role": "user"
+    }
+  ],
+  "model": "claude-opus-5-5",
+  "stream": true,
+  "system": [
+    {
+      "cache_control": {
+        "type": "ephemeral"
+      },
+      "text": "<identity>\nYour name is Tater.\n</identity>",
+      "type": "text"
+    }
+  ],
+  "tools": [
+    {
+      "description": "Start a job.",
+      "input_schema": {
+        "properties": {
+          "background": {
+            "default": false,
+            "description": "Run in the background: return a task_id now and get a notification when it finishes.",
+            "type": "boolean"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "type": "object"
+      },
+      "name": "start_job"
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "model": "claude-opus-5-5",
+  "system": [
+    {
+      "slot": "core",
+      "text": "<runtime-conventions>\n...\n</runtime-conventions>"
+    }
+  ],
+  "messages": [
+    {
+      "v": 1,
+      "id": "msg_01",
+      "session_id": "ses_01",
+      "seq": 1,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "What is the weather in Osaka?"
+        }
+      ],
+      "ts": "2026-10-13T08:00:00Z"
+    }
+  ],
+  "tools": [
+    {
+      "name": "get_weather",
+      "description": "Get the weather.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "city": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "city"
+        ]
+      }
+    }
+  ],
+  "hosted_tools": [
+    {
+      "name": "web_search",
+      "web_search": {
+        "max_uses": 3,
+        "allowed_domains": [
+          "example.com"
+        ],
+        "user_location": {
+          "city": "Osaka",
+          "country": "JP",
+          "timezone": "Asia/Tokyo"
+        },
+        "context_size": "low"
+      }
+    },
+    {
+      "name": "web_fetch",
+      "raw": {
+        "anthropic.messages": {
+          "type": "web_fetch_20250910",
+          "name": "web_fetch",
+          "max_uses": 2
+        },
+        "openai.responses": {
+          "type": "web_fetch_preview",
+          "name": "web_fetch"
+        }
+      }
+    },
+    {
+      "name": "code_interpreter",
+      "raw": {
+        "openai.responses": {
+          "type": "code_interpreter",
+          "container": {
+            "type": "auto"
+          }
+        }
+      }
+    }
+  ]
+}

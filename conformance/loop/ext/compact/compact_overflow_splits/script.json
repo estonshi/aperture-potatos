@@ -1,0 +1,68 @@
+{
+  "spec_version": "0.1",
+  "description": "After an overflow the whole context no longer fits one summary request, so the strategy summarizes the oldest half and the rest apart, as appended messages, and merges the two summaries.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "context_policy": {
+      "max_context_tokens": 64600
+    },
+    "extensions": {
+      "compact": {}
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        {
+          "sse": "responses/03.sse",
+          "status": 400,
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "responses/04.sse",
+        "responses/05.sse",
+        "responses/06.sse",
+        "responses/07.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "First question."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Second question."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Third question."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

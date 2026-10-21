@@ -1,0 +1,14 @@
+{
+  "name": "search_history",
+  "description": "Search this conversation, including parts no longer in your context because they were compacted. Set parent to search what the conversation this one was started from still holds instead, when there is one. Give a query to find matching messages, or a seq from an earlier result to read that message in full.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "query": {"type": "string", "description": "Words that must all appear, case-insensitive."},
+      "seq": {"type": "integer", "minimum": 1, "description": "Read the message at this position in full instead of searching."},
+      "parent": {"type": "boolean", "description": "Search the parent conversation's current context instead of this one."},
+      "limit": {"type": "integer", "minimum": 1, "maximum": 50}
+    },
+    "additionalProperties": false
+  }
+}

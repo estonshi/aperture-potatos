@@ -1,0 +1,27 @@
+{
+  "body": {
+    "error": {
+      "message": "Request timed out",
+      "type": "timeout_error"
+    },
+    "request_id": "req_011CErr",
+    "type": "error"
+  },
+  "expected": {
+    "api": "anthropic.messages",
+    "class": "transient",
+    "message": "Request timed out",
+    "raw": {
+      "error": {
+        "message": "Request timed out",
+        "type": "timeout_error"
+      },
+      "request_id": "req_011CErr",
+      "type": "error"
+    },
+    "request_id": "req_011CErr",
+    "status": 504,
+    "type": "timeout_error"
+  },
+  "status": 504
+}

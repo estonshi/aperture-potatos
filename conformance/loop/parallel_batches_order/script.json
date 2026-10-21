@@ -1,0 +1,78 @@
+{
+  "spec_version": "0.1",
+  "description": "Adjacent parallel calls share a group and overlap; the serial call between them runs alone; every group waits for the one before, and the tool line keeps call order.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "read_slow",
+        "description": "Read a file slowly.",
+        "input_schema": {
+          "type": "object"
+        },
+        "concurrency": "parallel",
+        "behavior": {
+          "type": "fixed",
+          "text": "slow contents",
+          "sleep_ms": 300
+        }
+      },
+      {
+        "name": "read_fast",
+        "description": "Read a file quickly.",
+        "input_schema": {
+          "type": "object"
+        },
+        "concurrency": "parallel",
+        "behavior": {
+          "type": "fixed",
+          "text": "fast contents",
+          "sleep_ms": 100
+        }
+      },
+      {
+        "name": "write",
+        "description": "Write a file.",
+        "input_schema": {
+          "type": "object"
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "fixed",
+          "text": "written",
+          "sleep_ms": 50
+        }
+      }
+    ],
+    "limits": {
+      "max_parallel_tools": 4
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Read, write, read."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

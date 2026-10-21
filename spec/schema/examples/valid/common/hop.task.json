@@ -1,0 +1,9 @@
+{
+  "kind": "task",
+  "id": "task_01",
+  "name": "subagent",
+  "session_id": "ses_01",
+  "call_id": "toolu_01",
+  "turn_id": "turn_01",
+  "seq": 7
+}

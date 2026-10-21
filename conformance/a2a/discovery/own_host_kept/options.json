@@ -1,0 +1,4 @@
+{
+  "description": "An interface on another host is dropped before ranking, so the card's own host wins though it ranks lower.",
+  "base_url": "https://a.test"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "ask_parent",
+  "description": "Ask the agent that delegated this task one question and wait for its answer. Ask only for what you cannot find out yourself, including in its conversation, or for a decision that is not yours to make. It may have to ask the user in turn, so the answer can take a while.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "question": { "type": "string", "description": "One self-contained question; for a choice, list the options you see." }
+    },
+    "required": ["question"],
+    "additionalProperties": false
+  }
+}

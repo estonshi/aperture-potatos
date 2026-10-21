@@ -1,0 +1,218 @@
+{
+  "model": "gpt-5.6",
+  "system": [
+    {
+      "slot": "core",
+      "text": "<runtime-conventions>\n...\n</runtime-conventions>"
+    }
+  ],
+  "hosted_tools": [
+    {
+      "name": "web_search",
+      "web_search": {}
+    }
+  ],
+  "messages": [
+    {
+      "v": 1,
+      "id": "msg_01",
+      "session_id": "ses_01",
+      "seq": 1,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "What is the weather in Osaka?"
+        }
+      ],
+      "ts": "2026-10-13T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_02",
+      "session_id": "ses_01",
+      "seq": 2,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "hosted_call",
+          "id": "srvtoolu_09",
+          "name": "web_search",
+          "input": {
+            "query": "osaka hotels"
+          },
+          "native": {
+            "api": "anthropic.messages",
+            "raw": {
+              "type": "server_tool_use",
+              "id": "srvtoolu_03",
+              "name": "web_search",
+              "input": {
+                "query": "osaka hotels"
+              }
+            }
+          }
+        },
+        {
+          "type": "hosted_result",
+          "call_id": "srvtoolu_09",
+          "name": "web_search",
+          "sources": [
+            {
+              "url": "https://example.com/osaka",
+              "title": "Osaka weather"
+            }
+          ],
+          "native": {
+            "api": "anthropic.messages",
+            "raw": {
+              "type": "web_search_tool_result",
+              "tool_use_id": "srvtoolu_03",
+              "content": [
+                {
+                  "type": "web_search_result",
+                  "url": "https://example.com/osaka",
+                  "title": "Osaka weather",
+                  "encrypted_content": "EqgBCioI"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "text",
+          "text": "Sunny."
+        }
+      ],
+      "ts": "2026-10-13T08:00:00Z",
+      "producer": {
+        "api": "anthropic.messages",
+        "endpoint": "api.anthropic.com",
+        "model": "claude-opus-5-5"
+      },
+      "stop_reason": "end_turn"
+    },
+    {
+      "v": 1,
+      "id": "msg_03",
+      "session_id": "ses_01",
+      "seq": 3,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "And Kyoto?"
+        }
+      ],
+      "ts": "2026-10-13T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_04",
+      "session_id": "ses_01",
+      "seq": 4,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "hosted_call",
+          "id": "ws_1",
+          "name": "web_search",
+          "input": {
+            "type": "search",
+            "query": "kyoto weather"
+          },
+          "status": "completed",
+          "native": {
+            "api": "openai.responses",
+            "raw": {
+              "id": "ws_1",
+              "type": "web_search_call",
+              "status": "completed",
+              "action": {
+                "type": "search",
+                "query": "kyoto weather",
+                "sources": [
+                  {
+                    "type": "url",
+                    "url": "https://example.com/kyoto"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "type": "hosted_result",
+          "call_id": "ws_1",
+          "name": "web_search",
+          "sources": [
+            {
+              "url": "https://example.com/kyoto"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": "Cloudy.",
+          "native": {
+            "api": "openai.responses",
+            "raw": {
+              "id": "msg_k",
+              "type": "message",
+              "status": "completed",
+              "role": "assistant",
+              "content": [
+                {
+                  "type": "output_text",
+                  "text": "Cloudy.",
+                  "annotations": []
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "ts": "2026-10-13T08:00:00Z",
+      "producer": {
+        "api": "openai.responses",
+        "endpoint": "api.openai.com",
+        "model": "gpt-5.6"
+      },
+      "stop_reason": "end_turn"
+    },
+    {
+      "v": 1,
+      "id": "msg_05",
+      "session_id": "ses_01",
+      "seq": 5,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Thanks."
+        }
+      ],
+      "ts": "2026-10-13T08:00:00Z"
+    }
+  ]
+}

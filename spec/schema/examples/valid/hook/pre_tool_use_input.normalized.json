@@ -1,0 +1,8 @@
+{
+  "session_id": "ses_01",
+  "agent": "Tater",
+  "turn_id": "turn_01",
+  "step": 1,
+  "call": {"type": "tool_call", "id": "toolu_01", "name": "write_file", "input": {"path": "/tmp/a", "content": "x"}},
+  "spec": {"name": "write_file", "description": "Write a file.", "input_schema": {"type": "object"}, "concurrency": "serial", "timeout_ms": -1}
+}

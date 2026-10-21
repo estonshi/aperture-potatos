@@ -1,0 +1,31 @@
+{
+  "body": {
+    "error": {
+      "message": "Overloaded",
+      "type": "overloaded_error"
+    },
+    "request_id": "req_011CErr",
+    "type": "error"
+  },
+  "expected": {
+    "api": "anthropic.messages",
+    "class": "transient",
+    "message": "Overloaded",
+    "raw": {
+      "error": {
+        "message": "Overloaded",
+        "type": "overloaded_error"
+      },
+      "request_id": "req_011CErr",
+      "type": "error"
+    },
+    "request_id": "req_011CErr",
+    "retry_after_ms": 2500,
+    "status": 529,
+    "type": "overloaded_error"
+  },
+  "headers": {
+    "retry-after-ms": "2500"
+  },
+  "status": 529
+}

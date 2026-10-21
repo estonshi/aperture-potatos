@@ -1,0 +1,71 @@
+{
+  "spec_version": "0.1",
+  "description": "A job waiting for input is stopped by the host: Run ends through its canceled context, the attempt is canceled with the host's reason, and that is notified.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "task_kinds": [
+      {
+        "name": "job",
+        "caps": {
+          "instructions": true
+        },
+        "auto": [
+          {
+            "ask": "Which city?"
+          },
+          {
+            "await": true
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-29T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "task": {
+        "start": {
+          "kind": "job",
+          "title": "Job",
+          "input": {
+            "title": "Job"
+          }
+        }
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "task": {
+        "stop": "task_01",
+        "reason": "no longer needed"
+      }
+    },
+    {
+      "task": {
+        "wait": "task_01"
+      }
+    },
+    {
+      "wait_quiet": true
+    }
+  ]
+}

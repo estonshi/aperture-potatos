@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="760" height="310" viewBox="0 0 760 310" role="img" aria-label="任务的状态：pending、running 和 waiting_input 属于未结束状态。任务从 pending 开始运行后进入 running，需要输入时转为 waiting_input，收到回答后回到 running。running 运行成功进入 succeeded，出错或 panic 进入 failed。未结束的任务被停止时进入 canceled，进程重启时仍未结束的任务被记为 lost。succeeded、failed、canceled 和 lost 都属于已结束状态。" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="14" fill="none" stroke="currentColor" stroke-width="1.5">
+<style>svg{color:#1f2328}.bg{fill:#ffffff}.t1{fill:#eef1f5}.t2{fill:#dde9fb}.mute{opacity:.55}@media (prefers-color-scheme: dark){svg{color:#e6edf3}.bg{fill:#0d1117}.t1{fill:#1f2630}.t2{fill:#1a2c4d}}</style>
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor" stroke="none"/></marker></defs>
+<rect class="bg" x="0" y="0" width="760" height="310" rx="8" stroke="none"/>
+<rect x="20" y="30" width="420" height="230" rx="10" stroke-dasharray="4 4" class="mute"/>
+<text x="36" y="52" text-anchor="start" fill="currentColor" stroke="none" font-size="13">未结束</text>
+<rect class="t1" x="40" y="110" width="110" height="40" rx="6"/>
+<text x="95.0" y="135.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">pending</text>
+<rect class="t1" x="190" y="110" width="120" height="40" rx="6"/>
+<text x="250.0" y="135.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">running</text>
+<rect class="t1" x="185" y="195" width="130" height="40" rx="6"/>
+<text x="250.0" y="220.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">waiting_input</text>
+<line x1="150" y1="130" x2="188" y2="130" marker-end="url(#arr)"/>
+<text x="169" y="102" text-anchor="middle" fill="currentColor" stroke="none" font-size="12">开始运行</text>
+<line x1="235" y1="150" x2="235" y2="193" marker-end="url(#arr)"/>
+<text x="228" y="176" text-anchor="end" fill="currentColor" stroke="none" font-size="12">需要输入</text>
+<line x1="265" y1="195" x2="265" y2="152" marker-end="url(#arr)"/>
+<text x="272" y="176" text-anchor="start" fill="currentColor" stroke="none" font-size="12">收到回答</text>
+<rect x="540" y="30" width="200" height="270" rx="10" stroke-dasharray="4 4" class="mute"/>
+<text x="556" y="52" text-anchor="start" fill="currentColor" stroke="none" font-size="13">已结束</text>
+<rect class="t1" x="570" y="65" width="140" height="40" rx="6"/>
+<text x="640.0" y="90.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">succeeded</text>
+<rect class="t1" x="570" y="123" width="140" height="40" rx="6"/>
+<text x="640.0" y="148.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">failed</text>
+<rect class="t1" x="570" y="181" width="140" height="40" rx="6"/>
+<text x="640.0" y="206.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">canceled</text>
+<rect class="t1" x="570" y="239" width="140" height="40" rx="6"/>
+<text x="640.0" y="264.0" text-anchor="middle" fill="currentColor" stroke="none" font-size="14">lost</text>
+<line x1="310" y1="122" x2="568" y2="85" marker-end="url(#arr)"/>
+<text x="450" y="96" text-anchor="middle" fill="currentColor" stroke="none" font-size="12">运行成功</text>
+<line x1="310" y1="138" x2="568" y2="143" marker-end="url(#arr)"/>
+<text x="470" y="132" text-anchor="middle" fill="currentColor" stroke="none" font-size="12">出错或 panic</text>
+<line x1="440" y1="210" x2="568" y2="201" marker-end="url(#arr)"/>
+<text x="500" y="198" text-anchor="middle" fill="currentColor" stroke="none" font-size="12">被停止</text>
+<line x1="440" y1="245" x2="568" y2="259" marker-end="url(#arr)" stroke-dasharray="5 4"/>
+<text x="495" y="272" text-anchor="middle" fill="currentColor" stroke="none" font-size="12">进程重启时仍未结束</text>
+</svg>

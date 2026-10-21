@@ -1,0 +1,5 @@
+{"kind":"start","response_id":"resp_01"}
+{"block_type":"text","kind":"block_start"}
+{"channel":"text","kind":"text_delta","text":"Cut"}
+{"block":{"native":{"api":"openai.responses","raw":{"content":[{"annotations":[],"text":"Cut","type":"output_text"}],"id":"msg_t","role":"assistant","status":"completed","type":"message"}},"text":"Cut","type":"text"},"block_type":"text","kind":"block_stop"}
+{"error":{"api":"openai.responses","class":"transient","code":"stream_incomplete","message":"the stream ended before its terminal event","mid_stream":true}}

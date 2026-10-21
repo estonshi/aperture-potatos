@@ -1,0 +1,1049 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/estonshi/aperture-potatos/spec/schema/hook.schema.json",
+  "title": "Hook I/O",
+  "description": "The JSON form of each kernel hook point's input (<point>_input) and output (<point>_output), as JSON hooks read and write it. A reader ignores fields it does not know. runtime.md §10 says when each point fires and how outputs merge.",
+  "$defs": {
+    "env": {
+      "type": "object",
+      "description": "What every kernel hook input carries about where the point fired.",
+      "properties": {
+        "session_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agent": {
+          "type": "string",
+          "description": "Nickname of the session's agent."
+        },
+        "turn_id": {
+          "type": "string",
+          "description": "The turn the point fired in; absent outside a turn."
+        },
+        "step": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "The step within the turn; absent before the first."
+        },
+        "path": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/hop"
+          },
+          "description": "Hops from the root session; absent at the root."
+        }
+      },
+      "required": [
+        "session_id",
+        "agent"
+      ]
+    },
+    "common": {
+      "type": "object",
+      "description": "What every kernel hook output except approval's may carry.",
+      "properties": {
+        "additional_context": {
+          "type": "string",
+          "description": "Becomes a reminder with source hook:<name> at the next delivery point, or with the next turn outside one."
+        },
+        "system_message": {
+          "type": "string",
+          "description": "Shown to people as a notice; never sent to the model."
+        },
+        "halt": {
+          "type": "boolean",
+          "description": "Ends the turn after this point, at points inside a turn."
+        },
+        "halt_reason": {
+          "type": "string"
+        }
+      }
+    },
+    "injection": {
+      "type": "object",
+      "description": "The only output of an async hook.",
+      "properties": {
+        "additional_context": {
+          "type": "string"
+        },
+        "system_message": {
+          "type": "string"
+        },
+        "wake": {
+          "type": "boolean",
+          "description": "May start a turn on an idle session, within the hook's wake limit and the automatic-turn cap."
+        }
+      }
+    },
+    "session_start_input": {
+      "type": "object",
+      "description": "Fired when an epoch starts.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/env"
+        }
+      ],
+      "properties": {
+        "source": {
+          "type": "string",
+          "enum": [
+            "new",
+            "resume",
+            "clear",
+            "compact",
+            "rewind",
+            "fork"
+          ]
+        },
+        "model": {
+          "$ref": "common.schema.json#/$defs/model_info"
+        }
+      },
+      "required": [
+        "source",
+        "model"
+      ]
+    },
+    "session_start_output": {
+      "type": "object",
+      "description": "additional_context becomes the epoch head line.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {}
+    },
+    "session_end_input": {
+      "type": "object",
+      "description": "Fired once when a session that started closes.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/env"
+        }
+      ],
+      "properties": {
+        "reason": {
+          "type": "string"
+        },
+        "usage": {
+          "$ref": "command.schema.json#/$defs/usage_report"
+        }
+      },
+      "required": [
+        "reason",
+        "usage"
+      ]
+    },
+    "session_end_output": {
+      "type": "object",
+      "description": "Only system_message has an effect.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {}
+    },
+    "prompt_input": {
+      "type": "object",
+      "description": "One queued input as prompt hooks see and rewrite it.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "text": {
+          "type": "string"
+        },
+        "parts": {
+          "$ref": "message.schema.json#/$defs/content"
+        },
+        "origin": {
+          "$ref": "message.schema.json#/$defs/origin"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "text",
+        "origin"
+      ]
+    },
+    "user_prompt_submit_input": {
+      "type": "object",
+      "description": "Fired once per origin kind over the inputs a delivery point is about to commit.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/env"
+        }
+      ],
+      "properties": {
+        "inputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/prompt_input"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "inputs"
+      ]
+    },
+    "user_prompt_submit_output": {
+      "type": "object",
+      "description": "block drops every input of the firing, block_ids some of them; updated_inputs rewrites inputs by id.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {
+        "block": {
+          "type": "boolean"
+        },
+        "block_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reason": {
+          "type": "string"
+        },
+        "updated_inputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/prompt_input"
+          }
+        }
+      }
+    },
+    "command_invoke_input": {
+      "type": "object",
+      "description": "Fired before a command starts.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/env"
+        }
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "args": {
+          "type": "string"
+        },
+        "busy": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "args",
+        "busy"
+      ]
+    },
+    "command_invoke_output": {
+      "type": "object",
+      "description": "block refuses the command; updated_args replaces its arguments.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {
+        "block": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "updated_args": {
+          "type": "string"
+        }
+      }
+    },
+    "params_patch": {
+      "type": "object",
+      "description": "Changes one step's request; an absent field keeps the configured value.",
+      "properties": {
+        "max_output_tokens": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "temperature": {
+          "type": "number"
+        },
+        "top_p": {
+          "type": "number"
+        },
+        "stop_sequences": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tool_choice": {
+          "$ref": "provider.schema.json#/$defs/tool_choice"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "extra": {
+          "type": "object"
+        }
+      }
+    },
+    "pre_model_request_input": {
+      "type": "object",
+      "description": "Fired once per step, before its request is sent.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/env"
+        }
+      ],
+      "properties": {
+        "model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "params": {
+          "$ref": "provider.schema.json#/$defs/params"
+        },
+        "tool_names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "est_tokens": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "model",
+        "params",
+        "est_tokens"
+      ]
+    },
+    "pre_model_request_output": {
+      "type": "object",
+      "description": "params_patch applies to this step; next_turn_reasoning to the next turn only; synthetic answers the step instead of the model.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {
+        "params_patch": {
+          "$ref": "#/$defs/params_patch"
+        },
+        "next_turn_reasoning": {
+          "$ref": "provider.schema.json#/$defs/reasoning_params"
+        },
+        "synthetic": {
+          "type": "object",
+          "description": "An assistant message in message.schema.json form, without the commit envelope (v, id, session_id, seq, epoch, ts) the kernel fills only when it commits the message."
+        }
+      }
+    },
+    "post_model_response_input": {
+      "type": "object",
+      "description": "Fired once per step, after the reply and before it is committed.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/env"
+        }
+      ],
+      "properties": {
+        "message": {
+          "type": "object",
+          "description": "An assistant message in message.schema.json form, without the commit envelope (v, id, session_id, seq, epoch, ts) the kernel fills only when it commits the message."
+        },
+        "stop": {
+          "$ref": "provider.schema.json#/$defs/stop"
+        },
+        "usage": {
+          "$ref": "common.schema.json#/$defs/usage"
+        }
+      },
+      "required": [
+        "message",
+        "stop",
+        "usage"
+      ]
+    },
+    "post_model_response_output": {
+      "type": "object",
+      "description": "reject drops the reply and ends the turn.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {
+        "reject": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "synthetic_result": {
+      "type": "object",
+      "description": "A result that replaces running, or the result of, a tool.",
+      "properties": {
+        "content": {
+          "$ref": "message.schema.json#/$defs/content"
+        },
+        "is_error": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    },
+    "pre_tool_use_input": {
+      "type": "object",
+      "description": "Fired at the gate, once per call, on the normalized input.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/env"
+        }
+      ],
+      "properties": {
+        "call": {
+          "$ref": "message.schema.json#/$defs/tool_call_block"
+        },
+        "spec": {
+          "$ref": "tool.schema.json#/$defs/tool_spec"
+        }
+      },
+      "required": [
+        "call",
+        "spec"
+      ]
+    },
+    "pre_tool_use_output": {
+      "type": "object",
+      "description": "The decision merges with the approval rules, the strictest winning; synthetic_result skips the tool.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {
+        "decision": {
+          "type": "string",
+          "enum": [
+            "allow",
+            "ask",
+            "deny"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "updated_input": {
+          "type": "object",
+          "description": "Replaces the whole input."
+        },
+        "synthetic_result": {
+          "$ref": "#/$defs/synthetic_result"
+        }
+      }
+    },
+    "tool_call_view": {
+      "type": "object",
+      "description": "A call as rules and reviewers see it.",
+      "properties": {
+        "call_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "input": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "call_id",
+        "name",
+        "input"
+      ]
+    },
+    "matched_rule": {
+      "type": "object",
+      "description": "An approval rule that matched the call.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "allow",
+            "ask",
+            "deny"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "action"
+      ]
+    },
+    "approval_input": {
+      "type": "object",
+      "description": "One call waiting for a reviewer.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/env"
+        }
+      ],
+      "properties": {
+        "approval_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "call": {
+          "$ref": "#/$defs/tool_call_view"
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/matched_rule"
+          }
+        },
+        "hook_reasons": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "batch_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "batch_size": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "round": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2
+        },
+        "approved_input": {
+          "type": "object",
+          "description": "What earlier reviewers approved, when a later one rewrote it."
+        }
+      },
+      "required": [
+        "approval_id",
+        "call",
+        "batch_id",
+        "batch_size",
+        "round"
+      ]
+    },
+    "approval_output": {
+      "type": "object",
+      "description": "A reviewer's decision; an empty or unknown verdict denies.",
+      "properties": {
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "approve",
+            "deny",
+            "deny_and_stop"
+          ]
+        },
+        "updated_input": {
+          "type": "object"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "verdict"
+      ]
+    },
+    "post_tool_use_input": {
+      "type": "object",
+      "description": "Fired after each call, and after each call the gate denied.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/env"
+        }
+      ],
+      "properties": {
+        "call": {
+          "$ref": "message.schema.json#/$defs/tool_call_block"
+        },
+        "result": {
+          "$ref": "message.schema.json#/$defs/tool_result_block"
+        },
+        "duration_ms": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "call",
+        "result",
+        "duration_ms"
+      ]
+    },
+    "post_tool_use_output": {
+      "type": "object",
+      "description": "updated_result replaces the result; stop_turn ends the turn once the batch is committed.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {
+        "updated_result": {
+          "$ref": "#/$defs/synthetic_result"
+        },
+        "stop_turn": {
+          "type": "boolean"
+        }
+      }
+    },
+    "post_tool_batch_input": {
+      "type": "object",
+      "description": "Fired once a batch has every result, before it is committed.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/env"
+        }
+      ],
+      "properties": {
+        "calls": {
+          "type": "array",
+          "items": {
+            "$ref": "message.schema.json#/$defs/tool_call_block"
+          }
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "message.schema.json#/$defs/tool_result_block"
+          }
+        }
+      },
+      "required": [
+        "calls",
+        "results"
+      ]
+    },
+    "post_tool_batch_output": {
+      "type": "object",
+      "description": "stop_turn ends the turn once the batch is committed.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {
+        "stop_turn": {
+          "type": "boolean"
+        }
+      }
+    },
+    "stop_input": {
+      "type": "object",
+      "description": "Fired when the model answered without calls, before the turn ends.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/env"
+        }
+      ],
+      "properties": {
+        "last_assistant_text": {
+          "type": "string"
+        },
+        "stop_hook_active": {
+          "type": "boolean"
+        },
+        "continuations": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "last_assistant_text",
+        "stop_hook_active",
+        "continuations"
+      ]
+    },
+    "stop_output": {
+      "type": "object",
+      "description": "continue keeps the turn going, with reason as the continuation's reminder.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {
+        "continue": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "provider_switch_input": {
+      "type": "object",
+      "description": "Fired when a pending switch is about to take effect.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/env"
+        }
+      ],
+      "properties": {
+        "from": {
+          "$ref": "event.schema.json#/$defs/model_name"
+        },
+        "to": {
+          "$ref": "event.schema.json#/$defs/model_name"
+        },
+        "dropped_reasoning": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "dropped_opaque": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "from",
+        "to",
+        "dropped_reasoning",
+        "dropped_opaque"
+      ]
+    },
+    "provider_switch_output": {
+      "type": "object",
+      "description": "block keeps the current model.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {
+        "block": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "turn_result": {
+      "type": "object",
+      "description": "How a turn ended.",
+      "properties": {
+        "turn_id": {
+          "type": "string"
+        },
+        "outcome": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stop_reason": {
+          "type": "string"
+        },
+        "steps": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "usage": {
+          "$ref": "common.schema.json#/$defs/usage"
+        },
+        "final_text": {
+          "type": "string"
+        },
+        "error": {
+          "type": "string",
+          "description": "The error message when the turn failed."
+        }
+      },
+      "required": [
+        "outcome",
+        "steps",
+        "usage"
+      ]
+    },
+    "turn_end_input": {
+      "type": "object",
+      "description": "Fired on every way a turn ends, after its history is repaired.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/env"
+        }
+      ],
+      "properties": {
+        "result": {
+          "$ref": "#/$defs/turn_result"
+        }
+      },
+      "required": [
+        "result"
+      ]
+    },
+    "turn_end_output": {
+      "type": "object",
+      "description": "additional_context rides the next turn as a reminder that does not wake.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {}
+    },
+    "pre_compact_input": {
+      "type": "object",
+      "description": "Fired before a compaction, on the runtime that holds the history.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/env"
+        }
+      ],
+      "properties": {
+        "trigger": {
+          "type": "string",
+          "enum": [
+            "manual",
+            "auto",
+            "overflow",
+            "switch"
+          ]
+        },
+        "instructions": {
+          "type": "string"
+        },
+        "pre_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "range": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "from",
+                "up_to"
+              ]
+            },
+            "turn_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "kind",
+            "turn_id"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "trigger",
+        "instructions",
+        "pre_tokens"
+      ]
+    },
+    "pre_compact_output": {
+      "type": "object",
+      "description": "block refuses the compaction, except an overflow one, which must go on; updated_instructions replaces the per-call instructions.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {
+        "block": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "updated_instructions": {
+          "type": "string"
+        }
+      }
+    },
+    "post_compact_input": {
+      "type": "object",
+      "description": "Fired once a compaction's result is valid, before its epoch is written; its context joins the new epoch head.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/env"
+        }
+      ],
+      "properties": {
+        "trigger": {
+          "type": "string",
+          "enum": [
+            "manual",
+            "auto",
+            "overflow",
+            "switch"
+          ]
+        },
+        "summary": {
+          "type": "string"
+        },
+        "pre_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "post_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "epoch": {
+          "type": "integer",
+          "minimum": 2
+        }
+      },
+      "required": [
+        "trigger",
+        "summary",
+        "pre_tokens",
+        "post_tokens",
+        "epoch"
+      ]
+    },
+    "post_compact_output": {
+      "type": "object",
+      "description": "additional_context joins the new epoch head.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {}
+    },
+    "task_start_input": {
+      "type": "object",
+      "description": "Fired synchronously in the caller's call before a task's attempt is made: a start, a restart, or an instruction that continues a finished task.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/env"
+        }
+      ],
+      "properties": {
+        "spec": {
+          "$ref": "task.schema.json#/$defs/task_spec"
+        },
+        "call_id": {
+          "type": "string",
+          "description": "The tool call the task API was called from; absent for the host."
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "continuation": {
+          "type": "boolean"
+        },
+        "instruction": {
+          "$ref": "task.schema.json#/$defs/task_instruction",
+          "description": "The instruction that continues the task; only on a continuation."
+        }
+      },
+      "required": [
+        "spec",
+        "attempt",
+        "continuation"
+      ]
+    },
+    "task_start_output": {
+      "type": "object",
+      "description": "deny refuses the attempt and leaves nothing behind; updated_spec replaces the spec, but not its kind.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {
+        "deny": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "updated_spec": {
+          "$ref": "task.schema.json#/$defs/task_spec"
+        }
+      }
+    },
+    "task_notify_input": {
+      "type": "object",
+      "description": "Fired off the actor before a task notification is queued.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/env"
+        }
+      ],
+      "properties": {
+        "info": {
+          "$ref": "task.schema.json#/$defs/task_info"
+        },
+        "text": {
+          "type": "string",
+          "description": "The notification body, before the kernel wraps it in its tag."
+        }
+      },
+      "required": [
+        "info",
+        "text"
+      ]
+    },
+    "task_notify_output": {
+      "type": "object",
+      "description": "updated_text replaces the body; no_wake queues it without starting a turn.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {
+        "updated_text": {
+          "type": "string"
+        },
+        "no_wake": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

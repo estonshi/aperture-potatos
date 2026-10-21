@@ -1,0 +1,6 @@
+{
+  "api": "openai.chat",
+  "model": "gpt-5.6",
+  "source": "synthetic",
+  "notes": "Usage with cache_write_tokens among the prompt token details, read as cache writes."
+}

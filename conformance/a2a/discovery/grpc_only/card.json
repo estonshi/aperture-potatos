@@ -1,0 +1,11 @@
+{
+  "name": "A",
+  "description": "",
+  "supportedInterfaces": [
+    {
+      "url": "grpc://a.test",
+      "protocolBinding": "GRPC",
+      "protocolVersion": "1.0"
+    }
+  ]
+}

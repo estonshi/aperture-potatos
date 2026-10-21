@@ -1,0 +1,66 @@
+{
+  "description": "Protocol defaults. Every duration is integer milliseconds. A binding uses these values whenever the caller leaves a setting at zero; a negative setting disables the limit, except that a negative retry max_attempts or max_elapsed_ms means no retry.",
+  "provider": {
+    "context_window_tokens": 200000,
+    "max_output_tokens": 64000
+  },
+  "retry": {
+    "max_attempts": 4,
+    "base_delay_ms": 1000,
+    "max_delay_ms": 30000,
+    "max_elapsed_ms": 180000,
+    "first_event_timeout_ms": 120000,
+    "idle_timeout_ms": 120000
+  },
+  "limits": {
+    "max_steps": -1,
+    "tool_timeout_ms": 600000,
+    "tool_cancel_grace_ms": 3000,
+    "max_consecutive_auto_turns": 8,
+    "max_queued_inputs": 256,
+    "max_truncation_continues": 1,
+    "read_ahead": 64,
+    "max_parallel_tools": 8,
+    "hook_grace_ms": 1000,
+    "max_stop_continuations": 8,
+    "max_async_hooks": 64,
+    "init_timeout_ms": 30000,
+    "close_timeout_ms": 10000,
+    "max_running_tasks": 8,
+    "max_tool_result_chars": 100000
+  },
+  "tasks": {
+    "inbox_size": 16,
+    "keep_finished": 50,
+    "notification_summary_chars": 8000,
+    "foreign_text_chars": 20000
+  },
+  "subscription": {
+    "high_water": 512,
+    "hard_limit": 8192,
+    "stall_timeout_ms": 60000
+  },
+  "context": {
+    "auto_compact_ratio": 0.9,
+    "target_ratio": 0.1,
+    "min_summary_tokens": 20000,
+    "max_summary_tokens": 50000,
+    "pin_tokens": 5000,
+    "pin_total_tokens": 25000,
+    "max_auto_compacts_per_turn": 2,
+    "max_consecutive_failures": 3,
+    "count_band": 0.1
+  },
+  "hooks": {
+    "async_timeout_ms": 600000,
+    "wake_limit": 3,
+    "wake_window_ms": 60000,
+    "max_depth": 4,
+    "session_end_budget_ms": 5000
+  },
+  "input": {
+    "reminder_max_chars": 10000,
+    "merged_max_blocks": 32,
+    "merged_max_bytes": 65536
+  }
+}

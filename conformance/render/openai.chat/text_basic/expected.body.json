@@ -1,0 +1,25 @@
+{
+  "max_tokens": 64000,
+  "messages": [
+    {
+      "content": "<runtime-conventions>\nConventions ...\n</runtime-conventions>\n\n<identity>\nYour name is Tater.\n</identity>\n\nBe brief.",
+      "role": "system"
+    },
+    {
+      "content": "<system-reminder source=\"time\">\nIt is 09:00.\n</system-reminder>\n\nHello <there>.",
+      "role": "user"
+    }
+  ],
+  "model": "gpt-5.6",
+  "prompt_cache_key": "ses_01",
+  "stop": [
+    "END"
+  ],
+  "stream": true,
+  "stream_options": {
+    "include_obfuscation": false,
+    "include_usage": true
+  },
+  "temperature": 0.2,
+  "top_p": 0.9
+}

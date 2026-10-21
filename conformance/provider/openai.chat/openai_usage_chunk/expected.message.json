@@ -1,0 +1,37 @@
+{
+  "content": [
+    {
+      "text": "Hello there.",
+      "type": "text"
+    }
+  ],
+  "origin": {
+    "kind": "model"
+  },
+  "producer": {
+    "api": "openai.chat",
+    "endpoint": "api.openai.com",
+    "model": "gpt-5.6",
+    "response_id": "chatcmpl-1"
+  },
+  "role": "assistant",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_read_tokens": 32,
+    "cache_write_tokens": 0,
+    "input_tokens": 50,
+    "output_tokens": 30,
+    "raw": {
+      "completion_tokens": 30,
+      "completion_tokens_details": {
+        "reasoning_tokens": 18
+      },
+      "prompt_tokens": 50,
+      "prompt_tokens_details": {
+        "cached_tokens": 32
+      },
+      "total_tokens": 80
+    },
+    "reasoning_tokens": 18
+  }
+}

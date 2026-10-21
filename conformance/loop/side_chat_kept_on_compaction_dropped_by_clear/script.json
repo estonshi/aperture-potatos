@@ -1,0 +1,78 @@
+{
+  "spec_version": "0.1",
+  "description": "A main session's compaction keeps its side chat, whose next turn carries the compacted context and says the main session changed; a clear drops it like a rewind, announced as side_chat.dropped with reason cleared.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "compactor": {
+      "instructions": "Summarize the conversation.",
+      "keep": "none"
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse",
+        "responses/04.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Hello."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "side_chat": {
+        "name": "s",
+        "as": "s"
+      }
+    },
+    {
+      "send": {
+        "text": "What did I say?"
+      },
+      "on": "s"
+    },
+    {
+      "wait": "idle",
+      "on": "s"
+    },
+    {
+      "compact": {}
+    },
+    {
+      "send": {
+        "text": "And now?"
+      },
+      "on": "s"
+    },
+    {
+      "wait": "idle",
+      "on": "s"
+    },
+    {
+      "clear": true
+    },
+    {
+      "wait": {
+        "event": "side_chat.dropped"
+      }
+    }
+  ]
+}

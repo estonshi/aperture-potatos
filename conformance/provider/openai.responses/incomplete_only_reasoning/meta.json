@@ -1,0 +1,6 @@
+{
+  "api": "openai.responses",
+  "model": "gpt-5.6",
+  "source": "synthetic",
+  "notes": "The budget ran out during reasoning: the orphan reasoning is dropped and reasoning_exhausted is set."
+}

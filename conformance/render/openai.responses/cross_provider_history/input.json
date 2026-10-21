@@ -1,0 +1,164 @@
+{
+  "model": "gpt-5.6",
+  "tools": [
+    {
+      "name": "search",
+      "description": "Search the web.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "q"
+        ],
+        "additionalProperties": false
+      },
+      "strict": true
+    }
+  ],
+  "messages": [
+    {
+      "v": 1,
+      "id": "msg_01",
+      "session_id": "ses_01",
+      "seq": 1,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Plan a trip."
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_02",
+      "session_id": "ses_01",
+      "seq": 2,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "kind": "summary",
+          "text": "claude thinking",
+          "native": {
+            "api": "anthropic.messages",
+            "raw": {
+              "type": "thinking",
+              "thinking": "claude thinking",
+              "signature": "sig"
+            }
+          }
+        },
+        {
+          "type": "text",
+          "text": "Where to?"
+        },
+        {
+          "type": "tool_call",
+          "id": "toolu_01AbC",
+          "name": "search",
+          "input": {
+            "q": "kyoto"
+          }
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z",
+      "producer": {
+        "api": "anthropic.messages",
+        "endpoint": "api.anthropic.com",
+        "model": "claude-opus-5-5"
+      }
+    },
+    {
+      "v": 1,
+      "id": "msg_03",
+      "session_id": "ses_01",
+      "seq": 3,
+      "epoch": 1,
+      "role": "tool",
+      "origin": {
+        "kind": "tool"
+      },
+      "content": [
+        {
+          "type": "tool_result",
+          "call_id": "toolu_01AbC",
+          "name": "search",
+          "content": [
+            {
+              "type": "text",
+              "text": "Kyoto"
+            }
+          ],
+          "outcome": "success"
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_04",
+      "session_id": "ses_01",
+      "seq": 4,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "kind": "raw",
+          "text": "chat thinking",
+          "native": {
+            "api": "openai.chat",
+            "raw": {
+              "field": "reasoning_content"
+            }
+          }
+        },
+        {
+          "type": "text",
+          "text": "Kyoto it is."
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z",
+      "producer": {
+        "api": "openai.chat",
+        "endpoint": "api.deepseek.com",
+        "model": "deepseek-chat"
+      }
+    },
+    {
+      "v": 1,
+      "id": "msg_05",
+      "session_id": "ses_01",
+      "seq": 5,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Book it."
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z"
+    }
+  ]
+}

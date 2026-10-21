@@ -1,0 +1,30 @@
+{
+  "body": {
+    "error": {
+      "message": "invalid x-api-key",
+      "type": "authentication_error"
+    },
+    "request_id": "req_011CErr",
+    "type": "error"
+  },
+  "expected": {
+    "api": "anthropic.messages",
+    "class": "auth",
+    "message": "invalid x-api-key",
+    "raw": {
+      "error": {
+        "message": "invalid x-api-key",
+        "type": "authentication_error"
+      },
+      "request_id": "req_011CErr",
+      "type": "error"
+    },
+    "request_id": "req_011CErr",
+    "status": 401,
+    "type": "authentication_error"
+  },
+  "headers": {
+    "request-id": "req_011CHdr"
+  },
+  "status": 401
+}

@@ -1,0 +1,117 @@
+{
+  "model": "claude-opus-5-5",
+  "system": [
+    {
+      "slot": "core",
+      "text": "<runtime-conventions>\nConventions of the runtime you are running in: ...\n</runtime-conventions>"
+    },
+    {
+      "slot": "identity",
+      "text": "<identity>\nYour name is Tater.\n</identity>"
+    }
+  ],
+  "messages": [
+    {
+      "v": 1,
+      "id": "msg_01",
+      "session_id": "ses_01",
+      "seq": 1,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Screenshot please."
+        }
+      ],
+      "ts": "2026-09-27T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_02",
+      "session_id": "ses_01",
+      "seq": 2,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "tool_call",
+          "id": "toolu_01",
+          "name": "screenshot",
+          "input": {}
+        }
+      ],
+      "ts": "2026-09-27T08:00:00Z",
+      "producer": {
+        "api": "anthropic.messages",
+        "endpoint": "api.anthropic.com",
+        "model": "claude-opus-5-5"
+      }
+    },
+    {
+      "v": 1,
+      "id": "msg_03",
+      "session_id": "ses_01",
+      "seq": 3,
+      "epoch": 1,
+      "role": "tool",
+      "origin": {
+        "kind": "tool"
+      },
+      "content": [
+        {
+          "type": "tool_result",
+          "call_id": "toolu_01",
+          "content": [
+            {
+              "type": "text",
+              "text": "Here it is."
+            },
+            {
+              "type": "image",
+              "media_type": "image/png",
+              "data": "iVBORw0KGgo="
+            }
+          ],
+          "outcome": "success"
+        }
+      ],
+      "ts": "2026-09-27T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_04",
+      "session_id": "ses_01",
+      "seq": 4,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "And this one:"
+        },
+        {
+          "type": "image",
+          "media_type": "image/jpeg",
+          "url": "https://example.com/a.jpg"
+        },
+        {
+          "type": "document",
+          "media_type": "application/pdf",
+          "data": "JVBERi0=",
+          "filename": "spec.pdf"
+        }
+      ],
+      "ts": "2026-09-27T08:00:00Z"
+    }
+  ]
+}

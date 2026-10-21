@@ -1,0 +1,6 @@
+{
+  "api": "openai.chat",
+  "model": "deepseek-v4.1-flash",
+  "source": "synthetic",
+  "notes": "SSE comments between chunks only keep the stream alive."
+}

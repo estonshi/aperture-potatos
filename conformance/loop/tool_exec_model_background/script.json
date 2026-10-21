@@ -1,0 +1,66 @@
+{
+  "spec_version": "0.1",
+  "description": "A Background tool called with background:true passes the gate under its own name, starts a tool_exec task and returns task_started at once, skipping the loop's post_tool_use. The run has a tcall id, its tool events and post_tool_use sit under the task hop, and the tool never sees background. Called with background:false it runs in the call as before.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "fetch_page",
+        "description": "Fetch a web page.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url"
+          ]
+        },
+        "concurrency": "parallel",
+        "background": true,
+        "behavior": {
+          "type": "echo",
+          "sleep_ms": 1000
+        }
+      }
+    ],
+    "hooks": [
+      {
+        "point": "post_tool_use",
+        "name": "audit"
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse",
+        "responses/04.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-29T00:00:00.000Z",
+    "step_ms": 1,
+    "interleaved": true
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Fetch page a in the background."
+      }
+    },
+    {
+      "wait_quiet": true
+    }
+  ]
+}

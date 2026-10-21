@@ -1,0 +1,27 @@
+{
+  "body": {
+    "error": {
+      "message": "Your credit balance is too low.",
+      "type": "billing_error"
+    },
+    "request_id": "req_011CErr",
+    "type": "error"
+  },
+  "expected": {
+    "api": "anthropic.messages",
+    "class": "quota",
+    "message": "Your credit balance is too low.",
+    "raw": {
+      "error": {
+        "message": "Your credit balance is too low.",
+        "type": "billing_error"
+      },
+      "request_id": "req_011CErr",
+      "type": "error"
+    },
+    "request_id": "req_011CErr",
+    "status": 402,
+    "type": "billing_error"
+  },
+  "status": 402
+}

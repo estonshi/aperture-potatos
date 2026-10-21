@@ -1,0 +1,9 @@
+event: response.created
+data: {"type":"response.created","sequence_number":1,"response":{"id":"resp_01","object":"response","status":"in_progress","model":"gpt-5.6","output":[]}}
+
+event: response.in_progress
+data: {"type":"response.in_progress","sequence_number":2,"response":{"id":"resp_01","object":"response","status":"in_progress","model":"gpt-5.6","output":[]}}
+
+event: error
+data: {"type":"error","sequence_number":3,"error":{"type":"server_error","code":"server_error","message":"The server had an error while processing your request."}}
+

@@ -1,0 +1,86 @@
+{
+  "spec_version": "0.1",
+  "description": "A background a2a_send returns a task id at once; the reply arrives later as a task notification that wakes the model.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "extensions": {
+      "peer": {
+        "peers": [
+          {
+            "name": "translator",
+            "description": "Translates text between languages.",
+            "skills": [
+              {
+                "id": "fr",
+                "name": "French",
+                "description": "English to French."
+              }
+            ],
+            "rounds": [
+              {
+                "events": [
+                  {
+                    "kind": "task",
+                    "task_id": "t-1",
+                    "context_id": "c-1",
+                    "state": "submitted"
+                  },
+                  {
+                    "kind": "artifact",
+                    "task_id": "t-1",
+                    "context_id": "c-1",
+                    "artifact": {
+                      "artifact_id": "a-t-1",
+                      "parts": [
+                        {
+                          "text": "Done: {{text}}"
+                        }
+                      ]
+                    },
+                    "last_chunk": true
+                  },
+                  {
+                    "kind": "status",
+                    "task_id": "t-1",
+                    "context_id": "c-1",
+                    "state": "completed"
+                  }
+                ],
+                "start_ms": 1000
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-02T00:00:00.000Z",
+    "step_ms": 1,
+    "interleaved": true
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Get the menu translated."
+      }
+    },
+    {
+      "wait_quiet": true
+    }
+  ]
+}

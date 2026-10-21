@@ -1,0 +1,91 @@
+{
+  "spec_version": "0.1",
+  "description": "Instructions sent to a running job keep their mode and reach its inbox in order; each is reported by task.instruction, and one to an unknown task is refused.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "task_kinds": [
+      {
+        "name": "job",
+        "caps": {
+          "instructions": true
+        }
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-29T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "task": {
+        "start": {
+          "kind": "job",
+          "title": "Job",
+          "input": {
+            "title": "Job"
+          }
+        }
+      }
+    },
+    {
+      "task": {
+        "send": "task_01",
+        "text": "later",
+        "mode": "queue"
+      }
+    },
+    {
+      "task": {
+        "send": "task_01",
+        "text": "next"
+      }
+    },
+    {
+      "task": {
+        "send": "task_01",
+        "text": "now",
+        "mode": "interrupt"
+      }
+    },
+    {
+      "task": {
+        "send": "task_09",
+        "text": "lost"
+      },
+      "error": "task not found"
+    },
+    {
+      "task": {
+        "step": "task_01",
+        "do": {
+          "read": true
+        }
+      }
+    },
+    {
+      "task": {
+        "step": "task_01",
+        "do": {
+          "succeed": "Read my inbox."
+        }
+      }
+    },
+    {
+      "wait_quiet": true
+    }
+  ]
+}

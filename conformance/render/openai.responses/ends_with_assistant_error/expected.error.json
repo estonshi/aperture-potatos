@@ -1,0 +1,5 @@
+{
+  "api": "openai.responses",
+  "class": "invalid_request",
+  "message": "the request would end with an assistant message"
+}

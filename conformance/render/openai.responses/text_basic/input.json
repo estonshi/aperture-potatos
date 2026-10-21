@@ -1,0 +1,51 @@
+{
+  "model": "gpt-5.6",
+  "system": [
+    {
+      "slot": "core",
+      "text": "<runtime-conventions>\nConventions ...\n</runtime-conventions>"
+    },
+    {
+      "slot": "identity",
+      "text": "<identity>\nYour name is Tater.\n</identity>",
+      "cache": true
+    }
+  ],
+  "cache_key": "ses_01",
+  "params": {
+    "temperature": 0.3,
+    "stop_sequences": [
+      "END"
+    ],
+    "headers": {
+      "X-Test": [
+        "1"
+      ]
+    }
+  },
+  "messages": [
+    {
+      "v": 1,
+      "id": "msg_01",
+      "session_id": "ses_01",
+      "seq": 1,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "reminder",
+          "source": "time",
+          "text": "It is 09:00."
+        },
+        {
+          "type": "text",
+          "text": "Hello."
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z"
+    }
+  ]
+}

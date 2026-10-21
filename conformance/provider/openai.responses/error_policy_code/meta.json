@@ -1,0 +1,6 @@
+{
+  "api": "openai.responses",
+  "model": "gpt-5.6",
+  "source": "synthetic",
+  "notes": "An error event whose code names a policy, with a message that does not mention usage policies, is a request the API refuses, not a transient failure."
+}

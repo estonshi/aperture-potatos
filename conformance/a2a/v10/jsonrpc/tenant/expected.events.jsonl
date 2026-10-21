@@ -1,0 +1,6 @@
+{"kind":"message","context_id":"c-1","message":{"message_id":"r-1","context_id":"c-1","role":"agent","parts":[{"text":"Hi."}]}}
+{"end":"ok"}
+{"kind":"task","task_id":"t-1","context_id":"c-1","state":"completed"}
+{"kind":"artifact","task_id":"t-1","context_id":"c-1","artifact":{"artifact_id":"a-1","parts":[{"text":"Hi."}]}}
+{"kind":"status","task_id":"t-1","context_id":"c-1","state":"completed"}
+{"end":"ok"}

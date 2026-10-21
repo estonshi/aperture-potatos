@@ -1,0 +1,14 @@
+{
+  "description": "Cancel reaches the peer; a task it cannot cancel has ended already, which is not an error.",
+  "base_url": "https://agent.test",
+  "calls": [
+    {
+      "op": "cancel",
+      "task_id": "t-1"
+    },
+    {
+      "op": "cancel",
+      "task_id": "t-2"
+    }
+  ]
+}

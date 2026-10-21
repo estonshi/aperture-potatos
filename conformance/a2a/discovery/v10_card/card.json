@@ -1,0 +1,19 @@
+{
+  "name": "A",
+  "description": "",
+  "supportedInterfaces": [
+    {
+      "url": "https://a.test/rpc",
+      "protocolBinding": "JSONRPC",
+      "protocolVersion": "1.0"
+    },
+    {
+      "url": "https://a.test/api",
+      "protocolBinding": "HTTP+JSON",
+      "protocolVersion": "1.0"
+    }
+  ],
+  "capabilities": {
+    "streaming": true
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "Echo",
+  "description": "Echoes text.",
+  "version": "1.0.0",
+  "supportedInterfaces": [
+    {
+      "url": "https://agent.test/api",
+      "protocolBinding": "HTTP+JSON",
+      "protocolVersion": "1.0",
+      "tenant": "acme"
+    }
+  ],
+  "capabilities": {
+    "streaming": true
+  },
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "echo",
+      "name": "Echo",
+      "description": "Repeats what it hears.",
+      "tags": [
+        "text"
+      ],
+      "examples": [
+        "say hi"
+      ]
+    }
+  ]
+}

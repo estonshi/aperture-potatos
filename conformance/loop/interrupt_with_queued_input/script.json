@@ -1,0 +1,83 @@
+{
+  "spec_version": "0.1",
+  "description": "A queue input is turned into an interrupt while a tool runs: the turn stops at once, and the next turn delivers the undelivered next_loop input first, then that input, with the interruption note.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "slow_lookup",
+        "description": "Look something up; it takes a while.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "query"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "fixed",
+          "text": "Found three options.",
+          "sleep_ms": 1000
+        }
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Plan Tokyo."
+      }
+    },
+    {
+      "wait": {
+        "event": "tool.started",
+        "count": 1
+      }
+    },
+    {
+      "send": {
+        "text": "Quote in yen."
+      },
+      "as": "yen"
+    },
+    {
+      "send": {
+        "text": "Make it Osaka instead.",
+        "mode": "queue"
+      },
+      "as": "osaka"
+    },
+    {
+      "interrupt_with": "osaka"
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "interrupt_with": "osaka",
+      "error": "no queued input"
+    }
+  ]
+}

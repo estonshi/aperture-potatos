@@ -1,0 +1,6 @@
+{
+  "api": "anthropic.messages",
+  "model": "claude-opus-5-5",
+  "source": "synthetic",
+  "notes": "The neutral tool search on the wire: server_tool_use named tool_search_tool_bm25 becomes a hosted call named tool_search, its tool_search_tool_result a hosted result listing the referenced tools, and the model then calls a loaded tool."
+}

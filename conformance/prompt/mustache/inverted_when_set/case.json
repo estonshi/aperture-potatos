@@ -1,0 +1,8 @@
+{
+  "template": "a{{^desc}}x{{/desc}}b",
+  "vars": {
+    "name": "Tater",
+    "desc": "Plans trips.",
+    "empty": ""
+  }
+}

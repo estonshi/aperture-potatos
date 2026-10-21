@@ -1,0 +1,16 @@
+{
+  "protocolVersion": "0.3.0",
+  "name": "A",
+  "description": "",
+  "url": "https://a.test/rest",
+  "preferredTransport": "HTTP+JSON",
+  "additionalInterfaces": [
+    {
+      "url": "https://a.test/a2a",
+      "transport": "JSONRPC"
+    }
+  ],
+  "capabilities": {
+    "streaming": true
+  }
+}

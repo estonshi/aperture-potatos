@@ -1,0 +1,86 @@
+[
+  {
+    "calls": [
+      {
+        "api": "anthropic.messages",
+        "attempt": 1,
+        "bucket": "main",
+        "endpoint": "api.anthropic.com",
+        "message_id": "msg_03",
+        "model": "claude-opus-5-5",
+        "outcome": "committed",
+        "response_id": "msg_r01",
+        "root_session": "ses_01",
+        "seq": 1,
+        "session_id": "ses_01",
+        "started_at": "2026-09-26T00:00:00.012Z",
+        "step": 1,
+        "turn_id": "turn_01",
+        "usage": {
+          "cache_read_tokens": 0,
+          "cache_write_tokens": 0,
+          "input_tokens": 25,
+          "output_tokens": 12,
+          "raw": {
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "input_tokens": 25,
+            "output_tokens": 12
+          },
+          "reasoning_tokens": 0
+        }
+      },
+      {
+        "api": "anthropic.messages",
+        "attempt": 1,
+        "bucket": "main",
+        "endpoint": "api.anthropic.com",
+        "message_id": "msg_05",
+        "model": "claude-opus-5-5",
+        "outcome": "committed",
+        "response_id": "msg_r02",
+        "root_session": "ses_01",
+        "seq": 2,
+        "session_id": "ses_01",
+        "started_at": "2026-09-26T00:00:00.03Z",
+        "step": 2,
+        "turn_id": "turn_01",
+        "usage": {
+          "cache_read_tokens": 0,
+          "cache_write_tokens": 0,
+          "input_tokens": 25,
+          "output_tokens": 12,
+          "raw": {
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "input_tokens": 25,
+            "output_tokens": 12
+          },
+          "reasoning_tokens": 0
+        }
+      }
+    ],
+    "pending": false,
+    "priced": [
+      {
+        "cost": {
+          "amount": 0.0125,
+          "currency": "USD"
+        },
+        "response_id": "msg_r01"
+      },
+      {
+        "cost": {
+          "amount": 0.0075,
+          "currency": "USD"
+        },
+        "response_id": "msg_r02"
+      }
+    ],
+    "total": {
+      "amount": 0.02,
+      "currency": "USD"
+    },
+    "turn_id": "turn_01"
+  }
+]

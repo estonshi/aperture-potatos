@@ -1,0 +1,49 @@
+{
+  "max_tokens": 64000,
+  "messages": [
+    {
+      "content": [
+        {
+          "cache_control": {
+            "type": "ephemeral"
+          },
+          "text": "Search the news.",
+          "type": "text"
+        }
+      ],
+      "role": "user"
+    },
+    {
+      "content": [
+        {
+          "text": "Searching.",
+          "type": "text"
+        },
+        {
+          "id": "srvtoolu_1",
+          "input": {
+            "query": "news"
+          },
+          "name": "web_search",
+          "type": "server_tool_use"
+        }
+      ],
+      "role": "assistant"
+    }
+  ],
+  "model": "claude-opus-5-5",
+  "stream": true,
+  "system": [
+    {
+      "text": "<runtime-conventions>\nConventions of the runtime you are running in: ...\n</runtime-conventions>",
+      "type": "text"
+    },
+    {
+      "cache_control": {
+        "type": "ephemeral"
+      },
+      "text": "<identity>\nYour name is Tater.\n</identity>",
+      "type": "text"
+    }
+  ]
+}

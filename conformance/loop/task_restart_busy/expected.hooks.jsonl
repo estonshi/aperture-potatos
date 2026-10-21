@@ -1,0 +1,2 @@
+{"input":{"agent":"Tater","attempt":1,"continuation":false,"session_id":"ses_01","spec":{"input":{"title":"Job"},"kind":"job","title":"Job"}},"name":"slow_gate","point":"task_start"}
+{"input":{"agent":"Tater","attempt":2,"continuation":false,"session_id":"ses_01","spec":{"input":{"title":"Job"},"kind":"job","title":"Job"}},"name":"slow_gate","point":"task_start"}

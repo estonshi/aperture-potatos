@@ -1,0 +1,251 @@
+{
+  "spec_version": "0.1",
+  "description": "While the peer works, a queue instruction and two next_loop ones wait for its round: the next_loop ones go out merged, then the queue one alone. A second task's interrupt cancels the peer's task and goes out at once in the same conversation.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "extensions": {
+      "peer": {
+        "peers": [
+          {
+            "name": "writer",
+            "description": "Writes stories.",
+            "rounds": [
+              {
+                "events": [
+                  {
+                    "kind": "task",
+                    "task_id": "t-1",
+                    "context_id": "c-1",
+                    "state": "working"
+                  },
+                  {
+                    "kind": "artifact",
+                    "task_id": "t-1",
+                    "context_id": "c-1",
+                    "artifact": {
+                      "artifact_id": "a-t-1",
+                      "parts": [
+                        {
+                          "text": "Draft."
+                        }
+                      ]
+                    },
+                    "last_chunk": true
+                  },
+                  {
+                    "kind": "status",
+                    "task_id": "t-1",
+                    "context_id": "c-1",
+                    "state": "completed"
+                  }
+                ],
+                "delay_ms": 1000
+              },
+              {
+                "events": [
+                  {
+                    "kind": "task",
+                    "task_id": "t-2",
+                    "context_id": "c-1",
+                    "state": "submitted"
+                  },
+                  {
+                    "kind": "artifact",
+                    "task_id": "t-2",
+                    "context_id": "c-1",
+                    "artifact": {
+                      "artifact_id": "a-t-2",
+                      "parts": [
+                        {
+                          "text": "Got: {{text}}"
+                        }
+                      ]
+                    },
+                    "last_chunk": true
+                  },
+                  {
+                    "kind": "status",
+                    "task_id": "t-2",
+                    "context_id": "c-1",
+                    "state": "completed"
+                  }
+                ]
+              },
+              {
+                "events": [
+                  {
+                    "kind": "task",
+                    "task_id": "t-3",
+                    "context_id": "c-1",
+                    "state": "submitted"
+                  },
+                  {
+                    "kind": "artifact",
+                    "task_id": "t-3",
+                    "context_id": "c-1",
+                    "artifact": {
+                      "artifact_id": "a-t-3",
+                      "parts": [
+                        {
+                          "text": "Got: {{text}}"
+                        }
+                      ]
+                    },
+                    "last_chunk": true
+                  },
+                  {
+                    "kind": "status",
+                    "task_id": "t-3",
+                    "context_id": "c-1",
+                    "state": "completed"
+                  }
+                ]
+              },
+              {
+                "events": [
+                  {
+                    "kind": "task",
+                    "task_id": "t-4",
+                    "context_id": "c-1",
+                    "state": "working"
+                  }
+                ],
+                "hold": true
+              },
+              {
+                "events": [
+                  {
+                    "kind": "task",
+                    "task_id": "t-5",
+                    "context_id": "c-1",
+                    "state": "submitted"
+                  },
+                  {
+                    "kind": "artifact",
+                    "task_id": "t-5",
+                    "context_id": "c-1",
+                    "artifact": {
+                      "artifact_id": "a-t-5",
+                      "parts": [
+                        {
+                          "text": "Got: {{text}}"
+                        }
+                      ]
+                    },
+                    "last_chunk": true
+                  },
+                  {
+                    "kind": "status",
+                    "task_id": "t-5",
+                    "context_id": "c-1",
+                    "state": "completed"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "hooks": [
+      {
+        "point": "task_notify",
+        "name": "quiet",
+        "calls": [
+          {
+            "output": {
+              "no_wake": true
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-02T00:00:00.000Z",
+    "step_ms": 1,
+    "interleaved": true
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Hello."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "task": {
+        "start": {
+          "kind": "a2a",
+          "title": "writer: Draft a story",
+          "input": {
+            "agent": "writer",
+            "message": "Draft a story"
+          }
+        }
+      }
+    },
+    {
+      "task": {
+        "send": "task_01",
+        "text": "Add a dragon.",
+        "mode": "queue"
+      }
+    },
+    {
+      "task": {
+        "send": "task_01",
+        "text": "Make it short."
+      }
+    },
+    {
+      "task": {
+        "send": "task_01",
+        "text": "Use the past tense."
+      }
+    },
+    {
+      "task": {
+        "wait": "task_01"
+      }
+    },
+    {
+      "task": {
+        "start": {
+          "kind": "a2a",
+          "title": "writer: Write a long poem",
+          "input": {
+            "agent": "writer",
+            "message": "Write a long poem"
+          }
+        }
+      }
+    },
+    {
+      "task": {
+        "send": "task_02",
+        "text": "Make it a haiku.",
+        "mode": "interrupt"
+      }
+    },
+    {
+      "task": {
+        "wait": "task_02"
+      }
+    }
+  ]
+}

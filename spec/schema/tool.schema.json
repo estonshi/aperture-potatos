@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/estonshi/aperture-potatos/spec/schema/tool.schema.json",
+  "title": "Tools",
+  "description": "A tool's declaration and the result its call returns, as every binding exposes them. The session file stores the result as a tool_result block (message.schema.json); this is the shape a tool hands back before the kernel records it.",
+  "$defs": {
+    "tool_spec": {
+      "type": "object",
+      "description": "A registered tool as hooks see it.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "input_schema": {
+          "description": "A JSON Schema object."
+        },
+        "strict": {
+          "type": "boolean"
+        },
+        "concurrency": {
+          "type": "string",
+          "enum": [
+            "parallel",
+            "serial"
+          ]
+        },
+        "timeout_ms": {
+          "type": "integer",
+          "description": "0 or absent uses the default tool timeout; -1 means none."
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "background": {
+          "type": "boolean",
+          "description": "The model may run this tool in the background as a tool_exec task; its input_schema then ends with the background property."
+        },
+        "deferred": {
+          "type": "boolean",
+          "description": "Loaded on demand when the request carries a tool search; an ordinary definition otherwise."
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "input_schema",
+        "concurrency"
+      ]
+    },
+    "tool_result": {
+      "type": "object",
+      "description": "What a tool call returns.",
+      "properties": {
+        "content": {
+          "$ref": "message.schema.json#/$defs/content",
+          "description": "Shown to the model: text, image and document blocks."
+        },
+        "is_error": {
+          "type": "boolean"
+        },
+        "structured": {
+          "description": "Machine-readable output for events and hooks; never sent to the model."
+        },
+        "pin": {
+          "$ref": "#/$defs/pin"
+        }
+      }
+    },
+    "pin": {
+      "$ref": "message.schema.json#/$defs/pin"
+    }
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "spec_version": "0.1",
+  "description": "A rule asks for background fetches: the reviewer sees the model's call under the real tool name with background:true, and approves. The run is not reviewed again, and a restart with the approved input skips the gate, so there is one review in all.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "fetch_page",
+        "description": "Fetch a web page.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url"
+          ]
+        },
+        "concurrency": "parallel",
+        "background": true,
+        "behavior": {
+          "type": "echo",
+          "sleep_ms": 1000
+        }
+      },
+      {
+        "name": "redo_fetch",
+        "description": "Fetch it again.",
+        "input_schema": {
+          "type": "object"
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "task_restart",
+          "task": "task_01"
+        }
+      }
+    ],
+    "approval_rules": [
+      {
+        "id": "bg-fetch",
+        "tool": "fetch_page",
+        "when": {
+          "background": {
+            "eq": true
+          }
+        },
+        "action": "ask",
+        "reason": "runs in the background"
+      }
+    ],
+    "hooks": [
+      {
+        "point": "approval",
+        "name": "ops",
+        "calls": [
+          {
+            "output": {
+              "verdict": "approve"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse",
+        "responses/04.sse",
+        "responses/05.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-29T00:00:00.000Z",
+    "step_ms": 1,
+    "interleaved": true
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Fetch page a in the background."
+      }
+    },
+    {
+      "wait_quiet": true
+    }
+  ]
+}

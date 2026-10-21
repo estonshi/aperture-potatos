@@ -1,0 +1,21 @@
+{
+  "v": 1,
+  "id": "msg_02",
+  "session_id": "ses_01",
+  "seq": 2,
+  "epoch": 1,
+  "role": "assistant",
+  "origin": {
+    "kind": "model"
+  },
+  "content": [
+    {
+      "type": "tool_call",
+      "id": "c",
+      "name": "n",
+      "input": "[]"
+    }
+  ],
+  "turn_id": "turn_01",
+  "ts": "2026-09-27T08:00:00Z"
+}

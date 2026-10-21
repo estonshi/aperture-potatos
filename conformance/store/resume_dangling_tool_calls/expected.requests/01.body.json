@@ -1,0 +1,82 @@
+{
+  "max_tokens": 64000,
+  "messages": [
+    {
+      "content": [
+        {
+          "text": "Echo hi.",
+          "type": "text"
+        }
+      ],
+      "role": "user"
+    },
+    {
+      "content": [
+        {
+          "id": "toolu_s1",
+          "input": {
+            "text": "hi"
+          },
+          "name": "echo",
+          "type": "tool_use"
+        }
+      ],
+      "role": "assistant"
+    },
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "text": "Outcome unknown: the process restarted before this call reported a result. Do not assume it ran; check state before retrying.",
+              "type": "text"
+            }
+          ],
+          "is_error": true,
+          "tool_use_id": "toolu_s1",
+          "type": "tool_result"
+        },
+        {
+          "text": "<system-reminder source=\"hook:note\">\nResumed after a restart.\n</system-reminder>",
+          "type": "text"
+        },
+        {
+          "cache_control": {
+            "type": "ephemeral"
+          },
+          "text": "Did it run?",
+          "type": "text"
+        }
+      ],
+      "role": "user"
+    }
+  ],
+  "model": "claude-opus-5-5",
+  "stream": true,
+  "system": [
+    {
+      "cache_control": {
+        "type": "ephemeral"
+      },
+      "text": "<identity>\nYour name is Tater.\n</identity>",
+      "type": "text"
+    }
+  ],
+  "tools": [
+    {
+      "description": "Echo the text back.",
+      "input_schema": {
+        "properties": {
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "type": "object"
+      },
+      "name": "echo"
+    }
+  ]
+}

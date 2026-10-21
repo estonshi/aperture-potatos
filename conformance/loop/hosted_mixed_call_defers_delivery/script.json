@@ -1,0 +1,75 @@
+{
+  "spec_version": "0.1",
+  "clock": {
+    "start": "2026-10-13T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "description": "A hosted call next to a client tool call stays open; the safe point after the tool line delivers nothing, so the next request ends with the tool result alone, and the next_loop input waits for the following point.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "slow_lookup",
+        "description": "Look something up; it takes a while.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "query"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "fixed",
+          "text": "Found three options.",
+          "sleep_ms": 1000
+        }
+      }
+    ],
+    "hosted_tools": [
+      {
+        "name": "web_search",
+        "web_search": {}
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse"
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "send": {
+        "text": "Find a hotel in Kyoto and check the weather."
+      }
+    },
+    {
+      "wait": {
+        "event": "tool.started",
+        "count": 1
+      }
+    },
+    {
+      "send": {
+        "text": "Skip anything above 30000 yen."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

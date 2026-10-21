@@ -1,0 +1,20 @@
+{
+  "task_id": "task_01",
+  "kind": "subagent",
+  "title": "Research flights",
+  "status": "waiting_input",
+  "attempt": 1,
+  "foreground": false,
+  "call_id": "toolu_02",
+  "turn_id": "turn_01",
+  "started_at": "2026-09-27T08:00:00Z",
+  "progress": {
+    "text": "Comparing fares",
+    "percent": 40
+  },
+  "question": "Economy or business?",
+  "pending_instructions": 1,
+  "state": {
+    "session_id": "ses_07"
+  }
+}

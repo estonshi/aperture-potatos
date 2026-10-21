@@ -1,0 +1,65 @@
+{
+  "content": [
+    {
+      "kind": "openai.responses:compaction",
+      "native": {
+        "api": "openai.responses",
+        "raw": {
+          "encrypted_content": "gAAAA-cmp",
+          "id": "cmp_1",
+          "type": "compaction"
+        }
+      },
+      "type": "opaque"
+    },
+    {
+      "native": {
+        "api": "openai.responses",
+        "raw": {
+          "content": [
+            {
+              "annotations": [],
+              "text": "Continuing.",
+              "type": "output_text"
+            }
+          ],
+          "id": "msg_k",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      },
+      "text": "Continuing.",
+      "type": "text"
+    }
+  ],
+  "origin": {
+    "kind": "model"
+  },
+  "producer": {
+    "api": "openai.responses",
+    "endpoint": "api.openai.com",
+    "model": "gpt-5.6",
+    "response_id": "resp_01"
+  },
+  "role": "assistant",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 60,
+    "output_tokens": 10,
+    "raw": {
+      "input_tokens": 60,
+      "input_tokens_details": {
+        "cached_tokens": 0
+      },
+      "output_tokens": 10,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 70
+    },
+    "reasoning_tokens": 0
+  }
+}

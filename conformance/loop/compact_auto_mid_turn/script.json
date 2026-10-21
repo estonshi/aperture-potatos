@@ -1,0 +1,63 @@
+{
+  "spec_version": "0.1",
+  "description": "The first step reports a context past the threshold. At the next safe point, before the second model call of the same turn, the session compacts on its own, keeps the running turn verbatim and adds the continue reminder.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "echo",
+        "description": "Echo the text back.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "echo"
+        }
+      }
+    ],
+    "context_policy": {
+      "max_context_tokens": 68000
+    },
+    "compactor": {
+      "instructions": "Summarize the conversation.",
+      "keep": "current_turn"
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Echo hi, then tell me."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

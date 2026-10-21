@@ -1,0 +1,6 @@
+{
+  "api": "anthropic.messages",
+  "model": "claude-opus-5-5",
+  "source": "synthetic",
+  "notes": "citations_delta appends to the text block, which then keeps its raw wire form for replay."
+}

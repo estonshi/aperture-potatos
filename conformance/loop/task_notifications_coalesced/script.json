@@ -1,0 +1,98 @@
+{
+  "spec_version": "0.1",
+  "description": "Two host-started jobs succeed while the model waits on a slow tool. At the safe point after the tool line both notifications arrive in one user message, one tag each, and the message references both tasks.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "slow",
+        "description": "Takes a while.",
+        "input_schema": {
+          "type": "object"
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "fixed",
+          "text": "slow done",
+          "sleep_ms": 100
+        }
+      }
+    ],
+    "task_kinds": [
+      {
+        "name": "job",
+        "caps": {}
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-29T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "task": {
+        "start": {
+          "kind": "job",
+          "title": "Job A",
+          "input": {
+            "title": "Job A"
+          }
+        }
+      }
+    },
+    {
+      "task": {
+        "start": {
+          "kind": "job",
+          "title": "Job B",
+          "input": {
+            "title": "Job B"
+          }
+        }
+      }
+    },
+    {
+      "send": {
+        "text": "Run the slow tool."
+      }
+    },
+    {
+      "wait": {
+        "event": "tool.started"
+      }
+    },
+    {
+      "task": {
+        "step": "task_01",
+        "do": {
+          "succeed": "A done."
+        }
+      }
+    },
+    {
+      "task": {
+        "step": "task_02",
+        "do": {
+          "succeed": "B done."
+        }
+      }
+    },
+    {
+      "wait_quiet": true
+    }
+  ]
+}

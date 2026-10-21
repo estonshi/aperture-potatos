@@ -1,0 +1,10 @@
+{
+  "body": "<html><body>Bad gateway</body></html>",
+  "expected": {
+    "api": "openai.chat",
+    "class": "transient",
+    "message": "<html><body>Bad gateway</body></html>",
+    "status": 502
+  },
+  "status": 502
+}

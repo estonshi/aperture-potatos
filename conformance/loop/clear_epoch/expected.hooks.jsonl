@@ -1,0 +1,2 @@
+{"input":{"agent":"Tater","model":{"api":"anthropic.messages","endpoint":"api.anthropic.com","model":"claude-opus-5-5"},"session_id":"ses_01","source":"new"},"name":"fresh","point":"session_start"}
+{"input":{"agent":"Tater","model":{"api":"anthropic.messages","endpoint":"api.anthropic.com","model":"claude-opus-5-5"},"session_id":"ses_01","source":"clear"},"name":"fresh","point":"session_start"}

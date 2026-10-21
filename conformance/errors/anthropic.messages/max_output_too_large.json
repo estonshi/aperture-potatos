@@ -1,0 +1,29 @@
+{
+  "body": {
+    "error": {
+      "message": "max_tokens: 128000 > 64000, which is the maximum allowed number of output tokens for claude-haiku-4-5-20251001",
+      "type": "invalid_request_error"
+    },
+    "request_id": "req_011CErr",
+    "type": "error"
+  },
+  "expected": {
+    "api": "anthropic.messages",
+    "class": "invalid_request",
+    "limit": 64000,
+    "message": "max_tokens: 128000 > 64000, which is the maximum allowed number of output tokens for claude-haiku-4-5-20251001",
+    "raw": {
+      "error": {
+        "message": "max_tokens: 128000 > 64000, which is the maximum allowed number of output tokens for claude-haiku-4-5-20251001",
+        "type": "invalid_request_error"
+      },
+      "request_id": "req_011CErr",
+      "type": "error"
+    },
+    "request_id": "req_011CErr",
+    "rule": "max_output_too_large",
+    "status": 400,
+    "type": "invalid_request_error"
+  },
+  "status": 400
+}

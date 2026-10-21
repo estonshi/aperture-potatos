@@ -1,0 +1,74 @@
+{
+  "spec_version": "0.1",
+  "description": "A job ends without reading its inbox: task.finished and the task's info list the instructions it never processed, and the notification says how many.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "task_kinds": [
+      {
+        "name": "job",
+        "caps": {
+          "instructions": true
+        }
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-29T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "task": {
+        "start": {
+          "kind": "job",
+          "title": "Job",
+          "input": {
+            "title": "Job"
+          }
+        }
+      }
+    },
+    {
+      "task": {
+        "send": "task_01",
+        "text": "first"
+      }
+    },
+    {
+      "task": {
+        "send": "task_01",
+        "text": "second",
+        "mode": "queue"
+      }
+    },
+    {
+      "task": {
+        "step": "task_01",
+        "do": {
+          "succeed": "Done without reading."
+        }
+      }
+    },
+    {
+      "wait_quiet": true
+    },
+    {
+      "task": {
+        "get": "task_01"
+      }
+    }
+  ]
+}

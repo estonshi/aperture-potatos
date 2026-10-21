@@ -1,0 +1,47 @@
+{
+  "turn_id": "turn_01",
+  "calls": [
+    {
+      "seq": 1,
+      "turn_id": "turn_01",
+      "session_id": "ses_01",
+      "root_session": "ses_01",
+      "message_id": "msg_03",
+      "bucket": "main",
+      "api": "anthropic.messages",
+      "endpoint": "api.anthropic.com",
+      "model": "claude-opus-5-5",
+      "response_id": "msg_01Rk7Qz",
+      "request_id": "req_01Hx3Vb",
+      "headers": {
+        "x-litellm-call-id": "c-1"
+      },
+      "outcome": "committed",
+      "usage": {
+        "input_tokens": 1210,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 1180,
+        "output_tokens": 58,
+        "reasoning_tokens": 21
+      },
+      "started_at": "2026-09-27T08:00:00Z"
+    }
+  ],
+  "pending": false,
+  "total": {
+    "amount": 0.0123,
+    "currency": "USD"
+  },
+  "priced": [
+    {
+      "response_id": "msg_01Rk7Qz",
+      "cost": {
+        "amount": 0.0123,
+        "currency": "USD"
+      }
+    }
+  ],
+  "missing": [
+    "chatcmpl-7"
+  ]
+}

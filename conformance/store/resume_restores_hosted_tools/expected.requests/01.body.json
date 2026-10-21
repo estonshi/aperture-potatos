@@ -1,0 +1,56 @@
+{
+  "max_tokens": 64000,
+  "messages": [
+    {
+      "content": [
+        {
+          "text": "Hi.",
+          "type": "text"
+        }
+      ],
+      "role": "user"
+    },
+    {
+      "content": [
+        {
+          "text": "Hello.",
+          "type": "text"
+        }
+      ],
+      "role": "assistant"
+    },
+    {
+      "content": [
+        {
+          "cache_control": {
+            "type": "ephemeral"
+          },
+          "text": "Hi again.",
+          "type": "text"
+        }
+      ],
+      "role": "user"
+    }
+  ],
+  "model": "claude-opus-5-5",
+  "stream": true,
+  "system": [
+    {
+      "cache_control": {
+        "type": "ephemeral"
+      },
+      "text": "<identity>\nYour name is Tater.\n</identity>\n\n<user-instructions>\nStored instructions.\n</user-instructions>",
+      "type": "text"
+    }
+  ],
+  "tools": [
+    {
+      "allowed_domains": [
+        "example.com"
+      ],
+      "max_uses": 2,
+      "name": "web_search",
+      "type": "web_search_20250305"
+    }
+  ]
+}

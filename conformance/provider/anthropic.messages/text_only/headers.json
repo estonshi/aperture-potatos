@@ -1,0 +1,8 @@
+{
+  "status": 200,
+  "headers": {
+    "request-id": "req_011CT5",
+    "x-litellm-call-id": "c-9f2",
+    "content-type": "text/event-stream"
+  }
+}

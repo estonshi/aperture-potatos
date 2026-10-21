@@ -1,0 +1,1 @@
+{"input":{"agent":"Tater","call":{"id":"toolu_01","input":{"text":"hi"},"name":"echo","type":"tool_call"},"session_id":"ses_01","spec":{"concurrency":"serial","description":"Echo the text back.","input_schema":{"properties":{"text":{"type":"string"}},"required":["text"],"type":"object"},"name":"echo"},"step":1,"turn_id":"turn_01"},"name":"slow-policy","point":"pre_tool_use"}

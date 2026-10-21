@@ -1,0 +1,27 @@
+{
+  "body": {
+    "error": {
+      "code": "insufficient_quota",
+      "message": "You exceeded your current quota, please check your plan and billing details.",
+      "param": null,
+      "type": "insufficient_quota"
+    }
+  },
+  "expected": {
+    "api": "openai.chat",
+    "class": "quota",
+    "code": "insufficient_quota",
+    "message": "You exceeded your current quota, please check your plan and billing details.",
+    "raw": {
+      "error": {
+        "code": "insufficient_quota",
+        "message": "You exceeded your current quota, please check your plan and billing details.",
+        "param": null,
+        "type": "insufficient_quota"
+      }
+    },
+    "status": 429,
+    "type": "insufficient_quota"
+  },
+  "status": 429
+}

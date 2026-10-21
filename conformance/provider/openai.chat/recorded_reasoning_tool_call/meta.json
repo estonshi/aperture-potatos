@@ -1,0 +1,7 @@
+{
+  "api": "openai.chat",
+  "model": "deepseek-v4.1-flash",
+  "notes": "Recorded through an OpenAI-compatible gateway: reasoning_content, then a whole tool call, then a usage chunk.",
+  "recorded_at": "2026-09-28",
+  "source": "recorded"
+}

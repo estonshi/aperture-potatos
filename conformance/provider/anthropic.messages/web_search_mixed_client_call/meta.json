@@ -1,0 +1,6 @@
+{
+  "api": "anthropic.messages",
+  "model": "claude-opus-5-5",
+  "source": "synthetic",
+  "notes": "A server call next to a client tool call: the API defers the search, so the hosted call has no result in this message and the stop is tool_use."
+}

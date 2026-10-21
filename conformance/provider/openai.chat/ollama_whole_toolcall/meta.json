@@ -1,0 +1,6 @@
+{
+  "api": "openai.chat",
+  "model": "qwen3.6-plus",
+  "source": "synthetic",
+  "notes": "A whole tool call in one chunk with finish_reason stop, which the accumulated call corrects to tool_use."
+}

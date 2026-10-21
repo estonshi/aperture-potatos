@@ -1,0 +1,6 @@
+{
+  "api": "openai.chat",
+  "model": "deepseek-r1-distill",
+  "source": "synthetic",
+  "notes": "<think> tags in content are not parsed; they stay visible text."
+}

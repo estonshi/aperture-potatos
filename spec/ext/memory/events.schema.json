@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/estonshi/aperture-potatos/spec/ext/memory/events.schema.json",
+  "title": "Memory events",
+  "description": "One event of this extension: the kernel envelope (event.schema.json) with the payload chosen by type.",
+  "allOf": [
+    {
+      "$ref": "../../schema/event.schema.json"
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "memory.loaded"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/memory_loaded"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "memory.saved"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/memory_saved"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "memory_loaded": {
+      "type": "object",
+      "description": "Memories written into an epoch head.",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "ids"
+      ]
+    },
+    "memory_saved": {
+      "type": "object",
+      "description": "Changes a tool call or a consolidation made.",
+      "properties": {
+        "changes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/change"
+          }
+        },
+        "trigger": {
+          "type": "string",
+          "enum": [
+            "tool",
+            "session_end",
+            "pre_compact",
+            "host"
+          ]
+        }
+      },
+      "required": [
+        "changes",
+        "trigger"
+      ]
+    },
+    "change": {
+      "type": "object",
+      "description": "One edit; in an update an absent field keeps its value.",
+      "properties": {
+        "op": {
+          "type": "string",
+          "enum": [
+            "add",
+            "update",
+            "delete"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "user": {
+          "type": "string"
+        },
+        "project": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "op"
+      ]
+    }
+  }
+}

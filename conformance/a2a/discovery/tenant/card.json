@@ -1,0 +1,12 @@
+{
+  "name": "A",
+  "description": "",
+  "supportedInterfaces": [
+    {
+      "url": "https://a.test/api",
+      "protocolBinding": "HTTP+JSON",
+      "protocolVersion": "1.1",
+      "tenant": "acme"
+    }
+  ]
+}

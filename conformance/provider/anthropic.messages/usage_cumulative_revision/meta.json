@@ -1,0 +1,6 @@
+{
+  "api": "anthropic.messages",
+  "model": "claude-opus-5-5",
+  "source": "synthetic",
+  "notes": "message_delta usage is cumulative and may revise input counts; the last values win and are never summed."
+}

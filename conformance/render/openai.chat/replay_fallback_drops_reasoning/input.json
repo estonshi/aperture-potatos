@@ -1,0 +1,88 @@
+{
+  "model": "deepseek-v4.1-flash",
+  "replay": "fallback",
+  "messages": [
+    {
+      "v": 1,
+      "id": "msg_01",
+      "session_id": "ses_01",
+      "seq": 1,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Q1"
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_02",
+      "session_id": "ses_01",
+      "seq": 2,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "kind": "raw",
+          "text": "same endpoint",
+          "native": {
+            "api": "openai.chat",
+            "raw": {
+              "field": "reasoning_content"
+            }
+          }
+        },
+        {
+          "type": "text",
+          "text": "A1"
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z",
+      "producer": {
+        "api": "openai.chat",
+        "endpoint": "api.openai.com",
+        "model": "deepseek-v4.1-flash"
+      },
+      "native": {
+        "api": "openai.chat",
+        "raw": {
+          "thinking_blocks": [
+            {
+              "type": "thinking",
+              "thinking": "t",
+              "signature": "s"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "v": 1,
+      "id": "msg_03",
+      "session_id": "ses_01",
+      "seq": 3,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Q2"
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z"
+    }
+  ]
+}

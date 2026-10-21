@@ -1,0 +1,127 @@
+{
+  "model": "gpt-5.6",
+  "tools": [
+    {
+      "name": "search",
+      "description": "Search the web.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "q"
+        ],
+        "additionalProperties": false
+      },
+      "strict": true
+    },
+    {
+      "name": "now",
+      "description": "Current time.",
+      "input_schema": {
+        "type": "object"
+      },
+      "strict": true
+    }
+  ],
+  "messages": [
+    {
+      "v": 1,
+      "id": "msg_01",
+      "session_id": "ses_01",
+      "seq": 1,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Go."
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_02",
+      "session_id": "ses_01",
+      "seq": 2,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "tool_call",
+          "id": "call_a",
+          "name": "search",
+          "input": {
+            "q": "a"
+          }
+        },
+        {
+          "type": "tool_call",
+          "id": "call_b",
+          "name": "now",
+          "input": {}
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z",
+      "producer": {
+        "api": "openai.responses",
+        "endpoint": "api.openai.com",
+        "model": "gpt-5.6"
+      }
+    },
+    {
+      "v": 1,
+      "id": "msg_03",
+      "session_id": "ses_01",
+      "seq": 3,
+      "epoch": 1,
+      "role": "tool",
+      "origin": {
+        "kind": "tool"
+      },
+      "content": [
+        {
+          "type": "tool_result",
+          "call_id": "call_a",
+          "name": "search",
+          "content": [
+            {
+              "type": "text",
+              "text": "ok"
+            }
+          ],
+          "outcome": "success"
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_04",
+      "session_id": "ses_01",
+      "seq": 4,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Next."
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z"
+    }
+  ]
+}

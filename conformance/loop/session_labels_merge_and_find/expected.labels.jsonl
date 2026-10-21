@@ -1,0 +1,5 @@
+{"labels":{"team":"a","user_id":"u2"},"session_id":"ses_01"}
+{"labels":{"team":"a","user_id":"u2"},"session_id":"ses_01.side.s"}
+{"found":[{"labels":{"team":"a","user_id":"u2"},"session_id":"ses_01"},{"labels":{"team":"a","user_id":"u2"},"session_id":"ses_02"}]}
+{"found":[]}
+{"found":[{"labels":{"team":"a","user_id":"u2"},"session_id":"ses_01"},{"labels":{"team":"a","user_id":"u2"},"session_id":"ses_02"}]}

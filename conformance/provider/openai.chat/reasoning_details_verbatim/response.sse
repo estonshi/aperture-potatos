@@ -1,0 +1,12 @@
+data: {"id":"chatcmpl-1","object":"chat.completion.chunk","created":1790000000,"model":"openai/gpt-oss-120b","choices":[{"index":0,"delta":{"role":"assistant","reasoning":"Step one. ","reasoning_details":[{"type":"reasoning.text","text":"Step one. ","format":"unknown","index":0}]},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-1","object":"chat.completion.chunk","created":1790000000,"model":"openai/gpt-oss-120b","choices":[{"index":0,"delta":{"reasoning":"Step two.","reasoning_details":[{"type":"reasoning.text","text":"Step two.","format":"unknown","index":0}]},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-1","object":"chat.completion.chunk","created":1790000000,"model":"openai/gpt-oss-120b","choices":[{"index":0,"delta":{"reasoning_details":[{"type":"reasoning.encrypted","data":"ZW5j","format":"unknown","index":1}]},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-1","object":"chat.completion.chunk","created":1790000000,"model":"openai/gpt-oss-120b","choices":[{"index":0,"delta":{"content":"Answer."},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-1","object":"chat.completion.chunk","created":1790000000,"model":"openai/gpt-oss-120b","choices":[{"index":0,"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":15,"completion_tokens":10,"total_tokens":25}}
+
+data: [DONE]
+

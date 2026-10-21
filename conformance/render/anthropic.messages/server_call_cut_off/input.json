@@ -1,0 +1,123 @@
+{
+  "model": "claude-opus-5-5",
+  "system": [
+    {
+      "slot": "core",
+      "text": "<runtime-conventions>\nConventions of the runtime you are running in: ...\n</runtime-conventions>"
+    },
+    {
+      "slot": "identity",
+      "text": "<identity>\nYour name is Tater.\n</identity>"
+    }
+  ],
+  "messages": [
+    {
+      "v": 1,
+      "id": "msg_01",
+      "session_id": "ses_01",
+      "seq": 1,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Search the news."
+        }
+      ],
+      "ts": "2026-09-27T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_02",
+      "session_id": "ses_01",
+      "seq": 2,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "opaque",
+          "kind": "anthropic.messages:server_tool_use",
+          "native": {
+            "api": "anthropic.messages",
+            "raw": {
+              "type": "server_tool_use",
+              "id": "srvtoolu_0",
+              "name": "web_search",
+              "input": {
+                "query": "weather"
+              }
+            }
+          }
+        },
+        {
+          "type": "opaque",
+          "kind": "anthropic.messages:web_search_tool_result",
+          "native": {
+            "api": "anthropic.messages",
+            "raw": {
+              "type": "web_search_tool_result",
+              "tool_use_id": "srvtoolu_0",
+              "content": []
+            }
+          }
+        },
+        {
+          "type": "text",
+          "text": "Sunny. Now the news."
+        },
+        {
+          "type": "text",
+          "text": "Searching."
+        },
+        {
+          "type": "opaque",
+          "kind": "anthropic.messages:server_tool_use",
+          "native": {
+            "api": "anthropic.messages",
+            "raw": {
+              "type": "server_tool_use",
+              "id": "srvtoolu_1",
+              "name": "web_search",
+              "input": {
+                "query": "news"
+              }
+            }
+          }
+        }
+      ],
+      "ts": "2026-09-27T08:00:00Z",
+      "producer": {
+        "api": "anthropic.messages",
+        "endpoint": "api.anthropic.com",
+        "model": "claude-opus-5-5"
+      },
+      "stop_reason": "max_tokens"
+    },
+    {
+      "v": 1,
+      "id": "msg_03",
+      "session_id": "ses_01",
+      "seq": 3,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "continuation"
+      },
+      "content": [
+        {
+          "type": "reminder",
+          "source": "continue",
+          "text": "Your reply was cut off. Continue."
+        }
+      ],
+      "ts": "2026-09-27T08:00:00Z",
+      "turn_id": "turn_01"
+    }
+  ]
+}

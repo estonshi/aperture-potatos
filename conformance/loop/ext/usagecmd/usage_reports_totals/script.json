@@ -1,0 +1,49 @@
+{
+  "spec_version": "0.1",
+  "description": "/usage reports the session's totals after a turn, from the snapshot, without a model call.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "extensions": {
+      "cmd.usage": {}
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Hi."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "command": {
+        "name": "usage",
+        "args": ""
+      }
+    },
+    {
+      "wait": {
+        "event": "command.completed",
+        "count": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,510 @@
+{
+  "description": "Error classification. Rules are tried in order and the first match wins. A rule matches an HTTP error unless mid_stream is true, in which case it matches only an error event that arrived after HTTP 200. Every listed condition must hold: status (one of), status_range (inclusive), type (error.type is one of), code (error.code or error.details.error_code is one of), code_match (regular expression in the portable subset, searched anywhere in that code), message (regular expression in the portable subset, searched anywhere in error.message), header_absent (none of these response headers is present). A rule with a rule name reports it in Error.rule; limit is a regular expression whose first group, parsed as an integer, becomes Error.limit. Connection failures, timeouts and streams that end without their terminal event are transient and are not listed here.",
+  "rules": [
+    {
+      "api": "anthropic.messages",
+      "status": [
+        400
+      ],
+      "message": "max_tokens: [0-9]+ > [0-9]+, which is the maximum allowed",
+      "class": "invalid_request",
+      "rule": "max_output_too_large",
+      "limit": "max_tokens: [0-9]+ > ([0-9]+)"
+    },
+    {
+      "api": "anthropic.messages",
+      "status": [
+        400
+      ],
+      "message": "prompt is too long",
+      "class": "context_overflow"
+    },
+    {
+      "api": "anthropic.messages",
+      "status": [
+        400
+      ],
+      "message": "input length and .max_tokens. exceed context limit",
+      "class": "context_overflow"
+    },
+    {
+      "api": "anthropic.messages",
+      "status": [
+        400
+      ],
+      "message": "Invalid .signature. in .thinking. block[^\\n]*bound to a different conversation",
+      "class": "reasoning_replay",
+      "rule": "thinking_signature_bound"
+    },
+    {
+      "api": "anthropic.messages",
+      "status": [
+        400
+      ],
+      "message": "Invalid .signature. in .thinking. block",
+      "class": "reasoning_replay"
+    },
+    {
+      "api": "anthropic.messages",
+      "status": [
+        400
+      ],
+      "message": "blocks in the latest assistant message cannot be modified",
+      "class": "reasoning_replay"
+    },
+    {
+      "api": "anthropic.messages",
+      "status": [
+        402
+      ],
+      "class": "quota"
+    },
+    {
+      "api": "anthropic.messages",
+      "status": [
+        429
+      ],
+      "code": [
+        "enforced_spend_limit_reached"
+      ],
+      "header_absent": [
+        "retry-after"
+      ],
+      "class": "quota"
+    },
+    {
+      "api": "anthropic.messages",
+      "status": [
+        429
+      ],
+      "class": "rate_limited"
+    },
+    {
+      "api": "anthropic.messages",
+      "status": [
+        401,
+        403
+      ],
+      "class": "auth"
+    },
+    {
+      "api": "anthropic.messages",
+      "status": [
+        404
+      ],
+      "class": "not_found"
+    },
+    {
+      "api": "anthropic.messages",
+      "status": [
+        408,
+        409,
+        529
+      ],
+      "class": "transient"
+    },
+    {
+      "api": "anthropic.messages",
+      "status_range": [
+        500,
+        599
+      ],
+      "class": "transient"
+    },
+    {
+      "api": "anthropic.messages",
+      "class": "invalid_request"
+    },
+    {
+      "api": "anthropic.messages",
+      "mid_stream": true,
+      "type": [
+        "rate_limit_error"
+      ],
+      "class": "rate_limited"
+    },
+    {
+      "api": "anthropic.messages",
+      "mid_stream": true,
+      "type": [
+        "billing_error"
+      ],
+      "class": "quota"
+    },
+    {
+      "api": "anthropic.messages",
+      "mid_stream": true,
+      "type": [
+        "authentication_error",
+        "permission_error"
+      ],
+      "class": "auth"
+    },
+    {
+      "api": "anthropic.messages",
+      "mid_stream": true,
+      "type": [
+        "invalid_request_error",
+        "request_too_large"
+      ],
+      "class": "invalid_request"
+    },
+    {
+      "api": "anthropic.messages",
+      "mid_stream": true,
+      "type": [
+        "not_found_error"
+      ],
+      "class": "not_found"
+    },
+    {
+      "api": "anthropic.messages",
+      "mid_stream": true,
+      "class": "transient"
+    },
+    {
+      "api": "openai.chat",
+      "status": [
+        400
+      ],
+      "message": "max_[a-z_]*tokens is too large: [0-9]+\\. This model supports at most [0-9]+ completion tokens",
+      "class": "invalid_request",
+      "rule": "max_output_too_large",
+      "limit": "supports at most ([0-9]+) completion tokens"
+    },
+    {
+      "api": "openai.chat",
+      "status": [
+        400
+      ],
+      "message": "valid range of max_tokens is \\[1, [0-9]+\\]",
+      "class": "invalid_request",
+      "rule": "max_output_too_large",
+      "limit": "valid range of max_tokens is \\[1, ([0-9]+)\\]"
+    },
+    {
+      "api": "openai.chat",
+      "status": [
+        400
+      ],
+      "message": "Range of max_tokens should be \\[1, [0-9]+\\]",
+      "class": "invalid_request",
+      "rule": "max_output_too_large",
+      "limit": "Range of max_tokens should be \\[1, ([0-9]+)\\]"
+    },
+    {
+      "api": "openai.chat",
+      "status": [
+        400
+      ],
+      "message": "exceeds the model limit of [0-9]+",
+      "class": "invalid_request",
+      "rule": "max_output_too_large",
+      "limit": "exceeds the model limit of ([0-9]+)"
+    },
+    {
+      "api": "openai.chat",
+      "status": [
+        400
+      ],
+      "message": "Unsupported parameter: 'max_(completion_)?tokens'|Unrecognized request argument supplied: max_(completion_)?tokens",
+      "class": "invalid_request",
+      "rule": "max_tokens_field_unsupported"
+    },
+    {
+      "api": "openai.chat",
+      "status": [
+        400,
+        422
+      ],
+      "message": "(reasoning_content|reasoning_details|thinking_blocks)[^\\n]*([Ee]xtra inputs are not permitted|not permitted|not allowed|not supported|[Uu]nexpected|[Uu]nrecognized)|([Uu]nrecognized|[Uu]nexpected|[Uu]nknown)[^\\n]*(reasoning_content|reasoning_details|thinking_blocks)",
+      "class": "reasoning_replay"
+    },
+    {
+      "api": "openai.chat",
+      "status": [
+        400
+      ],
+      "code": [
+        "context_length_exceeded"
+      ],
+      "class": "context_overflow"
+    },
+    {
+      "api": "openai.chat",
+      "status": [
+        400
+      ],
+      "message": "maximum context length|[Cc]ontext length|[Ii]nput is too long",
+      "class": "context_overflow"
+    },
+    {
+      "api": "openai.chat",
+      "status": [
+        402
+      ],
+      "class": "quota"
+    },
+    {
+      "api": "openai.chat",
+      "status": [
+        429
+      ],
+      "code": [
+        "insufficient_quota",
+        "credit_balance_exhausted",
+        "spend_limit_exceeded",
+        "organization_spend_limit_exceeded",
+        "project_spend_limit_exceeded",
+        "organization_usage_limit_exceeded"
+      ],
+      "class": "quota"
+    },
+    {
+      "api": "openai.chat",
+      "status": [
+        429
+      ],
+      "class": "rate_limited"
+    },
+    {
+      "api": "openai.chat",
+      "status": [
+        401,
+        403
+      ],
+      "class": "auth"
+    },
+    {
+      "api": "openai.chat",
+      "status": [
+        404
+      ],
+      "class": "not_found"
+    },
+    {
+      "api": "openai.chat",
+      "status": [
+        408,
+        409
+      ],
+      "class": "transient"
+    },
+    {
+      "api": "openai.chat",
+      "status_range": [
+        500,
+        599
+      ],
+      "class": "transient"
+    },
+    {
+      "api": "openai.chat",
+      "class": "invalid_request"
+    },
+    {
+      "api": "openai.chat",
+      "mid_stream": true,
+      "code": [
+        "429"
+      ],
+      "class": "rate_limited"
+    },
+    {
+      "api": "openai.chat",
+      "mid_stream": true,
+      "code": [
+        "402"
+      ],
+      "class": "quota"
+    },
+    {
+      "api": "openai.chat",
+      "mid_stream": true,
+      "code": [
+        "401",
+        "403"
+      ],
+      "class": "auth"
+    },
+    {
+      "api": "openai.chat",
+      "mid_stream": true,
+      "class": "transient"
+    },
+    {
+      "api": "openai.responses",
+      "status": [
+        400
+      ],
+      "message": "valid range of max_tokens is \\[1, [0-9]+\\]",
+      "class": "invalid_request",
+      "rule": "max_output_too_large",
+      "limit": "valid range of max_tokens is \\[1, ([0-9]+)\\]"
+    },
+    {
+      "api": "openai.responses",
+      "status": [
+        400,
+        500
+      ],
+      "message": "Range of max_tokens should be \\[1, [0-9]+\\]",
+      "class": "invalid_request",
+      "rule": "max_output_too_large",
+      "limit": "Range of max_tokens should be \\[1, ([0-9]+)\\]"
+    },
+    {
+      "api": "openai.responses",
+      "status": [
+        400
+      ],
+      "message": "exceeds the model limit of [0-9]+",
+      "class": "invalid_request",
+      "rule": "max_output_too_large",
+      "limit": "exceeds the model limit of ([0-9]+)"
+    },
+    {
+      "api": "openai.responses",
+      "status": [
+        400
+      ],
+      "message": "must be verified to generate reasoning summar",
+      "class": "invalid_request",
+      "rule": "reasoning_summary_unavailable"
+    },
+    {
+      "api": "openai.responses",
+      "status": [
+        400
+      ],
+      "code": [
+        "context_length_exceeded"
+      ],
+      "class": "context_overflow"
+    },
+    {
+      "api": "openai.responses",
+      "status": [
+        400
+      ],
+      "message": "maximum context length|[Cc]ontext length|[Ii]nput is too long",
+      "class": "context_overflow"
+    },
+    {
+      "api": "openai.responses",
+      "status": [
+        400,
+        404
+      ],
+      "message": "was provided without its required following item|without its required 'reasoning' item|Item with id .* not found",
+      "class": "reasoning_replay"
+    },
+    {
+      "api": "openai.responses",
+      "status": [
+        429
+      ],
+      "code": [
+        "insufficient_quota",
+        "credit_balance_exhausted",
+        "spend_limit_exceeded",
+        "organization_spend_limit_exceeded",
+        "project_spend_limit_exceeded",
+        "organization_usage_limit_exceeded"
+      ],
+      "class": "quota"
+    },
+    {
+      "api": "openai.responses",
+      "status": [
+        429
+      ],
+      "class": "rate_limited"
+    },
+    {
+      "api": "openai.responses",
+      "status": [
+        401,
+        403
+      ],
+      "class": "auth"
+    },
+    {
+      "api": "openai.responses",
+      "status": [
+        404
+      ],
+      "class": "not_found"
+    },
+    {
+      "api": "openai.responses",
+      "status": [
+        408,
+        409,
+        422
+      ],
+      "class": "transient"
+    },
+    {
+      "api": "openai.responses",
+      "status_range": [
+        500,
+        599
+      ],
+      "class": "transient"
+    },
+    {
+      "api": "openai.responses",
+      "class": "invalid_request"
+    },
+    {
+      "api": "openai.responses",
+      "mid_stream": true,
+      "code": [
+        "rate_limit_exceeded"
+      ],
+      "class": "rate_limited"
+    },
+    {
+      "api": "openai.responses",
+      "mid_stream": true,
+      "code": [
+        "insufficient_quota"
+      ],
+      "class": "quota"
+    },
+    {
+      "api": "openai.responses",
+      "mid_stream": true,
+      "code": [
+        "context_length_exceeded"
+      ],
+      "class": "context_overflow"
+    },
+    {
+      "api": "openai.responses",
+      "mid_stream": true,
+      "code": [
+        "invalid_prompt"
+      ],
+      "class": "invalid_request"
+    },
+    {
+      "api": "openai.responses",
+      "mid_stream": true,
+      "code_match": "_policy",
+      "class": "invalid_request"
+    },
+    {
+      "api": "openai.responses",
+      "mid_stream": true,
+      "message": "usage polic",
+      "class": "invalid_request"
+    },
+    {
+      "api": "openai.responses",
+      "mid_stream": true,
+      "class": "transient"
+    }
+  ]
+}

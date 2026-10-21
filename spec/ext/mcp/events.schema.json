@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/estonshi/aperture-potatos/spec/ext/mcp/events.schema.json",
+  "title": "MCP events",
+  "description": "One event of this extension: the kernel envelope (event.schema.json) with the payload chosen by type.",
+  "allOf": [
+    {
+      "$ref": "../../schema/event.schema.json"
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "mcp.server_status"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/mcp_server_status"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "mcp.auth_required"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/mcp_auth_required"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "mcp.elicitation"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/mcp_elicitation"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "mcp_server_status": {
+      "type": "object",
+      "description": "A connection changed state.",
+      "properties": {
+        "server": {
+          "type": "string",
+          "description": "The host's name for the server."
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "connecting",
+            "ready",
+            "failed",
+            "closed"
+          ]
+        },
+        "tools": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Tools listed by the server."
+        },
+        "error": {
+          "type": "string",
+          "description": "The kind of failure only, never the server's text."
+        }
+      },
+      "required": [
+        "server",
+        "state",
+        "tools"
+      ]
+    },
+    "mcp_auth_required": {
+      "type": "object",
+      "description": "The user has to sign in, or signing in failed.",
+      "properties": {
+        "server": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "waiting",
+            "failed"
+          ]
+        },
+        "auth_url": {
+          "type": "string",
+          "description": "Where the user signs in; present while waiting."
+        }
+      },
+      "required": [
+        "server",
+        "state"
+      ]
+    },
+    "mcp_elicitation": {
+      "type": "object",
+      "description": "A server asked the user for input during a call; never carries what the user gave.",
+      "properties": {
+        "server": {
+          "type": "string"
+        },
+        "tool": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "form",
+            "url"
+          ]
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "accept",
+            "decline",
+            "cancel"
+          ]
+        }
+      },
+      "required": [
+        "server",
+        "mode",
+        "action"
+      ]
+    }
+  }
+}

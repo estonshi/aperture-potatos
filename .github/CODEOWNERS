@@ -1,0 +1,3 @@
+# The spec and its fixtures decide what every binding does, so their owner reviews each change.
+/spec/        @estonshi
+/conformance/ @estonshi

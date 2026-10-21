@@ -1,0 +1,34 @@
+{
+  "spec_version": "0.1",
+  "description": "One human input, one text reply: the session's first epoch, a turn and its three lines.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": []
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Say hi."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

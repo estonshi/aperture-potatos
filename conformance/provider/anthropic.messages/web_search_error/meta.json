@@ -1,0 +1,6 @@
+{
+  "api": "anthropic.messages",
+  "model": "claude-opus-5-5",
+  "source": "synthetic",
+  "notes": "A search that failed: the error object becomes the hosted result error, and a zero request count adds no hosted_calls."
+}

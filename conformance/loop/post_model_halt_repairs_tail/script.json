@@ -1,0 +1,68 @@
+{
+  "spec_version": "0.1",
+  "description": "A post_model_response hook halts the turn after a reply that asks for a tool: the reply is committed, its call is paired with a not-executed result, and the turn ends hook_stopped without running the tool.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "echo",
+        "description": "Echo the text back.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "echo"
+        }
+      }
+    ],
+    "hooks": [
+      {
+        "point": "post_model_response",
+        "name": "brake",
+        "calls": [
+          {
+            "output": {
+              "halt": true,
+              "halt_reason": "budget spent"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Echo hello with the tool."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

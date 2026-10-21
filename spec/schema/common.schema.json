@@ -1,0 +1,340 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/estonshi/aperture-potatos/spec/schema/common.schema.json",
+  "title": "Common definitions",
+  "description": "Shared definitions: ids, times, usage, model identity, event hops and the model call ledger.",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Opaque id. Ids the runtime mints carry a prefix (ses_, turn_, msg_, in_, cmd_, task_, hook_, apr_, batch_, tcall_, b_); provider ids are kept verbatim."
+    },
+    "time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC 3339 in UTC."
+    },
+    "usage": {
+      "type": "object",
+      "description": "Token usage of one model call. input_tokens counts the whole prompt including cached tokens; output_tokens includes reasoning tokens.",
+      "properties": {
+        "input_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cache_read_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cache_write_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "output_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "reasoning_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "hosted_calls": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": "Hosted tool name → calls the provider ran, which it bills separately."
+        },
+        "estimated": {
+          "type": "boolean",
+          "description": "The stream broke before the provider reported usage."
+        },
+        "raw": {
+          "description": "Provider usage verbatim (iterations, cost, speed ...)."
+        }
+      },
+      "required": [
+        "input_tokens",
+        "cache_read_tokens",
+        "cache_write_tokens",
+        "output_tokens",
+        "reasoning_tokens"
+      ]
+    },
+    "model_info": {
+      "type": "object",
+      "description": "The serializable identity of a model.",
+      "properties": {
+        "api": {
+          "type": "string",
+          "minLength": 1
+        },
+        "endpoint": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "api",
+        "endpoint",
+        "model"
+      ]
+    },
+    "hop": {
+      "type": "object",
+      "description": "One level of event nesting. The task manager writes kind task; other kinds such as side are labels chosen by the caller.",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "call_id": {
+          "type": "string",
+          "description": "Parent tool call that spawned the nested work."
+        },
+        "turn_id": {
+          "type": "string",
+          "description": "Parent turn that spawned the nested work."
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Seq on the downstream bus before the relay."
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "session_id"
+      ]
+    },
+    "model_call": {
+      "type": "object",
+      "description": "One HTTP request to a model API, retried attempts included, so gateway logs can be matched one to one.",
+      "properties": {
+        "seq": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Order in the session's ledger, strictly increasing; the calls file is keyed on it."
+        },
+        "turn_id": {
+          "type": "string",
+          "description": "Turn the call is attributed to; absent for calls outside any turn."
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "root_session": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Root of the sending session's parent chain."
+        },
+        "message_id": {
+          "type": "string",
+          "description": "The committed assistant message; absent for discarded attempts and side calls."
+        },
+        "bucket": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Opaque label: main, compaction, side, subagent, peer ..."
+        },
+        "api": {
+          "type": "string",
+          "minLength": 1
+        },
+        "endpoint": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "response_id": {
+          "type": "string"
+        },
+        "request_id": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "committed",
+            "discarded",
+            "failed"
+          ]
+        },
+        "usage": {
+          "$ref": "#/$defs/usage"
+        },
+        "started_at": {
+          "$ref": "#/$defs/time"
+        },
+        "step": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Step of a main-loop call; absent for other calls."
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Attempt of a main-loop call within its step; above 1 is a retry."
+        },
+        "parent_seq": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "A side chat's call: seq of the main session's last line its request carried, so the main part can be rebuilt from the main session's file; absent for other calls."
+        }
+      },
+      "required": [
+        "seq",
+        "session_id",
+        "root_session",
+        "bucket",
+        "api",
+        "endpoint",
+        "model",
+        "outcome",
+        "usage",
+        "started_at"
+      ]
+    },
+    "turn_calls": {
+      "type": "object",
+      "description": "The calls of one turn.",
+      "properties": {
+        "turn_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "calls": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/model_call"
+          }
+        },
+        "pending": {
+          "type": "boolean",
+          "description": "The turn or a task attempt it started is still running, so more calls may follow."
+        }
+      },
+      "required": [
+        "turn_id",
+        "calls",
+        "pending"
+      ]
+    },
+    "turn_cost": {
+      "description": "The calls of one turn with the prices a cost source found.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/turn_calls"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "total": {
+              "$ref": "#/$defs/cost"
+            },
+            "priced": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/call_cost"
+              }
+            },
+            "missing": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Response ids the source had not logged when the query ended."
+            }
+          },
+          "required": [
+            "total",
+            "priced"
+          ]
+        }
+      ]
+    },
+    "call_cost": {
+      "type": "object",
+      "description": "The price of one call.",
+      "properties": {
+        "response_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cost": {
+          "$ref": "#/$defs/cost"
+        }
+      },
+      "required": [
+        "response_id",
+        "cost"
+      ]
+    },
+    "cost": {
+      "type": "object",
+      "description": "An amount of money.",
+      "properties": {
+        "amount": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "description": "ISO 4217, e.g. USD."
+        }
+      },
+      "required": [
+        "amount",
+        "currency"
+      ]
+    },
+    "label_record": {
+      "type": "object",
+      "description": "A session's current labels, kept apart from its append-only file (runtime.md RULE-STORE-011).",
+      "properties": {
+        "session_id": {
+          "type": "string"
+        },
+        "parent_session_id": {
+          "type": "string",
+          "description": "A side chat's main session or a child session's owner; absent for a top-level session, which is what a label query returns."
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "session_id"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "A",
+  "description": "",
+  "supportedInterfaces": [
+    {
+      "url": "https://a.test/rpc",
+      "protocolBinding": "JSONRPC",
+      "protocolVersion": "2.0"
+    }
+  ]
+}

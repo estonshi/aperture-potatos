@@ -1,0 +1,94 @@
+{
+  "spec_version": "0.1",
+  "description": "A fork limited to some tools still sends every tool definition, so the prefix holds; its first turn carries a tools_allowed reminder, and a call to any other tool is refused at the gate with tool_not_allowed, before hooks and review.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "echo",
+        "description": "Echo the text back.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "echo"
+        }
+      },
+      {
+        "name": "lookup",
+        "description": "Look a word up.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "word": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "word"
+          ]
+        },
+        "concurrency": "parallel",
+        "behavior": {
+          "type": "fixed",
+          "text": "A definition."
+        }
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Hi."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "fork": {
+        "as": "f",
+        "tools": [
+          "lookup"
+        ]
+      }
+    },
+    {
+      "send": {
+        "text": "Use both tools."
+      },
+      "on": "f"
+    },
+    {
+      "wait": "idle",
+      "on": "f"
+    }
+  ]
+}

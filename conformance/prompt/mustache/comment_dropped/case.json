@@ -1,0 +1,8 @@
+{
+  "template": "{{! a note, even with {braces} }}x",
+  "vars": {
+    "name": "Tater",
+    "desc": "Plans trips.",
+    "empty": ""
+  }
+}

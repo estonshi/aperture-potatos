@@ -1,0 +1,72 @@
+{
+  "spec_version": "0.1",
+  "description": "A turn-start provider adds its reminder once per turn; an every-step provider adds one at each delivery point, first in each user line.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "echo",
+        "description": "Echo the text back.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "echo"
+        }
+      }
+    ],
+    "context_providers": [
+      {
+        "name": "time",
+        "when": "turn_start",
+        "texts": [
+          "It is 09:00."
+        ]
+      },
+      {
+        "name": "todo",
+        "when": "every_step",
+        "texts": [
+          "Open todos: 2",
+          "Open todos: 1"
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Echo hi."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

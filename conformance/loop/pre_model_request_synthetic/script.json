@@ -1,0 +1,86 @@
+{
+  "spec_version": "0.1",
+  "description": "A pre_model_request hook answers the first step itself with a tool call, so no request is sent; the next step's request carries the hook's parameter patch.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "echo",
+        "description": "Echo the text back.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "echo"
+        }
+      }
+    ],
+    "hooks": [
+      {
+        "point": "pre_model_request",
+        "name": "canned",
+        "calls": [
+          {
+            "output": {
+              "synthetic": {
+                "role": "assistant",
+                "content": [
+                  {
+                    "type": "tool_call",
+                    "id": "call_syn_1",
+                    "name": "echo",
+                    "input": {
+                      "text": "hi"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "output": {
+              "params_patch": {
+                "temperature": 0.2
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Echo hi."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

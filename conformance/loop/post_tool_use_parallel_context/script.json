@@ -1,0 +1,106 @@
+{
+  "spec_version": "0.1",
+  "description": "post_tool_use hooks of one parallel group run concurrently, each in its call's worker; their context reaches the next user line in call order, whichever finished first.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "get_weather",
+        "description": "Current weather for a city.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "city": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "city"
+          ]
+        },
+        "concurrency": "parallel",
+        "behavior": {
+          "type": "fixed",
+          "text": "Sunny, 24C.",
+          "sleep_ms": 300
+        }
+      },
+      {
+        "name": "get_forecast",
+        "description": "Tomorrow's forecast for a city.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "city": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "city"
+          ]
+        },
+        "concurrency": "parallel",
+        "behavior": {
+          "type": "fixed",
+          "text": "Rain.",
+          "sleep_ms": 100
+        }
+      }
+    ],
+    "hooks": [
+      {
+        "point": "post_tool_use",
+        "name": "units",
+        "cases": [
+          {
+            "when": {
+              "call.name": "get_weather"
+            },
+            "call": {
+              "output": {
+                "additional_context": "Temperatures are in Celsius."
+              }
+            }
+          },
+          {
+            "when": {
+              "call.name": "get_forecast"
+            },
+            "call": {
+              "output": {
+                "additional_context": "Forecasts are estimates."
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Weather now and tomorrow in Osaka?"
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

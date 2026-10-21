@@ -1,0 +1,1 @@
+{"type": "memory.saved", "seq": 1, "time": "2026-10-13T01:00:00.000Z", "session_id": "ses_01", "agent": "Tater", "data": {"changes": [{"op": "move", "id": "m1"}], "trigger": "tool"}}

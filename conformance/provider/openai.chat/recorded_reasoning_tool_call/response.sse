@@ -1,0 +1,30 @@
+data: {"id":"chatcmpl-de9c340a-efcd-9a0f-86fe-b1814e6a1fc4","created":1790588503,"model":"deepseek-v4.1-flash","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"reasoning_content":"","content":"","role":"assistant"}}]}
+
+data: {"id":"chatcmpl-de9c340a-efcd-9a0f-86fe-b1814e6a1fc4","created":1790588503,"model":"deepseek-v4.1-flash","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"reasoning_content":"The","content":""}}]}
+
+data: {"id":"chatcmpl-de9c340a-efcd-9a0f-86fe-b1814e6a1fc4","created":1790588503,"model":"deepseek-v4.1-flash","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"reasoning_content":" user asks","content":""}}]}
+
+data: {"id":"chatcmpl-de9c340a-efcd-9a0f-86fe-b1814e6a1fc4","created":1790588503,"model":"deepseek-v4.1-flash","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"reasoning_content":" for the weather in Osaka right","content":""}}]}
+
+data: {"id":"chatcmpl-de9c340a-efcd-9a0f-86fe-b1814e6a1fc4","created":1790588503,"model":"deepseek-v4.1-flash","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"reasoning_content":" now. I should call","content":""}}]}
+
+data: {"id":"chatcmpl-de9c340a-efcd-9a0f-86fe-b1814e6a1fc4","created":1790588503,"model":"deepseek-v4.1-flash","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"reasoning_content":" the get","content":""}}]}
+
+data: {"id":"chatcmpl-de9c340a-efcd-9a0f-86fe-b1814e6a1fc4","created":1790588503,"model":"deepseek-v4.1-flash","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"reasoning_content":"_weather tool.","content":"I"}}]}
+
+data: {"id":"chatcmpl-de9c340a-efcd-9a0f-86fe-b1814e6a1fc4","created":1790588503,"model":"deepseek-v4.1-flash","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"reasoning_content":"","content":"'ll check the current weather in"}}]}
+
+data: {"id":"chatcmpl-de9c340a-efcd-9a0f-86fe-b1814e6a1fc4","created":1790588503,"model":"deepseek-v4.1-flash","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"reasoning_content":"","content":" Osaka for"}}]}
+
+data: {"id":"chatcmpl-de9c340a-efcd-9a0f-86fe-b1814e6a1fc4","created":1790588503,"model":"deepseek-v4.1-flash","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"reasoning_content":"","content":" you.","tool_calls":[{"id":"call_77a2f324534445ad8a791c0e","function":{"arguments":"","name":"get_weather"},"type":"function","index":0}]}}]}
+
+data: {"id":"chatcmpl-de9c340a-efcd-9a0f-86fe-b1814e6a1fc4","created":1790588503,"model":"deepseek-v4.1-flash","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"reasoning_content":"","content":"","tool_calls":[{"function":{"arguments":"{"},"type":"function","index":0}]}}]}
+
+data: {"id":"chatcmpl-de9c340a-efcd-9a0f-86fe-b1814e6a1fc4","created":1790588503,"model":"deepseek-v4.1-flash","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"reasoning_content":"","content":"","tool_calls":[{"function":{"arguments":"\"city\": \"Osaka\"}"},"type":"function","index":0}]}}]}
+
+data: {"id":"chatcmpl-de9c340a-efcd-9a0f-86fe-b1814e6a1fc4","object":"chat.completion.chunk","created":1790588503,"model":"deepseek-v4.1-flash","choices":[{"index":0,"delta":{},"finish_reason":"tool_calls"}]}
+
+data: {"id":"chatcmpl-de9c340a-efcd-9a0f-86fe-b1814e6a1fc4","created":1790588503,"model":"deepseek-v4.1-flash","object":"chat.completion.chunk","choices":[{"index":0,"delta":{}}],"usage":{"completion_tokens":70,"prompt_tokens":594,"total_tokens":664,"completion_tokens_details":{"reasoning_tokens":20,"text_tokens":49},"prompt_tokens_details":{"cached_tokens":512,"text_tokens":594}}}
+
+data: [DONE]
+

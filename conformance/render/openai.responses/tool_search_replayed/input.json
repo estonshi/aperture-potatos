@@ -1,0 +1,197 @@
+{
+  "model": "gpt-5.6",
+  "system": [
+    {
+      "slot": "core",
+      "text": "<runtime-conventions>\n...\n</runtime-conventions>"
+    }
+  ],
+  "tools": [
+    {
+      "name": "mcp__gh__create_issue",
+      "description": "Create a GitHub issue.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "deferred": true
+    },
+    {
+      "name": "mcp__gh__list_prs",
+      "description": "List open pull requests.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "repo": {
+            "type": "string"
+          }
+        }
+      },
+      "deferred": true
+    },
+    {
+      "name": "read_file",
+      "description": "Read a file from the workspace.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ],
+  "hosted_tools": [
+    {
+      "name": "tool_search",
+      "tool_search": {}
+    }
+  ],
+  "messages": [
+    {
+      "v": 1,
+      "id": "msg_01",
+      "session_id": "ses_01",
+      "seq": 1,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Open an issue about the flaky test."
+        }
+      ],
+      "ts": "2026-10-16T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_02",
+      "session_id": "ses_01",
+      "seq": 2,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "hosted_call",
+          "id": "tsc_01",
+          "name": "tool_search",
+          "input": {
+            "query": "github issue"
+          },
+          "status": "completed",
+          "native": {
+            "api": "openai.responses",
+            "raw": {
+              "type": "tool_search_call",
+              "id": "tsc_01",
+              "execution": "server",
+              "call_id": null,
+              "status": "completed",
+              "arguments": {
+                "query": "github issue"
+              }
+            }
+          }
+        },
+        {
+          "type": "hosted_result",
+          "call_id": "tsc_01",
+          "name": "tool_search",
+          "tools": [
+            "mcp__gh__create_issue"
+          ],
+          "native": {
+            "api": "openai.responses",
+            "raw": {
+              "type": "tool_search_output",
+              "id": "tso_01",
+              "execution": "server",
+              "call_id": null,
+              "status": "completed",
+              "tools": [
+                {
+                  "type": "function",
+                  "name": "mcp__gh__create_issue",
+                  "description": "Create a GitHub issue.",
+                  "parameters": {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "strict": false,
+                  "defer_loading": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "tool_call",
+          "id": "call_01",
+          "name": "mcp__gh__create_issue",
+          "input": {
+            "title": "Flaky test"
+          },
+          "native": {
+            "api": "openai.responses",
+            "raw": {
+              "type": "function_call",
+              "id": "fc_01",
+              "call_id": "call_01",
+              "name": "mcp__gh__create_issue",
+              "arguments": "{\"title\":\"Flaky test\"}",
+              "status": "completed"
+            }
+          }
+        }
+      ],
+      "ts": "2026-10-16T08:00:00Z",
+      "producer": {
+        "api": "openai.responses",
+        "endpoint": "api.openai.com",
+        "model": "gpt-5.6"
+      },
+      "stop_reason": "tool_use"
+    },
+    {
+      "v": 1,
+      "id": "msg_03",
+      "session_id": "ses_01",
+      "seq": 3,
+      "epoch": 1,
+      "role": "tool",
+      "origin": {
+        "kind": "tool"
+      },
+      "content": [
+        {
+          "type": "tool_result",
+          "call_id": "call_01",
+          "name": "mcp__gh__create_issue",
+          "content": [
+            {
+              "type": "text",
+              "text": "Issue #42 opened."
+            }
+          ],
+          "outcome": "success"
+        }
+      ],
+      "ts": "2026-10-16T08:00:00Z"
+    }
+  ]
+}

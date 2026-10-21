@@ -1,0 +1,28 @@
+event: response.created
+data: {"type":"response.created","response":{"id":"resp_01","object":"response","status":"in_progress","model":"gpt-5.6","output":[]},"sequence_number":1}
+
+event: response.output_item.added
+data: {"type":"response.output_item.added","output_index":0,"item":{"id":"tsc_01","type":"tool_search_call","execution":"server","call_id":null,"status":"in_progress","arguments":{"query":"create github issue"}},"sequence_number":2}
+
+event: response.output_item.done
+data: {"type":"response.output_item.done","output_index":0,"item":{"id":"tsc_01","type":"tool_search_call","execution":"server","call_id":null,"status":"completed","arguments":{"query":"create github issue"}},"sequence_number":3}
+
+event: response.output_item.added
+data: {"type":"response.output_item.added","output_index":1,"item":{"id":"tso_01","type":"tool_search_output","execution":"server","call_id":null,"status":"in_progress","tools":[]},"sequence_number":4}
+
+event: response.output_item.done
+data: {"type":"response.output_item.done","output_index":1,"item":{"id":"tso_01","type":"tool_search_output","execution":"server","call_id":null,"status":"completed","tools":[{"type":"function","name":"mcp__gh__create_issue","description":"Create a GitHub issue.","parameters":{"type":"object","properties":{"title":{"type":"string"}}},"strict":false,"defer_loading":true},{"type":"namespace","name":"crm","description":"CRM tools.","tools":[{"type":"function","name":"crm_lookup","description":"Look up a customer.","parameters":{"type":"object"},"defer_loading":true}]}]},"sequence_number":5}
+
+event: response.output_item.added
+data: {"type":"response.output_item.added","output_index":2,"item":{"id":"fc_01","type":"function_call","status":"in_progress","call_id":"call_01","name":"mcp__gh__create_issue","arguments":""},"sequence_number":6}
+
+event: response.function_call_arguments.delta
+data: {"type":"response.function_call_arguments.delta","item_id":"fc_01","output_index":2,"delta":"{\"title\":\"Flaky test\"}","sequence_number":7}
+
+event: response.output_item.done
+data: {"type":"response.output_item.done","output_index":2,"item":{"id":"fc_01","type":"function_call","status":"completed","call_id":"call_01","name":"mcp__gh__create_issue","arguments":"{\"title\":\"Flaky test\"}"},"sequence_number":8}
+
+event: response.completed
+data: {"type":"response.completed","response":{"id":"resp_01","object":"response","status":"completed","model":"gpt-5.6","output":[],"usage":{"input_tokens":90,"input_tokens_details":{"cached_tokens":0},"output_tokens":25,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":115}},"sequence_number":9}
+
+

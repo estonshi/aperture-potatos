@@ -1,0 +1,73 @@
+{
+  "spec_version": "0.1",
+  "description": "The task API's errors reach the model as fixed texts: a kind without instructions refuses a message while it runs, a kind without restart refuses a restart, and a finished task of a kind that cannot continue points to task_restart.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "task_kinds": [
+      {
+        "name": "job",
+        "caps": {},
+        "start_tool": {
+          "name": "start_job",
+          "description": "Start a job.",
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "title"
+            ]
+          }
+        }
+      }
+    ],
+    "extensions": {
+      "tasks": {}
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse",
+        "responses/04.sse",
+        "responses/05.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-29T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Crawl the site."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "task": {
+        "step": "task_01",
+        "do": {
+          "succeed": "Crawled."
+        }
+      }
+    },
+    {
+      "wait_quiet": true
+    }
+  ]
+}

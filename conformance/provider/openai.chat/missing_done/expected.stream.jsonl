@@ -1,0 +1,4 @@
+{"kind":"start","response_id":"chatcmpl-1"}
+{"block_type":"text","kind":"block_start"}
+{"channel":"text","kind":"text_delta","text":"Partial"}
+{"error":{"api":"openai.chat","class":"transient","code":"stream_incomplete","message":"the stream ended before its terminal event","mid_stream":true}}

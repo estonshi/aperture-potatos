@@ -1,0 +1,9 @@
+{"kind":"start","request_id":"req_011CT5","response_id":"msg_01"}
+{"kind":"usage","usage":{"cache_read_tokens":0,"cache_write_tokens":0,"input_tokens":25,"output_tokens":1,"raw":{"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"input_tokens":25,"output_tokens":1},"reasoning_tokens":0}}
+{"block_type":"reasoning","kind":"block_start","reasoning_kind":"omitted"}
+{"block":{"kind":"omitted","native":{"api":"anthropic.messages","raw":{"signature":"ErUBCkYIBxgCKkDo","thinking":"","type":"thinking"}},"type":"reasoning"},"block_type":"reasoning","kind":"block_stop"}
+{"block_type":"text","index":1,"kind":"block_start"}
+{"channel":"text","index":1,"kind":"text_delta","text":"4"}
+{"block":{"text":"4","type":"text"},"block_type":"text","index":1,"kind":"block_stop"}
+{"kind":"usage","usage":{"cache_read_tokens":0,"cache_write_tokens":0,"input_tokens":25,"output_tokens":12,"raw":{"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"input_tokens":25,"output_tokens":12},"reasoning_tokens":0}}
+{"kind":"end","message":{"content":[{"kind":"omitted","native":{"api":"anthropic.messages","raw":{"signature":"ErUBCkYIBxgCKkDo","thinking":"","type":"thinking"}},"type":"reasoning"},{"text":"4","type":"text"}],"origin":{"kind":"model"},"producer":{"api":"anthropic.messages","endpoint":"api.anthropic.com","model":"claude-opus-5-5","request_id":"req_011CT5","response_id":"msg_01"},"role":"assistant","stop_reason":"end_turn","usage":{"cache_read_tokens":0,"cache_write_tokens":0,"input_tokens":25,"output_tokens":12,"raw":{"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"input_tokens":25,"output_tokens":12},"reasoning_tokens":0}},"stop":{"raw":"end_turn","reason":"end_turn"},"usage":{"cache_read_tokens":0,"cache_write_tokens":0,"input_tokens":25,"output_tokens":12,"raw":{"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"input_tokens":25,"output_tokens":12},"reasoning_tokens":0}}

@@ -1,0 +1,6 @@
+{
+  "api": "anthropic.messages",
+  "model": "claude-opus-5-5",
+  "source": "synthetic",
+  "notes": "A streamed web search: server_tool_use becomes a hosted call with its streamed input, the result list becomes sources, the cited text keeps structured citations, and web_search_requests becomes hosted_calls."
+}

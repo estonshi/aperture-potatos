@@ -1,0 +1,35 @@
+{
+  "content": [
+    {
+      "id": "call_x1",
+      "input": {
+        "id": 7
+      },
+      "name": "lookup",
+      "type": "tool_call"
+    }
+  ],
+  "origin": {
+    "kind": "model"
+  },
+  "producer": {
+    "api": "openai.chat",
+    "endpoint": "api.openai.com",
+    "model": "qwen3.6-plus",
+    "response_id": "chatcmpl-1"
+  },
+  "role": "assistant",
+  "stop_reason": "tool_use",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 20,
+    "output_tokens": 8,
+    "raw": {
+      "completion_tokens": 8,
+      "prompt_tokens": 20,
+      "total_tokens": 28
+    },
+    "reasoning_tokens": 0
+  }
+}

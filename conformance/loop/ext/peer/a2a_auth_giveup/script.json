@@ -1,0 +1,53 @@
+{
+  "spec_version": "0.1",
+  "description": "The peer refuses the request for credentials and no peer_auth_required hook fixes them: the call fails with the auth text after one peer.auth_required event.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "extensions": {
+      "peer": {
+        "peers": [
+          {
+            "name": "bank",
+            "description": "Answers account questions.",
+            "rounds": [
+              {
+                "auth_error": {
+                  "status": 401,
+                  "detail": "Bearer realm=\"bank\""
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-02T00:00:00.000Z",
+    "step_ms": 1,
+    "interleaved": true
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Check my balance."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

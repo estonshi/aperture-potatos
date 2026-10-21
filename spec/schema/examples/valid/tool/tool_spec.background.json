@@ -1,0 +1,1 @@
+{"name": "run_tests", "description": "Run the test suite.", "input_schema": {"type": "object", "properties": {"pkg": {"type": "string"}, "background": {"type": "boolean"}}}, "concurrency": "serial", "timeout_ms": -1, "tags": ["dev"], "background": true}

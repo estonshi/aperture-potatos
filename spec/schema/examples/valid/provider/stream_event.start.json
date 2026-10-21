@@ -1,0 +1,8 @@
+{
+  "kind": "start",
+  "response_id": "msg_01",
+  "request_id": "req_01",
+  "headers": {
+    "x-litellm-call-id": "c-1"
+  }
+}

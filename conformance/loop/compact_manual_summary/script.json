@@ -1,0 +1,118 @@
+{
+  "spec_version": "0.1",
+  "description": "A manual compaction: pre_compact rewrites the per-call instructions, the summary request sends the whole context as the cached prefix with the instruction appended, and the new epoch head carries the session_start{compact} context, the summary and the post_compact context.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "get_weather",
+        "description": "Current weather for a city.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "city": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "city"
+          ]
+        },
+        "concurrency": "parallel",
+        "behavior": {
+          "type": "fixed",
+          "text": "Sunny, 24C."
+        }
+      }
+    ],
+    "compactor": {
+      "instructions": "Summarize the conversation.",
+      "keep": "none"
+    },
+    "hooks": [
+      {
+        "point": "pre_compact",
+        "name": "focus",
+        "calls": [
+          {
+            "output": {
+              "updated_instructions": "Keep the city names."
+            }
+          }
+        ]
+      },
+      {
+        "point": "post_compact",
+        "name": "tail",
+        "calls": [
+          {
+            "output": {
+              "additional_context": "Compaction finished."
+            }
+          }
+        ]
+      },
+      {
+        "point": "session_start",
+        "name": "memory",
+        "cases": [
+          {
+            "when": {
+              "source": "compact"
+            },
+            "call": {
+              "output": {
+                "additional_context": "Answer in metric units."
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse",
+        "responses/04.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Weather in Osaka?"
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "compact": {
+        "instructions": "Be short."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "And Kyoto?"
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

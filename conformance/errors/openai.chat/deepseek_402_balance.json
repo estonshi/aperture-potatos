@@ -1,0 +1,27 @@
+{
+  "body": {
+    "error": {
+      "code": "invalid_request_error",
+      "message": "Insufficient Balance",
+      "param": null,
+      "type": "unknown_error"
+    }
+  },
+  "expected": {
+    "api": "openai.chat",
+    "class": "quota",
+    "code": "invalid_request_error",
+    "message": "Insufficient Balance",
+    "raw": {
+      "error": {
+        "code": "invalid_request_error",
+        "message": "Insufficient Balance",
+        "param": null,
+        "type": "unknown_error"
+      }
+    },
+    "status": 402,
+    "type": "unknown_error"
+  },
+  "status": 402
+}

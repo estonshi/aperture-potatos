@@ -1,0 +1,37 @@
+{
+  "max_tokens": 64000,
+  "messages": [
+    {
+      "content": [
+        {
+          "text": "Compare these.",
+          "type": "text"
+        },
+        {
+          "image_url": {
+            "url": "https://example.test/a.png"
+          },
+          "type": "image_url"
+        },
+        {
+          "file": {
+            "file_data": "data:application/pdf;base64,JVBERi0x",
+            "filename": "a.pdf"
+          },
+          "type": "file"
+        },
+        {
+          "text": "Document: https://example.test/b.pdf",
+          "type": "text"
+        }
+      ],
+      "role": "user"
+    }
+  ],
+  "model": "gpt-5.6",
+  "stream": true,
+  "stream_options": {
+    "include_obfuscation": false,
+    "include_usage": true
+  }
+}

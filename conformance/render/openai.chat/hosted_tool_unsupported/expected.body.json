@@ -1,0 +1,39 @@
+{
+  "max_tokens": 64000,
+  "messages": [
+    {
+      "content": "<runtime-conventions>\n...\n</runtime-conventions>",
+      "role": "system"
+    },
+    {
+      "content": "What is the weather in Osaka?",
+      "role": "user"
+    }
+  ],
+  "model": "gpt-5.6",
+  "stream": true,
+  "stream_options": {
+    "include_obfuscation": false,
+    "include_usage": true
+  },
+  "tools": [
+    {
+      "function": {
+        "description": "Get the weather.",
+        "name": "get_weather",
+        "parameters": {
+          "properties": {
+            "city": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "city"
+          ],
+          "type": "object"
+        }
+      },
+      "type": "function"
+    }
+  ]
+}

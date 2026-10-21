@@ -1,0 +1,59 @@
+{
+  "spec_version": "0.1",
+  "description": "Context from a turn_end hook waits, without waking, for the next turn's user line.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "hooks": [
+      {
+        "point": "turn_end",
+        "name": "cite",
+        "calls": [
+          {
+            "output": {
+              "additional_context": "Remember to cite sources."
+            }
+          },
+          {
+            "output": {}
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Summarize."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Go on."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

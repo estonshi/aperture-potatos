@@ -1,0 +1,39 @@
+{
+  "model": "gpt-5.6",
+  "messages": [
+    {
+      "v": 1,
+      "id": "msg_01",
+      "session_id": "ses_01",
+      "seq": 1,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Compare."
+        },
+        {
+          "type": "image",
+          "media_type": "image/png",
+          "url": "https://example.test/a.png"
+        },
+        {
+          "type": "document",
+          "media_type": "application/pdf",
+          "data": "JVBERi0x",
+          "filename": "a.pdf"
+        },
+        {
+          "type": "document",
+          "media_type": "application/pdf",
+          "url": "https://example.test/b.pdf"
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z"
+    }
+  ]
+}

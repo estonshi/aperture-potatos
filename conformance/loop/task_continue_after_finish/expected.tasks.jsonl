@@ -1,0 +1,1 @@
+{"attempt":2,"kind":"job","progress":{},"result":{"content":[{"text":"Osaka: 2 hotels.\ncontinued with \"Now Osaka.\" from {\"city\":\"Kyoto\"}","type":"text"}],"summary":"Osaka: 2 hotels.\ncontinued with \"Now Osaka.\" from {\"city\":\"Kyoto\"}"},"state":{"city":"Kyoto"},"status":"succeeded","task_id":"task_01","title":"Hotels"}

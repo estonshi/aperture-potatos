@@ -1,0 +1,42 @@
+{
+  "max_tokens": 64000,
+  "messages": [
+    {
+      "content": "Q1",
+      "role": "user"
+    },
+    {
+      "content": "A1",
+      "reasoning_content": "First idea. Unsigned.",
+      "reasoning_details": [
+        {
+          "data": "ZW5j",
+          "index": 0,
+          "type": "reasoning.encrypted"
+        }
+      ],
+      "role": "assistant",
+      "thinking_blocks": [
+        {
+          "signature": "sig-one",
+          "thinking": "First idea.",
+          "type": "thinking"
+        },
+        {
+          "data": "cmVk",
+          "type": "redacted_thinking"
+        }
+      ]
+    },
+    {
+      "content": "Q2",
+      "role": "user"
+    }
+  ],
+  "model": "claude-sonnet-5",
+  "stream": true,
+  "stream_options": {
+    "include_obfuscation": false,
+    "include_usage": true
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "body": {
+    "error": {
+      "code": "400",
+      "message": "litellm.BadRequestError: BedrockException - {\"message\":\"The maximum tokens you requested exceeds the model limit of 64000. Try again with a maximum tokens value that is lower than 64000.\"}. Received Model Group=claude-haiku-4-5\nAvailable Model Group Fallbacks=None",
+      "param": null,
+      "type": null
+    }
+  },
+  "expected": {
+    "api": "openai.responses",
+    "class": "invalid_request",
+    "code": "400",
+    "limit": 64000,
+    "message": "litellm.BadRequestError: BedrockException - {\"message\":\"The maximum tokens you requested exceeds the model limit of 64000. Try again with a maximum tokens value that is lower than 64000.\"}. Received Model Group=claude-haiku-4-5\nAvailable Model Group Fallbacks=None",
+    "raw": {
+      "error": {
+        "code": "400",
+        "message": "litellm.BadRequestError: BedrockException - {\"message\":\"The maximum tokens you requested exceeds the model limit of 64000. Try again with a maximum tokens value that is lower than 64000.\"}. Received Model Group=claude-haiku-4-5\nAvailable Model Group Fallbacks=None",
+        "param": null,
+        "type": null
+      }
+    },
+    "rule": "max_output_too_large",
+    "status": 400
+  },
+  "status": 400
+}

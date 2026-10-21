@@ -1,0 +1,890 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>potatOS 运行图解</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@700;900&display=swap">
+<style>
+/* Layout: a lecture read top to bottom, chapters ordered from the outside in, sticky chapter rail on wide screens, each figure in its own scroll box */
+:root {
+  --paper: #f5f7f5;
+  --card: #ffffff;
+  --ink: #16201c;
+  --muted: #56635e;
+  --line: #c9d2ce;
+  --kernel: #0d6b58;
+  --provider: #3c4ca3;
+  --ext: #93620c;
+  --hl: #c2410c;
+  --k-soft: color-mix(in srgb, var(--kernel) 11%, var(--card));
+  --p-soft: color-mix(in srgb, var(--provider) 10%, var(--card));
+  --e-soft: color-mix(in srgb, var(--ext) 11%, var(--card));
+  --hl-soft: color-mix(in srgb, var(--hl) 14%, var(--card));
+  --code-bg: color-mix(in srgb, var(--kernel) 6%, var(--paper));
+  --f-display: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
+  --f-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --f-mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #111715;
+    --card: #18201d;
+    --ink: #e2e9e6;
+    --muted: #9aa8a2;
+    --line: #2e3a35;
+    --kernel: #4fc0a5;
+    --provider: #93a0f0;
+    --ext: #d8a548;
+    --hl: #fb8c4b;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #111715;
+  --card: #18201d;
+  --ink: #e2e9e6;
+  --muted: #9aa8a2;
+  --line: #2e3a35;
+  --kernel: #4fc0a5;
+  --provider: #93a0f0;
+  --ext: #d8a548;
+  --hl: #fb8c4b;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 15.5px/1.75 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  gap: 48px;
+  padding-block: 56px 96px;
+}
+nav.rail {
+  position: sticky;
+  top: calc(env(safe-area-inset-top, 0px) + 24px);
+  align-self: start;
+  font-size: 13.5px;
+}
+nav.rail .label {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+nav.rail ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: ch; }
+nav.rail li { counter-increment: ch; }
+nav.rail a {
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  padding: 5px 8px;
+  border-radius: 6px;
+  color: var(--muted);
+  text-decoration: none;
+}
+nav.rail a::before { content: counter(ch, decimal-leading-zero); font-family: var(--f-mono); font-size: 11.5px; padding-top: 2px; }
+nav.rail a:hover { color: var(--ink); background: var(--k-soft); }
+nav.rail a:focus-visible, button:focus-visible, .evlist li:focus-visible { outline: 2px solid var(--hl); outline-offset: 2px; }
+
+main { min-width: 0; display: grid; gap: 72px; }
+header.top { display: grid; gap: 14px; max-width: 46rem; }
+header.top .eyebrow {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--kernel);
+}
+h1 {
+  font-family: var(--f-display);
+  font-weight: 900;
+  font-size: clamp(34px, 5vw, 50px);
+  line-height: 1.2;
+  margin: 0;
+  text-wrap: balance;
+}
+header.top p.lede { font-size: 17.5px; color: var(--ink); margin: 0; }
+header.top .meta { font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+
+section { display: grid; gap: 18px; scroll-margin-top: 24px; }
+section > .head { display: grid; gap: 6px; max-width: 46rem; }
+section .num { font-family: var(--f-mono); font-size: 12px; color: var(--kernel); letter-spacing: .1em; }
+h2 {
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 27px;
+  line-height: 1.35;
+  margin: 0;
+  text-wrap: balance;
+}
+h3 { font-size: 16.5px; margin: 8px 0 0; font-weight: 700; }
+p { margin: 0; max-width: 44rem; }
+.prose { display: grid; gap: 12px; max-width: 44rem; }
+ul.points { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; max-width: 44rem; }
+code, .mono { font-family: var(--f-mono); font-size: .88em; }
+code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+
+figure { margin: 0; display: grid; gap: 10px; }
+.scroll {
+  overflow-x: auto;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px;
+}
+.scroll svg { display: block; min-width: 760px; width: 100%; height: auto; }
+figcaption { font-size: 13.5px; color: var(--muted); max-width: 46rem; }
+
+/* svg vocabulary */
+.dg { color: var(--muted); font-family: var(--f-body); }
+.dg .box { fill: var(--card); stroke: var(--line); stroke-width: 1.2; }
+.dg .k { fill: var(--k-soft); stroke: var(--kernel); stroke-width: 1.3; }
+.dg .kk { fill: var(--k-soft); stroke: var(--kernel); stroke-width: 2.2; }
+.dg .p { fill: var(--p-soft); stroke: var(--provider); stroke-width: 1.3; }
+.dg .e { fill: var(--e-soft); stroke: var(--ext); stroke-width: 1.3; }
+.dg .frame { fill: none; stroke: var(--line); stroke-width: 1.2; stroke-dasharray: 5 4; }
+.dg .chip { fill: var(--card); stroke: var(--ext); stroke-width: 1; }
+.dg .chipk { fill: var(--card); stroke: var(--kernel); stroke-width: 1; }
+.dg .hk { fill: var(--k-soft); stroke: none; }
+.dg .h { fill: var(--ink); font-size: 14px; font-weight: 700; }
+.dg .s { fill: var(--muted); font-size: 12px; }
+.dg .c { fill: var(--ink); font-size: 12px; }
+.dg .m { fill: var(--muted); font-family: var(--f-mono); font-size: 11.5px; }
+.dg .mk { fill: var(--kernel); font-family: var(--f-mono); font-size: 11.5px; }
+.dg .tag { fill: var(--muted); font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; }
+.dg .colh { fill: var(--muted); font-family: var(--f-mono); font-size: 11px; letter-spacing: .12em; }
+.dg .lbl { fill: var(--muted); font-size: 11.5px; }
+.dg .ar { stroke: currentColor; stroke-width: 1.4; fill: none; }
+.dg .ar.d { stroke-dasharray: 4 4; }
+.dg .ar.hl { stroke: var(--hl); }
+.dg .seg-m { fill: var(--p-soft); stroke: var(--provider); }
+.dg .seg-t { fill: var(--e-soft); stroke: var(--ext); }
+.dg .seg-b { fill: var(--k-soft); stroke: var(--kernel); }
+.dg .sp { stroke: var(--kernel); stroke-width: 1.6; stroke-dasharray: 3 3; }
+.dg .dot { fill: var(--hl); }
+.dg .x { stroke: var(--hl); stroke-width: 2.4; }
+.dg .ahead { fill: currentColor; }
+.dg .ahead-hl { fill: var(--hl); }
+
+/* replay highlight */
+#turnflow .node rect, #turnflow .node polygon { transition: fill .2s, stroke .2s, stroke-width .2s; }
+#turnflow .node.on rect, #turnflow .node.on polygon { fill: var(--hl-soft); stroke: var(--hl); stroke-width: 2.4; }
+@media (prefers-reduced-motion: reduce) { #turnflow .node rect, #turnflow .node polygon { transition: none; } }
+
+.replay {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+.replay .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.replay .bar strong { font-size: 14.5px; }
+.replay .bar .spacer { flex: 1 1 auto; }
+.replay .bar .pos { font-family: var(--f-mono); font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+button {
+  font: 500 13px/1 var(--f-body);
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+button:hover { border-color: var(--kernel); color: var(--kernel); }
+button[aria-pressed="true"] { background: var(--kernel); border-color: var(--kernel); color: var(--card); }
+.evlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; max-height: 380px; overflow-y: auto; border-top: 1px solid var(--line); }
+.evlist li {
+  display: grid;
+  grid-template-columns: 30px minmax(150px, 210px) minmax(0, 1fr) 84px;
+  gap: 12px;
+  align-items: baseline;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13.5px;
+}
+.evlist li:hover { background: var(--k-soft); }
+.evlist li.on { background: var(--hl-soft); }
+.evlist .i { font-family: var(--f-mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.evlist .t { font-family: var(--f-mono); font-size: 12.5px; color: var(--kernel); overflow-wrap: anywhere; }
+.evlist .st { font-size: 12px; color: var(--muted); text-align: right; }
+.note { font-size: 13px; color: var(--muted); }
+
+/* tables */
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 620px; }
+th, td { text-align: left; vertical-align: top; padding: 9px 14px; border-bottom: 1px solid var(--line); }
+tr:last-child td { border-bottom: 0; }
+th { font-family: var(--f-mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 500; background: var(--paper); }
+td code { white-space: nowrap; }
+
+/* glossary */
+dl.terms { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+dl.terms div { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; align-content: start; }
+dl.terms dt { font-family: var(--f-mono); font-size: 15px; color: var(--kernel); font-weight: 500; }
+dl.terms dd { margin: 0; font-size: 14px; }
+
+/* system prompt skeleton */
+ol.skeleton { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; max-width: 46rem; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--card); }
+ol.skeleton li { display: grid; grid-template-columns: 34px 120px minmax(0, 1fr); gap: 10px; padding: 9px 14px; border-bottom: 1px solid var(--line); font-size: 14px; }
+ol.skeleton li:last-child { border-bottom: 0; }
+ol.skeleton .n { font-family: var(--f-mono); color: var(--muted); font-size: 12px; padding-top: 2px; }
+ol.skeleton .slot { font-family: var(--f-mono); color: var(--kernel); font-size: 13px; }
+ol.skeleton li.open .slot { color: var(--ext); }
+
+.guarantees { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.guarantees li { border-left: 3px solid var(--kernel); padding: 4px 0 4px 14px; display: grid; gap: 4px; }
+.guarantees b { font-size: 15px; }
+.guarantees span { font-size: 14px; color: var(--muted); }
+
+@media (max-width: 900px) {
+  .wrap { grid-template-columns: minmax(0, 1fr); gap: 32px; padding-block: 32px 64px; }
+  nav.rail { display: none; }
+  main { gap: 56px; }
+  .evlist li { grid-template-columns: 26px minmax(0, 1fr); }
+  .evlist .d, .evlist .st { grid-column: 2; text-align: left; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="rail" aria-label="章节">
+  <div class="label">章节</div>
+  <ol>
+    <li><a href="#terms">基本术语</a></li>
+    <li><a href="#layers">分层</a></li>
+    <li><a href="#session">Session 内部</a></li>
+    <li><a href="#turn">turn 的流程</a></li>
+    <li><a href="#input">运行中的新输入</a></li>
+    <li><a href="#tools">工具、审查与任务</a></li>
+    <li><a href="#context">上下文与存储</a></li>
+    <li><a href="#rules">运行保证</a></li>
+    <li><a href="#map">代码地图</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="eyebrow">教学图解 · github.com/estonshi/aperture-potatos</div>
+  <h1>potatOS 运行图解</h1>
+  <p class="lede">potatOS 是一个用 Go 编写的 agent core SDK，用于在你自己的程序中构建能够调用工具、多轮工作的 agent。本页说明 agent 收到一条消息之后，这条消息在 potatOS 中按什么顺序经过哪些部件，以及你可以在哪些位置介入。内容从最外层的模块分层开始，逐步深入到一次 turn 中的每一个步骤。</p>
+  <div class="meta">对应 spec 版本 0.1.0 · 事件序列取自一次真实运行</div>
+</header>
+
+<section id="terms">
+  <div class="head"><div class="num">01</div><h2>基本术语</h2></div>
+  <p>代码、事件和文档中反复使用以下五个术语，它们按所指的范围从大到小排列。本页后面的所有图解都以这些术语为基础。</p>
+  <dl class="terms">
+    <div><dt>session</dt><dd>一段对话，包含对话历史、正在运行的任务和事件订阅者。一个 session 同一时刻最多运行一个 turn，一个 Agent 可以开启多个 session。</dd></div>
+    <div><dt>turn</dt><dd>从一批输入送达开始，到模型给出最终回答为止的过程。turn 也可能因中断、达到上限等原因提前停止。</dd></div>
+    <div><dt>step</dt><dd>一次模型调用及其引出的工具执行。一个 turn 由若干个 step 组成，默认不限个数，可以用 <code>Limits.MaxSteps</code> 设置上限。</dd></div>
+    <div><dt>attempt</dt><dd>同一个 step 中对模型的一次调用尝试。失败的 attempt 不会写入历史，因此重试是安全的。</dd></div>
+    <div><dt>epoch</dt><dd>两次压缩或 <code>/clear</code> 之间的一段历史。system 提示词和工具定义在一个 epoch 内保持冻结，使 prompt 缓存持续有效。</dd></div>
+  </dl>
+</section>
+
+<section id="layers">
+  <div class="head"><div class="num">02</div><h2>模块分层与 kernel 的职责</h2></div>
+  <div class="prose">
+    <p>kernel 本身只负责<strong>调用模型、运行事件循环和管理上下文</strong>这三件事。subagent、skills、memory、A2A 以及各个斜杠命令都以扩展包的形式实现。这些扩展只使用公开的注册接口，与你自己编写的扩展没有区别。</p>
+  </div>
+  <figure>
+    <div class="scroll">
+      <svg class="dg" viewBox="0 0 960 548" role="img" aria-label="分层图。宿主装配 std 和扩展，扩展构建在 kernel 之上，kernel 只依赖 provider 接口和 L0 数据类型。三个 provider 适配器实现该接口并连接模型 API，各层都会读取 spec 目录。">
+        <defs>
+          <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+        <rect class="box" x="40" y="16" width="880" height="60" rx="8"/>
+        <text class="h" x="64" y="42">你的程序（宿主）</text>
+        <text class="m" x="64" y="62">kernel.New(std.Defaults(...), kernel.WithModel(...))  ·  ag.NewSession(ctx)  ·  sess.Send(...)  ·  sess.Subscribe(ch)</text>
+        <line class="ar" x1="90" y1="76" x2="90" y2="98" marker-end="url(#a1)"/>
+
+        <rect class="e" x="40" y="100" width="600" height="48" rx="6"/>
+        <text class="tag" x="56" y="129">L5</text>
+        <text class="h" x="96" y="129">std</text>
+        <text class="s" x="150" y="129">std.Defaults() 是默认扩展清单，每个扩展一行，用 With 增减、Without 去掉</text>
+        <line class="ar" x1="90" y1="148" x2="90" y2="170" marker-end="url(#a1)"/>
+
+        <rect class="e" x="40" y="172" width="600" height="84" rx="6"/>
+        <text class="tag" x="56" y="200">L4</text>
+        <text class="h" x="96" y="200">ext/*</text>
+        <text class="s" x="56" y="240">只使用公开 API</text>
+        <g>
+          <rect class="chip" x="150" y="184" width="86" height="26" rx="13"/><text class="c" x="193" y="201" text-anchor="middle">tasks</text>
+          <rect class="chip" x="246" y="184" width="86" height="26" rx="13"/><text class="c" x="289" y="201" text-anchor="middle">subagent</text>
+          <rect class="chip" x="342" y="184" width="86" height="26" rx="13"/><text class="c" x="385" y="201" text-anchor="middle">history</text>
+          <rect class="chip" x="438" y="184" width="86" height="26" rx="13"/><text class="c" x="481" y="201" text-anchor="middle">compact</text>
+          <rect class="chip" x="534" y="184" width="86" height="26" rx="13"/><text class="c" x="577" y="201" text-anchor="middle">cmd/*</text>
+          <rect class="chip" x="150" y="220" width="86" height="26" rx="13"/><text class="c" x="193" y="237" text-anchor="middle">skills</text>
+          <rect class="chip" x="246" y="220" width="86" height="26" rx="13"/><text class="c" x="289" y="237" text-anchor="middle">memory</text>
+          <rect class="chip" x="342" y="220" width="86" height="26" rx="13"/><text class="c" x="385" y="237" text-anchor="middle">peer · a2a</text>
+          <rect class="chip" x="438" y="220" width="86" height="26" rx="13"/><text class="c" x="481" y="237" text-anchor="middle">mcp</text>
+          <rect class="chip" x="534" y="220" width="86" height="26" rx="13" stroke-dasharray="3 3"/><text class="c" x="577" y="237" text-anchor="middle">litellm</text>
+        </g>
+        <line class="ar" x1="90" y1="256" x2="90" y2="278" marker-end="url(#a1)"/>
+
+        <rect class="kk" x="40" y="280" width="600" height="96" rx="6"/>
+        <text class="tag" x="56" y="308">L3</text>
+        <text class="h" x="96" y="308">kernel</text>
+        <g>
+          <rect class="chipk" x="150" y="292" width="114" height="28" rx="6"/><text class="c" x="207" y="311" text-anchor="middle">Agent · Session</text>
+          <rect class="chipk" x="271" y="292" width="114" height="28" rx="6"/><text class="c" x="328" y="311" text-anchor="middle">actor · mailbox</text>
+          <rect class="chipk" x="392" y="292" width="114" height="28" rx="6"/><text class="c" x="449" y="311" text-anchor="middle">turn driver</text>
+          <rect class="chipk" x="513" y="292" width="114" height="28" rx="6"/><text class="c" x="570" y="311" text-anchor="middle">输入队列</text>
+          <rect class="chipk" x="150" y="334" width="114" height="28" rx="6"/><text class="c" x="207" y="353" text-anchor="middle">任务协议</text>
+          <rect class="chipk" x="271" y="334" width="114" height="28" rx="6"/><text class="c" x="328" y="353" text-anchor="middle">审查闸门</text>
+          <rect class="chipk" x="392" y="334" width="114" height="28" rx="6"/><text class="c" x="449" y="353" text-anchor="middle">hook 调度</text>
+          <rect class="chipk" x="513" y="334" width="114" height="28" rx="6"/><text class="c" x="570" y="353" text-anchor="middle">上下文管理</text>
+        </g>
+        <line class="ar" x1="90" y1="376" x2="90" y2="398" marker-end="url(#a1)"/>
+        <text class="lbl" x="100" y="392">Stream(req)</text>
+
+        <rect class="p" x="40" y="400" width="600" height="48" rx="6"/>
+        <text class="tag" x="56" y="429">L1</text>
+        <text class="h" x="96" y="429">provider</text>
+        <text class="s" x="180" y="429">Provider 接口 · Request · StreamEvent · Capabilities · Error</text>
+        <line class="ar" x1="90" y1="448" x2="90" y2="470" marker-end="url(#a1)"/>
+
+        <rect class="box" x="40" y="472" width="600" height="56" rx="6"/>
+        <text class="tag" x="56" y="496">L0</text>
+        <text class="h" x="96" y="496">message · event · store</text>
+        <text class="s" x="96" y="516">Message / Block · Event 信封 · SessionStore（store/jsonl 是参考实现）</text>
+
+        <rect class="box" x="680" y="100" width="240" height="276" rx="6"/>
+        <text class="h" x="700" y="128">spec/</text>
+        <text class="s" x="700" y="150">语言无关的规范，各语言版本共用</text>
+        <text class="c" x="700" y="186">message、event、hook 的 Schema</text>
+        <text class="c" x="700" y="212">提示词与内置工具定义</text>
+        <text class="c" x="700" y="238">错误分类、默认值与上限</text>
+        <text class="c" x="700" y="264">各厂商 API 的字段映射</text>
+        <text class="c" x="700" y="290">conformance 回放样本</text>
+        <text class="s" x="700" y="352">Go 版本通过 go:embed 读取</text>
+        <line class="ar d" x1="680" y1="238" x2="644" y2="238" marker-end="url(#a1)"/>
+
+        <rect class="p" x="680" y="400" width="240" height="72" rx="6"/>
+        <text class="tag" x="696" y="424">L2</text>
+        <text class="h" x="724" y="424">provider/&lt;api&gt;</text>
+        <text class="c" x="696" y="446">anthropic</text>
+        <text class="c" x="696" y="464">openaichat · openairesponses</text>
+        <line class="ar" x1="680" y1="424" x2="644" y2="424" marker-end="url(#a1)"/>
+        <text class="lbl" x="662" y="416" text-anchor="middle">实现</text>
+        <line class="ar" x1="800" y1="472" x2="800" y2="494" marker-end="url(#a1)"/>
+        <rect class="box" x="680" y="496" width="240" height="40" rx="6"/>
+        <text class="c" x="800" y="521" text-anchor="middle">模型 API（HTTPS + SSE）</text>
+      </svg>
+    </div>
+    <figcaption>左侧一列表示 import 方向，箭头指向被依赖的一层。kernel 不 import 任何 provider 适配器。宿主通过 <code>anthropic.New(...)</code> 等函数创建 Provider，再通过 <code>WithModel</code> 交给 kernel，kernel 只依赖 L1 的接口。虚线框中的 <code>litellm</code> 不是扩展，它只提供请求打标和费用查询功能，通过 Option 传入。</figcaption>
+  </figure>
+  <ul class="points">
+    <li><strong>删除一个包即可下线对应的功能。</strong>删除任意一个 <code>ext/&lt;x&gt;</code> 包以及 <code>std/std.go</code> 中对应的一行之后，kernel 不需要做任何修改。<code>internal/archtest</code> 中的测试会检查这一点以及各层的依赖方向。</li>
+    <li><strong>只依赖标准库，唯一的例外是 <code>ext/mcp</code>。</strong><code>ext/mcp</code> 使用官方 MCP Go SDK 以及 <code>golang.org/x/oauth2</code> 和 <code>jsonschema-go</code>，<code>internal/archtest</code> 只允许这个包 import 它们。<code>tools/schemacheck</code> 是独立的 module，校验 schema 用的库不会进入 SDK 的依赖。</li>
+    <li><strong>provider 层可以单独使用。</strong>三个适配器都不依赖 kernel，因此可以作为独立的库使用，把三家 API 的流式响应统一成同一种格式。</li>
+  </ul>
+</section>
+
+<section id="session">
+  <div class="head"><div class="num">03</div><h2>Session 内部的 actor 与 worker</h2></div>
+  <div class="prose">
+    <p>每个 session 都有一个 actor goroutine，会话状态只由它持有。actor 自身从不等待网络，也不运行用户代码，因此 <code>Send</code>、<code>Interrupt</code> 等方法总是立即返回。调用模型、执行工具、运行 hook 和运行任务这类耗时操作都交给 worker goroutine 完成。worker 需要读写会话状态时，会把一个闭包交给 actor 执行。</p>
+  </div>
+  <figure>
+    <div class="scroll">
+      <svg class="dg" viewBox="0 0 960 420" role="img" aria-label="Session 内部结构。宿主把输入推入 mailbox，actor 独占会话状态，并把事件发布到 bus，再由 bus 分发给订阅者。actor 启动 turn driver、工具、hook、任务等 worker，worker 通过 exec 回到 actor 执行。driver 连接 Provider。Interrupt 绕过 mailbox，直接取消当前 turn。">
+        <defs>
+          <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead" d="M0,0 L10,5 L0,10 z"/></marker>
+          <marker id="a2h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead-hl" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+        <rect class="box" x="20" y="30" width="180" height="130" rx="8"/>
+        <text class="h" x="36" y="56">宿主 goroutine</text>
+        <text class="c" x="36" y="82">Send · Command</text>
+        <text class="c" x="36" y="102">Interrupt · Close</text>
+        <text class="s" x="36" y="128">Send 不会阻塞，</text>
+        <text class="s" x="36" y="146">并返回一个 Receipt</text>
+
+        <line class="ar" x1="200" y1="95" x2="248" y2="95" marker-end="url(#a2)"/>
+        <text class="lbl" x="224" y="87" text-anchor="middle">push</text>
+        <rect class="box" x="250" y="50" width="150" height="90" rx="8"/>
+        <text class="h" x="266" y="76">mailbox</text>
+        <text class="s" x="266" y="100">内部消息优先</text>
+        <text class="s" x="266" y="120">外部输入队列有界</text>
+
+        <line class="ar" x1="400" y1="95" x2="448" y2="95" marker-end="url(#a2)"/>
+        <text class="lbl" x="424" y="87" text-anchor="middle">ready</text>
+        <rect class="kk" x="450" y="30" width="210" height="130" rx="8"/>
+        <text class="h" x="466" y="56">actor goroutine</text>
+        <text class="c" x="466" y="82">独占会话状态</text>
+        <text class="c" x="466" y="102">历史 · 输入队列 · 任务表</text>
+        <text class="s" x="466" y="124">不做 I/O，不运行用户代码</text>
+        <text class="s" x="466" y="144">只在 &lt;-ready 处阻塞</text>
+
+        <line class="ar" x1="660" y1="95" x2="708" y2="95" marker-end="url(#a2)"/>
+        <text class="lbl" x="684" y="87" text-anchor="middle">publish</text>
+        <rect class="box" x="710" y="50" width="110" height="90" rx="8"/>
+        <text class="h" x="726" y="76">bus</text>
+        <text class="s" x="726" y="100">按序发布</text>
+        <text class="s" x="726" y="120">credit 背压</text>
+        <line class="ar" x1="820" y1="95" x2="846" y2="95" marker-end="url(#a2)"/>
+        <rect class="box" x="848" y="30" width="102" height="130" rx="8"/>
+        <text class="h" x="862" y="56">订阅者</text>
+        <text class="c" x="862" y="82">channel</text>
+        <text class="c" x="862" y="102">回调</text>
+        <text class="c" x="862" y="122">迭代器</text>
+
+        <line class="ar" x1="520" y1="160" x2="520" y2="228" marker-end="url(#a2)"/>
+        <text class="lbl" x="512" y="198" text-anchor="end">启动 worker</text>
+        <line class="ar" x1="600" y1="228" x2="600" y2="162" marker-end="url(#a2)"/>
+        <text class="lbl" x="608" y="198">exec(fn) · post(fn)</text>
+        <line class="ar d" x1="765" y1="228" x2="765" y2="142" marker-end="url(#a2)"/>
+        <text class="lbl" x="773" y="190">背压只阻塞 worker</text>
+
+        <rect class="frame" x="230" y="230" width="720" height="170" rx="10"/>
+        <text class="tag" x="246" y="252">WORKERS · 各自独立的 goroutine</text>
+        <rect class="k" x="246" y="266" width="190" height="112" rx="6"/>
+        <text class="h" x="260" y="290">turn driver</text>
+        <text class="s" x="260" y="314">整个 turn 是一段顺序代码</text>
+        <text class="s" x="260" y="334">只通过 exec 读写状态</text>
+        <text class="s" x="260" y="354">流式读取并预读</text>
+        <rect class="box" x="452" y="266" width="150" height="112" rx="6"/>
+        <text class="h" x="466" y="290">tool workers</text>
+        <text class="s" x="466" y="314">每个调用一个 worker</text>
+        <text class="s" x="466" y="334">组内最多同时运行 8 个</text>
+        <rect class="box" x="618" y="266" width="150" height="112" rx="6"/>
+        <text class="h" x="632" y="290">hook workers</text>
+        <text class="s" x="632" y="314">同步 hook 带超时</text>
+        <text class="s" x="632" y="334">异步 hook 放入池中执行</text>
+        <rect class="box" x="784" y="266" width="150" height="112" rx="6"/>
+        <text class="h" x="798" y="290">task runners</text>
+        <text class="s" x="798" y="314">每个任务一个 runner</text>
+        <text class="s" x="798" y="334">ctx 派生自 session</text>
+        <text class="s" x="798" y="354">不受 turn 中断影响</text>
+
+        <rect class="p" x="20" y="306" width="180" height="70" rx="8"/>
+        <text class="h" x="36" y="332">Provider.Stream</text>
+        <text class="s" x="36" y="354">经 HTTP + SSE 连接模型</text>
+        <line class="ar" x1="244" y1="341" x2="202" y2="341" marker-start="url(#a2)" marker-end="url(#a2)"/>
+        <text class="lbl" x="223" y="333" text-anchor="middle">流式</text>
+
+        <path class="ar hl d" d="M110,160 V284 H244" marker-end="url(#a2h)"/>
+        <text class="lbl" x="118" y="196">Interrupt 直接取消</text>
+        <text class="lbl" x="118" y="214">turn ctx，不经过 mailbox</text>
+      </svg>
+    </div>
+    <figcaption>实线表示正常的数据流。turn driver 在发布大量 delta 事件之前需要先取得 bus 的 credit，因此订阅者处理得慢时只会让模型流等待，既不会阻塞 actor，也不会阻塞 <code>Send</code>。</figcaption>
+  </figure>
+  <ul class="points">
+    <li><strong>历史令牌。</strong>任一时刻只有一个 worker 能够修改历史和调用 store，这个 worker 可能是正在运行的 turn，也可能是 <code>/compact</code>、<code>/clear</code> 这类命令。因此 store 调用天然是串行的，不需要加锁。</li>
+    <li><strong>Session 的状态。</strong>Session 创建后处于 <code>initializing</code> 状态，之后进入 <code>idle</code>，并在 <code>idle</code> 与 <code>running</code> 或 <code>maintenance</code> 之间来回切换。关闭时依次进入 <code>closing</code> 和 <code>closed</code>。初始化期间到达的输入会先排队，不会丢失。</li>
+  </ul>
+</section>
+
+<section id="turn">
+  <div class="head"><div class="num">04</div><h2>一次 turn 的执行流程</h2></div>
+  <div class="prose">
+    <p>下图对应 <code>kernel/driver.go</code> 中 <code>runTurn</code> 的结构。中间一列是主流程，右侧两列分别是每一步可以介入的位置和该步会发出的事件。介入点大多是 hook 点。<code>ContextProvider</code> 不是 hook，而是注册的上下文提供者，它在 turn 开始时和每个 safe point 提供 reminder。图中从 safe point 到“提交结果”的一圈循环就是一个 step。</p>
+  </div>
+  <figure>
+    <div class="scroll">
+      <svg id="turnflow" class="dg" viewBox="0 0 960 860" role="img" aria-label="一次 turn 的流程。先取出输入并提交，然后进入 step 循环，依次经过 safe point、组装请求、流式调用模型和提交回复，再判断是否有工具调用。如果有，就经过审查闸门、执行工具、提交结果，然后回到 safe point。如果没有，就进入结束判定，stop hook 可以要求继续运行，否则进入 finish 收尾。">
+        <defs>
+          <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+        <text class="colh" x="400" y="24" text-anchor="middle">主流程</text>
+        <text class="colh" x="610" y="24">介入点</text>
+        <text class="colh" x="795" y="24">事件</text>
+
+        <g class="node" id="n1"><rect class="k" x="250" y="46" width="300" height="52" rx="8"/>
+          <text class="h" x="268" y="68">取出输入</text><text class="s" x="268" y="87">从队列选出可开始 turn 的输入，执行提交检查</text></g>
+        <line class="ar" x1="400" y1="98" x2="400" y2="120" marker-end="url(#a3)"/>
+        <g class="node" id="n2"><rect class="k" x="250" y="122" width="300" height="52" rx="8"/>
+          <text class="h" x="268" y="144">提交输入</text><text class="s" x="268" y="163">合成一条 user 消息，写入历史并落盘</text></g>
+        <line class="ar" x1="400" y1="174" x2="400" y2="214" marker-end="url(#a3)"/>
+        <text class="lbl" x="410" y="198">进入 step 循环</text>
+
+        <g class="node" id="n3"><rect class="box" x="250" y="216" width="300" height="52" rx="8"/>
+          <text class="h" x="268" y="238">safe point</text><text class="s" x="268" y="257">估算 token 数，超过阈值时自动压缩</text></g>
+        <line class="ar" x1="400" y1="268" x2="400" y2="290" marker-end="url(#a3)"/>
+        <g class="node" id="n4"><rect class="box" x="250" y="292" width="300" height="52" rx="8"/>
+          <text class="h" x="268" y="314">组装请求</text><text class="s" x="268" y="333">由冻结的 system、工具定义和历史组成</text></g>
+        <line class="ar" x1="400" y1="344" x2="400" y2="366" marker-end="url(#a3)"/>
+        <g class="node" id="n5"><rect class="p" x="250" y="368" width="300" height="52" rx="8"/>
+          <text class="h" x="268" y="390">流式调用模型</text><text class="s" x="268" y="409">实时发出增量，遇到可重试错误时自动重试</text></g>
+        <line class="ar" x1="400" y1="420" x2="400" y2="442" marker-end="url(#a3)"/>
+        <g class="node" id="n6"><rect class="box" x="250" y="444" width="300" height="52" rx="8"/>
+          <text class="h" x="268" y="466">提交回复</text><text class="s" x="268" y="485">assistant 消息写入历史，用量记入账本</text></g>
+        <line class="ar" x1="400" y1="496" x2="400" y2="508" marker-end="url(#a3)"/>
+        <g class="node" id="n7"><polygon class="box" points="400,510 510,546 400,582 290,546"/>
+          <text class="h" x="400" y="551" text-anchor="middle">有工具调用？</text></g>
+        <line class="ar" x1="400" y1="582" x2="400" y2="612" marker-end="url(#a3)"/>
+        <text class="lbl" x="410" y="602">是</text>
+        <g class="node" id="n8"><rect class="e" x="250" y="614" width="300" height="52" rx="8"/>
+          <text class="h" x="268" y="636">审查闸门</text><text class="s" x="268" y="655">依次经 hook、规则和审查者，整批审完再执行</text></g>
+        <line class="ar" x1="400" y1="666" x2="400" y2="688" marker-end="url(#a3)"/>
+        <g class="node" id="n9"><rect class="e" x="250" y="690" width="300" height="52" rx="8"/>
+          <text class="h" x="268" y="712">执行工具</text><text class="s" x="268" y="731">Parallel 成组并行，Serial 单独执行，可转入后台</text></g>
+        <line class="ar" x1="400" y1="742" x2="400" y2="764" marker-end="url(#a3)"/>
+        <g class="node" id="n10"><rect class="box" x="250" y="766" width="300" height="52" rx="8"/>
+          <text class="h" x="268" y="788">提交结果</text><text class="s" x="268" y="807">tool 行，以及此时到达的 next_loop 输入</text></g>
+
+        <path class="ar" d="M550,792 H584 V242 H553" marker-end="url(#a3)"/>
+        <text class="lbl" transform="rotate(-90 597 520)" x="597" y="520" text-anchor="middle">下一个 step</text>
+
+        <line class="ar" x1="290" y1="546" x2="222" y2="546" marker-end="url(#a3)"/>
+        <text class="lbl" x="256" y="538" text-anchor="middle">否</text>
+        <g class="node" id="nend"><rect class="box" x="20" y="500" width="200" height="94" rx="8"/>
+          <text class="h" x="36" y="524">结束判定</text>
+          <text class="s" x="36" y="546">stop hook 可以要求继续运行</text>
+          <text class="s" x="36" y="564">（每个 turn 最多 8 次）</text>
+          <text class="s" x="36" y="582">否则 outcome = completed</text></g>
+        <path class="ar d" d="M120,500 V242 H248" marker-end="url(#a3)"/>
+        <text class="lbl" x="128" y="380">继续</text>
+        <line class="ar" x1="120" y1="594" x2="120" y2="648" marker-end="url(#a3)"/>
+        <text class="lbl" x="128" y="626">结束</text>
+        <g class="node" id="nfin"><rect class="kk" x="20" y="650" width="200" height="168" rx="8"/>
+          <text class="h" x="36" y="674">finish（在 defer 中执行）</text>
+          <text class="c" x="36" y="700">为悬空的 tool_call 补齐结果</text>
+          <text class="c" x="36" y="720">落盘尚未写入的行</text>
+          <text class="c" x="36" y="740">运行 turn_end hook</text>
+          <text class="c" x="36" y="760">发出 turn.completed</text>
+          <text class="s" x="36" y="788">中断、max_steps、refusal 或</text>
+          <text class="s" x="36" y="806">出错时也都会经过这里</text></g>
+
+        <g>
+          <rect class="hk" x="610" y="49" width="170" height="22" rx="4"/><text class="mk" x="618" y="64">user_prompt_submit</text>
+          <rect class="hk" x="610" y="75" width="170" height="22" rx="4"/><text class="mk" x="618" y="90">ContextProvider</text>
+          <rect class="hk" x="610" y="219" width="170" height="22" rx="4"/><text class="mk" x="618" y="234">pre_compact</text>
+          <rect class="hk" x="610" y="245" width="170" height="22" rx="4"/><text class="mk" x="618" y="260">post_compact</text>
+          <rect class="hk" x="610" y="307" width="170" height="22" rx="4"/><text class="mk" x="618" y="322">pre_model_request</text>
+          <rect class="hk" x="610" y="459" width="170" height="22" rx="4"/><text class="mk" x="618" y="474">post_model_response</text>
+          <rect class="hk" x="610" y="617" width="170" height="22" rx="4"/><text class="mk" x="618" y="632">pre_tool_use</text>
+          <rect class="hk" x="610" y="643" width="170" height="22" rx="4"/><text class="mk" x="618" y="658">approval</text>
+          <rect class="hk" x="610" y="693" width="170" height="22" rx="4"/><text class="mk" x="618" y="708">post_tool_use</text>
+          <rect class="hk" x="610" y="719" width="170" height="22" rx="4"/><text class="mk" x="618" y="734">task_start（转入后台时）</text>
+          <rect class="hk" x="610" y="768" width="170" height="22" rx="4"/><text class="mk" x="618" y="783">post_tool_batch</text>
+          <rect class="hk" x="610" y="794" width="170" height="22" rx="4"/><text class="mk" x="618" y="809">ContextProvider</text>
+        </g>
+        <g>
+          <text class="m" x="795" y="66">input.accepted</text>
+          <text class="m" x="795" y="84">turn.started</text>
+          <text class="m" x="795" y="152">message.completed</text>
+          <text class="m" x="795" y="246">context.compacted</text>
+          <text class="m" x="795" y="382">step.started</text>
+          <text class="m" x="795" y="396">message.delta</text>
+          <text class="m" x="795" y="410">tool_call.*</text>
+          <text class="m" x="795" y="424">model.retry</text>
+          <text class="m" x="795" y="466">message.completed</text>
+          <text class="m" x="795" y="482">usage.updated</text>
+          <text class="m" x="795" y="634">approval.requested</text>
+          <text class="m" x="795" y="650">approval.resolved</text>
+          <text class="m" x="795" y="710">tool.started</text>
+          <text class="m" x="795" y="726">tool.completed</text>
+          <text class="m" x="795" y="786">message.completed</text>
+          <text class="m" x="795" y="802">input.injected</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>stop hook 在左侧的“结束判定”中运行，turn_end hook 在 finish 中运行。如果模型因上下文超长而报错，kernel 会被动压缩一次，然后重试同一个 step。如果思考签名被拒绝，kernel 会改用降级方式回传思维链，再重试一次。</figcaption>
+  </figure>
+
+  <div class="replay" id="replay">
+    <div class="bar">
+      <strong>回放一次真实运行</strong>
+      <span class="spacer"></span>
+      <button type="button" id="rp-prev">上一个</button>
+      <button type="button" id="rp-next">下一个</button>
+      <button type="button" id="rp-play" aria-pressed="false">自动播放</button>
+      <span class="pos" id="rp-pos" aria-live="polite">1 / 24</span>
+    </div>
+    <p class="note">在这次运行中，用户提问“东京天气？”，模型先调用 <code>get_weather</code>。审查规则对这个工具设置了 <code>ask</code>，因此调用在审查者批准后才执行，随后模型给出回答。下面列出 <code>sess.Run</code> 依次产出的 24 个事件。点击其中一行，上图中对应的步骤会高亮显示。这一轮没有触发压缩，因此 safe point 和组装请求这两步没有各自的事件。</p>
+    <ol class="evlist" id="rp-list">
+      <li tabindex="0" data-node="n1"><span class="i">1</span><span class="t">turn.started</span><span class="d">从队列取出输入，开始新的 turn</span><span class="st">取出输入</span></li>
+      <li tabindex="0" data-node="n2"><span class="i">2</span><span class="t">message.completed</span><span class="d">用户消息写入历史</span><span class="st">提交输入</span></li>
+      <li tabindex="0" data-node="n5"><span class="i">3</span><span class="t">step.started</span><span class="d">第 1 个 step 开始，发出模型请求</span><span class="st">调用模型</span></li>
+      <li tabindex="0" data-node="n5"><span class="i">4</span><span class="t">message.started</span><span class="d">模型开始回复</span><span class="st">调用模型</span></li>
+      <li tabindex="0" data-node="n5"><span class="i">5</span><span class="t">tool_call.started</span><span class="d">模型开始生成 get_weather 调用</span><span class="st">调用模型</span></li>
+      <li tabindex="0" data-node="n5"><span class="i">6</span><span class="t">tool_call.delta</span><span class="d">参数 {"city":"Tokyo"} 流式到达</span><span class="st">调用模型</span></li>
+      <li tabindex="0" data-node="n5"><span class="i">7</span><span class="t">tool_call.completed</span><span class="d">调用参数已完整</span><span class="st">调用模型</span></li>
+      <li tabindex="0" data-node="n6"><span class="i">8</span><span class="t">message.completed</span><span class="d">提交带有 tool_call 的 assistant 消息</span><span class="st">提交回复</span></li>
+      <li tabindex="0" data-node="n6"><span class="i">9</span><span class="t">step.completed</span><span class="d">第 1 个 step 结束</span><span class="st">提交回复</span></li>
+      <li tabindex="0" data-node="n6"><span class="i">10</span><span class="t">usage.updated</span><span class="d">token 用量记入调用账本</span><span class="st">提交回复</span></li>
+      <li tabindex="0" data-node="n8"><span class="i">11</span><span class="t">approval.requested</span><span class="d">规则命中 ask，等待审查者处理</span><span class="st">审查闸门</span></li>
+      <li tabindex="0" data-node="n8"><span class="i">12</span><span class="t">hook.started</span><span class="d">approval hook（审查者）开始运行</span><span class="st">审查闸门</span></li>
+      <li tabindex="0" data-node="n8"><span class="i">13</span><span class="t">hook.completed</span><span class="d">审查者给出结论</span><span class="st">审查闸门</span></li>
+      <li tabindex="0" data-node="n8"><span class="i">14</span><span class="t">approval.resolved</span><span class="d">审查结果为批准</span><span class="st">审查闸门</span></li>
+      <li tabindex="0" data-node="n9"><span class="i">15</span><span class="t">tool.started</span><span class="d">get_weather 开始执行</span><span class="st">执行工具</span></li>
+      <li tabindex="0" data-node="n9"><span class="i">16</span><span class="t">tool.completed</span><span class="d">执行结果为 success</span><span class="st">执行工具</span></li>
+      <li tabindex="0" data-node="n10"><span class="i">17</span><span class="t">message.completed</span><span class="d">提交 tool 行，回到 safe point</span><span class="st">提交结果</span></li>
+      <li tabindex="0" data-node="n5"><span class="i">18</span><span class="t">step.started</span><span class="d">第 2 个 step 开始</span><span class="st">调用模型</span></li>
+      <li tabindex="0" data-node="n5"><span class="i">19</span><span class="t">message.started</span><span class="d">模型开始回复</span><span class="st">调用模型</span></li>
+      <li tabindex="0" data-node="n5"><span class="i">20</span><span class="t">message.delta</span><span class="d">文本 “Tokyo is sunny.” 流式到达</span><span class="st">调用模型</span></li>
+      <li tabindex="0" data-node="n6"><span class="i">21</span><span class="t">message.completed</span><span class="d">提交最终回答</span><span class="st">提交回复</span></li>
+      <li tabindex="0" data-node="n6"><span class="i">22</span><span class="t">step.completed</span><span class="d">第 2 个 step 结束</span><span class="st">提交回复</span></li>
+      <li tabindex="0" data-node="n6"><span class="i">23</span><span class="t">usage.updated</span><span class="d">token 用量记入调用账本</span><span class="st">提交回复</span></li>
+      <li tabindex="0" data-node="nfin"><span class="i">24</span><span class="t">turn.completed</span><span class="d">outcome=completed，steps=2</span><span class="st">finish</span></li>
+    </ol>
+  </div>
+  <ul class="points">
+    <li><strong>工具只在回复写入历史之后才执行。</strong>重试只针对模型调用，失败的 attempt 不会写入历史，因此同一个工具调用不会被执行两次。</li>
+    <li><strong>每一串增量事件之后必定有一个完整的终结事件。</strong>发生重试时，已经发出的 delta 之后会跟一个 <code>message.discarded</code> 事件，UI 可以据此清除这些内容。</li>
+  </ul>
+</section>
+
+<section id="input">
+  <div class="head"><div class="num">05</div><h2>agent 运行期间新输入的送达时机</h2></div>
+  <div class="prose">
+    <p>人发送的消息、命令、其他 agent 的来信、任务通知以及 hook 追加的上下文，都经过同一个输入队列。当 turn 正在运行时，每条输入可以选择以下三种送达模式之一。</p>
+  </div>
+  <figure>
+    <div class="scroll">
+      <svg class="dg" viewBox="0 0 960 270" role="img" aria-label="三种输入模式的时间线。interrupt 立即打断当前 turn，随后开启新的一轮处理该输入。next_loop 在下一个 safe point 并入当前 turn。queue 等待当前 turn 结束后单独开启一轮。">
+        <defs>
+          <marker id="a4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead-hl" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+        <text class="h" x="20" y="50">turn A</text>
+        <rect class="seg-m" x="130" y="30" width="170" height="30" rx="4"/><text class="c" x="215" y="50" text-anchor="middle">模型</text>
+        <rect class="seg-t" x="300" y="30" width="100" height="30" rx="4"/><text class="c" x="350" y="50" text-anchor="middle">工具</text>
+        <rect class="seg-m" x="400" y="30" width="170" height="30" rx="4"/><text class="c" x="485" y="50" text-anchor="middle">模型</text>
+        <rect class="seg-t" x="570" y="30" width="80" height="30" rx="4"/><text class="c" x="610" y="50" text-anchor="middle">工具</text>
+        <rect class="seg-m" x="650" y="30" width="120" height="30" rx="4"/><text class="c" x="710" y="50" text-anchor="middle">模型给出回答</text>
+        <rect class="seg-b" x="800" y="30" width="140" height="30" rx="4"/><text class="c" x="870" y="50" text-anchor="middle">turn B</text>
+        <line class="sp" x1="400" y1="20" x2="400" y2="70"/>
+        <line class="sp" x1="650" y1="20" x2="650" y2="70"/>
+        <text class="mk" x="400" y="14" text-anchor="middle">safe point</text>
+        <text class="mk" x="650" y="14" text-anchor="middle">safe point</text>
+
+        <text class="h" x="20" y="115">interrupt</text>
+        <circle class="dot" cx="530" cy="110" r="5"/>
+        <path class="ar hl" d="M530,105 V68" marker-end="url(#a4)"/>
+        <line class="x" x1="522" y1="37" x2="538" y2="53"/>
+        <line class="x" x1="538" y1="37" x2="522" y2="53"/>
+        <text class="c" x="544" y="108">立即打断 turn A，为工具补上中断结果</text>
+        <text class="c" x="544" y="126">随后开启新的一轮处理这条输入</text>
+
+        <text class="h" x="20" y="175">next_loop</text>
+        <text class="s" x="20" y="192">默认模式</text>
+        <circle class="dot" cx="340" cy="170" r="5"/>
+        <path class="ar hl" d="M345,170 H392 Q400,170 400,160 V68" marker-end="url(#a4)"/>
+        <text class="c" x="412" y="175">在下一个 safe point 并入 turn A</text>
+
+        <text class="h" x="20" y="235">queue</text>
+        <circle class="dot" cx="340" cy="230" r="5"/>
+        <path class="ar hl" d="M345,230 H792 Q800,230 800,220 V68" marker-end="url(#a4)"/>
+        <text class="c" x="420" y="222">等待 turn A 结束后，单独开启 turn B</text>
+      </svg>
+    </div>
+    <figcaption>圆点表示输入到达的时刻，三条泳道分别展示同一个 turn A 上的三种情形。排在队列中的命令（例如 <code>/clear</code>）起屏障作用，在它之后到达的输入一定会等它执行完毕才送达。</figcaption>
+  </figure>
+</section>
+
+<section id="tools">
+  <div class="head"><div class="num">06</div><h2>工具、审查与任务</h2></div>
+  <h3>审查闸门的判定顺序</h3>
+  <ul class="points">
+    <li>kernel 按调用顺序先运行 <code>pre_tool_use</code> hook，再基于改写后的输入求值审查规则。<code>pre_tool_use</code> hook 可以改写输入、直接拒绝调用，或者给出一个合成结果。</li>
+    <li>在规则之间，<code>deny</code> 的优先级最高，显式的 <code>allow</code> 可以豁免 <code>ask</code>，没有命中任何规则时放行。在 hook 与规则之间，以更严格的一方为准。只要任何一方要求 <code>ask</code>，另一方的 allow 就无法豁免。</li>
+    <li>命中 <code>ask</code> 的调用会并发触发 <code>approval</code> hook。该 hook 默认没有超时，一定会等到审查者给出回答。整批调用都有结论之后才开始执行。如果没有注册审查者，<code>ask</code> 一律按拒绝处理。</li>
+    <li>子 agent 和后台任务中的工具调用同样交给这套规则和审查者处理，不会绕过审查。</li>
+  </ul>
+  <h3>工具的执行</h3>
+  <ul class="points">
+    <li>连续的 <code>Parallel</code> 调用合并为一组并行执行，每个 <code>Serial</code> 调用单独成为一组，组与组之间串行执行。因此，只读工具适合声明为 <code>Parallel</code> 以并行执行，有副作用的工具适合声明为 <code>Serial</code>，以保持模型给出的顺序。</li>
+    <li>执行结果按调用顺序写入同一条 tool 行。发生中断时，每个调用都会补上结果，因此历史不会损坏。</li>
+    <li>对于声明了 <code>Background</code> 的工具，模型可以传入 <code>background:true</code> 将其转为后台任务，此时这次调用会立即返回一个 <code>task_id</code>。</li>
+  </ul>
+  <h3>任务与结果通知</h3>
+  <p>任务是一种异步执行的能力，例如 subagent、A2A 和你自己编写的 workflow。任务启动后立即返回。当任务结束、失败或需要输入时，kernel 会主动把通知放入输入队列，因此模型不需要轮询任务状态。</p>
+  <figure>
+    <div class="scroll">
+      <svg class="dg" viewBox="0 0 960 310" role="img" aria-label="任务状态机。pending 状态的任务启动后进入 running。running 可能因 AskInput 进入 waiting_input，得到回答后回到 running。running 最终结束为 succeeded、failed 或 canceled，进程重启时尚未结束的任务记为 lost。任务结束或需要输入时都会发出通知并进入输入队列，会话空闲时会自动开启一轮。Restart 或续接会从 pending 开始新的 attempt。">
+        <defs>
+          <marker id="a5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+        <path class="ar d" d="M520,40 C520,20 90,20 90,118" marker-end="url(#a5)"/>
+        <text class="lbl" x="300" y="14" text-anchor="middle">Restart 或续接时开始新的 attempt</text>
+
+        <rect class="box" x="30" y="120" width="120" height="40" rx="20"/><text class="mk" x="90" y="145" text-anchor="middle">pending</text>
+        <line class="ar" x1="150" y1="140" x2="228" y2="140" marker-end="url(#a5)"/>
+        <text class="lbl" x="189" y="132" text-anchor="middle">Start</text>
+        <rect class="k" x="230" y="120" width="130" height="40" rx="20"/><text class="mk" x="295" y="145" text-anchor="middle">running</text>
+        <line class="ar" x1="280" y1="160" x2="280" y2="228" marker-end="url(#a5)"/>
+        <text class="lbl" x="272" y="198" text-anchor="end">AskInput</text>
+        <line class="ar" x1="310" y1="228" x2="310" y2="162" marker-end="url(#a5)"/>
+        <text class="lbl" x="318" y="198">通过 task_send 回答</text>
+        <rect class="box" x="215" y="230" width="160" height="40" rx="20"/><text class="mk" x="295" y="255" text-anchor="middle">waiting_input</text>
+
+        <line class="ar" x1="360" y1="140" x2="448" y2="58" marker-end="url(#a5)"/>
+        <line class="ar" x1="360" y1="140" x2="448" y2="118" marker-end="url(#a5)"/>
+        <line class="ar" x1="360" y1="140" x2="448" y2="178" marker-end="url(#a5)"/>
+        <rect class="box" x="450" y="40" width="140" height="36" rx="18"/><text class="mk" x="520" y="63" text-anchor="middle">succeeded</text>
+        <rect class="box" x="450" y="100" width="140" height="36" rx="18"/><text class="mk" x="520" y="123" text-anchor="middle">failed</text>
+        <rect class="box" x="450" y="160" width="140" height="36" rx="18"/><text class="mk" x="520" y="183" text-anchor="middle">canceled</text>
+        <rect class="box" x="450" y="220" width="140" height="36" rx="18"/><text class="mk" x="520" y="243" text-anchor="middle">lost</text>
+        <text class="lbl" x="520" y="272" text-anchor="middle">进程重启时尚未结束</text>
+
+        <path class="ar" d="M590,58 H620 M590,118 H620 M590,178 H620 M590,238 H620 M620,58 V292"/>
+        <path class="ar" d="M295,270 V292 H620"/>
+        <text class="lbl" x="400" y="286">需要输入时也会通知</text>
+        <line class="ar" x1="620" y1="150" x2="678" y2="150" marker-end="url(#a5)"/>
+        <rect class="kk" x="680" y="90" width="260" height="120" rx="8"/>
+        <text class="h" x="698" y="116">通知进入输入队列</text>
+        <text class="s" x="698" y="140">以 &lt;task-notification&gt; 送达模型</text>
+        <text class="s" x="698" y="162">会话空闲时自动开启一轮</text>
+        <text class="s" x="698" y="184">连续的自动轮次最多 8 轮</text>
+      </svg>
+    </div>
+    <figcaption>以前台方式调用时，工具调用会等待任务结束。如果任务中途需要输入或者达到工具超时，调用会立即返回，任务转到后台继续运行，并照常发送通知。<code>/clear</code> 默认不会停止任务，打断 turn 也不会停止任务。</figcaption>
+  </figure>
+</section>
+
+<section id="context">
+  <div class="head"><div class="num">07</div><h2>上下文与存储</h2></div>
+  <h3>system 提示词的固定结构</h3>
+  <p>system 提示词各段的顺序由 kernel 决定。扩展只能向其中三个开放的槽位写入内容，用户段只能通过 <code>WithInstructions</code>、<code>WithInstructionsFunc</code> 或 <code>SessionInstructions</code> 写入。整个 system 提示词在一个 epoch 内保持冻结，时间、任务通知这类动态内容会以 reminder 的形式追加到 user 侧的消息中。</p>
+  <ol class="skeleton">
+    <li><span class="n">1</span><span class="slot">core</span><span>运行约定，说明 reminder、任务通知和其他 agent 来信的含义，所有 agent 都相同</span></li>
+    <li><span class="n">2</span><span class="slot">identity</span><span>昵称与描述，通过 <code>WithNickname</code> 和 <code>WithDescription</code> 设置</span></li>
+    <li class="open"><span class="n">3</span><span class="slot">capabilities</span><span>扩展的使用说明，写入 <code>SlotCapabilities</code> 槽位</span></li>
+    <li><span class="n">4</span><span class="slot">user</span><span>你的指令，可以用 <code>WithInstructions</code> 等三种方式写入，优先级高于上面的能力说明</span></li>
+    <li class="open"><span class="n">5</span><span class="slot">catalog</span><span>目录，列出可用的 skills 和可调用的 agent，写入 <code>SlotCatalog</code> 槽位</span></li>
+    <li class="open"><span class="n">6</span><span class="slot">environment</span><span>环境事实，写入 <code>SlotEnvironment</code> 槽位</span></li>
+  </ol>
+  <h3>以 JSONL 存储的会话文件</h3>
+  <figure>
+    <div class="scroll">
+      <svg class="dg" viewBox="0 0 960 230" role="img" aria-label="会话文件由只追加的 message 行组成。每个 epoch 以一条带分界标记的 system 行开头，后面是 epoch head 和对话内容。压缩时写入新的分界，最后一个分界之后的内容就是当前上下文，更早的行保留下来用于审计。">
+        <defs>
+          <marker id="a6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+        <line class="ar" x1="20" y1="40" x2="940" y2="40" marker-end="url(#a6)"/>
+        <text class="s" x="20" y="30">&lt;session_id&gt;.jsonl 每行一条 message，只追加写入</text>
+        <g>
+          <rect class="kk" x="20" y="60" width="78" height="64" rx="5"/><text class="mk" x="59" y="86" text-anchor="middle">system</text><text class="s" x="59" y="106" text-anchor="middle">新建分界</text>
+          <rect class="k" x="104" y="60" width="78" height="64" rx="5"/><text class="m" x="143" y="86" text-anchor="middle">epoch head</text><text class="s" x="143" y="106" text-anchor="middle">记忆 · Pin</text>
+          <rect class="box" x="188" y="60" width="78" height="64" rx="5"/><text class="m" x="227" y="86" text-anchor="middle">user</text><text class="s" x="227" y="106" text-anchor="middle">提问</text>
+          <rect class="p" x="272" y="60" width="78" height="64" rx="5"/><text class="m" x="311" y="86" text-anchor="middle">assistant</text><text class="s" x="311" y="106" text-anchor="middle">tool_call</text>
+          <rect class="e" x="356" y="60" width="78" height="64" rx="5"/><text class="m" x="395" y="86" text-anchor="middle">tool</text><text class="s" x="395" y="106" text-anchor="middle">tool_result</text>
+          <rect class="p" x="440" y="60" width="78" height="64" rx="5"/><text class="m" x="479" y="86" text-anchor="middle">assistant</text><text class="s" x="479" y="106" text-anchor="middle">回答</text>
+          <rect class="box" x="524" y="60" width="78" height="64" rx="5"/><text class="m" x="563" y="86" text-anchor="middle">user</text><text class="s" x="563" y="106" text-anchor="middle">追问</text>
+          <rect class="p" x="608" y="60" width="78" height="64" rx="5"/><text class="m" x="647" y="86" text-anchor="middle">assistant</text><text class="s" x="647" y="106" text-anchor="middle">回答</text>
+          <rect class="kk" x="692" y="60" width="78" height="64" rx="5"/><text class="mk" x="731" y="86" text-anchor="middle">system</text><text class="s" x="731" y="106" text-anchor="middle">压缩分界</text>
+          <rect class="k" x="776" y="60" width="78" height="64" rx="5"/><text class="m" x="815" y="86" text-anchor="middle">epoch head</text><text class="s" x="815" y="106" text-anchor="middle">摘要 · Pin</text>
+          <rect class="box" x="860" y="60" width="78" height="64" rx="5"/><text class="m" x="899" y="86" text-anchor="middle">user</text><text class="s" x="899" y="106" text-anchor="middle">继续</text>
+        </g>
+        <path class="ar" d="M20,136 V146 H686 V136"/>
+        <text class="s" x="353" y="168" text-anchor="middle">epoch 0 保留在文件中，用于审计和历史检索</text>
+        <path class="ar" d="M692,136 V146 H938 V136"/>
+        <text class="c" x="815" y="168" text-anchor="middle">epoch 1 是当前上下文</text>
+        <text class="s" x="20" y="210">Resume 时读出全部行，由 store.Current 取出最后一个分界之后的部分，并继续运行</text>
+      </svg>
+    </div>
+    <figcaption>上下文超过可用窗口的 90% 时会自动压缩。压缩只在 safe point 进行，因为此时历史一定合法。默认策略是由模型生成摘要，在此之前可以先清理旧的工具结果。压缩完成后写入一个新的分界，再次压缩时，上一次的摘要也会作为输入的一部分。<code>/clear</code> 同样会写入一个新的分界。</figcaption>
+  </figure>
+  <ul class="points">
+    <li><strong>message 的 JSON schema 就是存储格式。</strong>Go 版本写下的会话可以由其他语言版本直接恢复。如果改用数据库存储，每一行对应一条记录。</li>
+    <li><strong>上下文管理的接口都由 kernel 提供。</strong>这些接口包括 <code>Compact</code>、<code>Clear</code>、<code>Rewind</code>、<code>Fork</code>、<code>SideChat</code>、<code>SearchHistory</code>、<code>Context</code>、<code>Unpin</code>，对应的斜杠命令位于 <code>ext/cmd/*</code>。</li>
+  </ul>
+</section>
+
+<section id="rules">
+  <div class="head"><div class="num">08</div><h2>kernel 提供的运行保证</h2></div>
+  <ul class="guarantees">
+    <li><b>工具不会重复执行</b><span>回复先写入历史，然后才执行工具，失败时只重试模型调用。执行前 kernel 还会按 call_id 查询账本。</span></li>
+    <li><b>历史始终合法</b><span>无论是中断、出错还是被 hook 阻断，finish 都会为每个悬空的 tool_call 补上结果。</span></li>
+    <li><b>请求不会以 assistant 消息结尾</b><span>唯一的例外是 Anthropic 的 pause_turn 续写。</span></li>
+    <li><b>公开方法不阻塞调用方</b><span>Send、Interrupt 和 Snapshot 都会立即返回。如果需要等待结果，请使用 Receipt.Wait。</span></li>
+    <li><b>事件有序，默认不丢失</b><span>订阅者处理得慢时只会让模型流等待。子 agent 发出的事件带有 Path，可以据此判断事件来自哪个 agent。</span></li>
+    <li><b>非人类输入不视为授权</b><span>reminder、任务通知和其他 agent 的来信都带标签送达，system 提示词的 core 段会告诉模型这些内容不是用户说的话。</span></li>
+  </ul>
+</section>
+
+<section id="map">
+  <div class="head"><div class="num">09</div><h2>代码地图</h2></div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>主题</th><th>入口文件</th></tr></thead>
+      <tbody>
+        <tr><td>Agent 的配置方式和可用的 Option</td><td><code>kernel/agent.go</code></td></tr>
+        <tr><td>Session 的公开方法</td><td><code>kernel/session.go</code></td></tr>
+        <tr><td>actor 主循环以及何时开始 turn</td><td><code>kernel/actor.go</code>、<code>kernel/mailbox.go</code>、<code>kernel/input.go</code></td></tr>
+        <tr><td>一次 turn 的完整流程</td><td><code>kernel/driver.go</code> 中的 <code>runTurn</code>，提交与落盘逻辑在 <code>kernel/commit.go</code></td></tr>
+        <tr><td>工具、审查闸门与审查规则</td><td><code>kernel/tool.go</code>、<code>kernel/approval.go</code>、<code>kernel/rules.go</code></td></tr>
+        <tr><td>hook 点的定义</td><td><code>kernel/hook.go</code>、<code>kernel/hookpoints.go</code></td></tr>
+        <tr><td>任务协议与后台工具</td><td><code>kernel/task.go</code>、<code>kernel/tasks.go</code>、<code>kernel/background.go</code></td></tr>
+        <tr><td>压缩、fork、rewind 与历史检索</td><td><code>kernel/compact.go</code>、<code>kernel/fork.go</code>、<code>kernel/rewind.go</code>、<code>kernel/history.go</code></td></tr>
+        <tr><td>system 提示词的拼装</td><td><code>kernel/prompt.go</code>、<code>spec/prompts/</code></td></tr>
+        <tr><td>各厂商模型 API 的对接</td><td><code>provider/anthropic/</code>、<code>provider/openaichat/</code>、<code>provider/openairesponses/</code></td></tr>
+        <tr><td>默认安装的扩展</td><td><code>std/std.go</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+</main>
+</div>
+
+<script>
+(function () {
+  var list = document.getElementById('rp-list');
+  if (!list) return;
+  var rows = Array.prototype.slice.call(list.querySelectorAll('li'));
+  var pos = document.getElementById('rp-pos');
+  var playBtn = document.getElementById('rp-play');
+  var idx = 0, timer = null;
+  function show(i) {
+    idx = Math.max(0, Math.min(rows.length - 1, i));
+    rows.forEach(function (r, k) { r.classList.toggle('on', k === idx); });
+    document.querySelectorAll('#turnflow .node').forEach(function (n) { n.classList.remove('on'); });
+    var node = document.getElementById(rows[idx].dataset.node);
+    if (node) node.classList.add('on');
+    pos.textContent = (idx + 1) + ' / ' + rows.length;
+    var r = rows[idx], top = r.offsetTop - list.offsetTop;
+    if (top < list.scrollTop || top + r.offsetHeight > list.scrollTop + list.clientHeight) {
+      list.scrollTop = top - list.clientHeight / 2;
+    }
+  }
+  function stop() {
+    if (timer) { clearInterval(timer); timer = null; }
+    playBtn.setAttribute('aria-pressed', 'false');
+    playBtn.textContent = '自动播放';
+  }
+  rows.forEach(function (r, k) {
+    r.addEventListener('click', function () { stop(); show(k); });
+    r.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); stop(); show(k); }
+    });
+  });
+  document.getElementById('rp-prev').addEventListener('click', function () { stop(); show(idx - 1); });
+  document.getElementById('rp-next').addEventListener('click', function () { stop(); show(idx + 1); });
+  playBtn.addEventListener('click', function () {
+    if (timer) { stop(); return; }
+    if (idx >= rows.length - 1) show(0);
+    playBtn.setAttribute('aria-pressed', 'true');
+    playBtn.textContent = '暂停';
+    timer = setInterval(function () {
+      if (idx >= rows.length - 1) { stop(); return; }
+      show(idx + 1);
+    }, 900);
+  });
+  show(0);
+})();
+</script>
+</body>
+</html>

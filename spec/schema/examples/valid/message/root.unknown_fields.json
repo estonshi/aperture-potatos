@@ -1,0 +1,26 @@
+{
+  "v": 1,
+  "id": "msg_02",
+  "session_id": "ses_01",
+  "seq": 2,
+  "epoch": 1,
+  "role": "user",
+  "origin": {
+    "kind": "human"
+  },
+  "content": [
+    {
+      "type": "text",
+      "text": "hi",
+      "lang": "en"
+    },
+    {
+      "type": "video",
+      "url": "https://example.com/v.mp4",
+      "text": "a clip"
+    }
+  ],
+  "turn_id": "turn_01",
+  "ts": "2026-09-27T08:00:00Z",
+  "priority": "high"
+}

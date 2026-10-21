@@ -1,0 +1,73 @@
+{
+  "spec_version": "0.1",
+  "description": "The subagent's own background run notifies its child session after the child's first turn ended, which starts another turn there; the foreground call waits until the child is quiet and returns that last turn's answer, not the intermediate one.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "fetch",
+        "description": "Fetch a URL.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url"
+          ]
+        },
+        "concurrency": "parallel",
+        "background": true,
+        "behavior": {
+          "type": "fixed",
+          "text": "200 OK, 3 KB",
+          "sleep_ms": 1000
+        }
+      }
+    ],
+    "extensions": {
+      "subagent": {
+        "defs": [
+          {
+            "name": "researcher",
+            "description": "Looks facts up.",
+            "instructions": "Answer in as few words as possible."
+          }
+        ]
+      }
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse",
+        "responses/04.sse",
+        "responses/05.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-29T00:00:00.000Z",
+    "step_ms": 1,
+    "interleaved": true
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "How big is https://a.test?"
+      }
+    },
+    {
+      "wait_quiet": true
+    }
+  ]
+}

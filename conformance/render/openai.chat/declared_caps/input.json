@@ -1,0 +1,51 @@
+{
+  "model": "o5-mini",
+  "system": [
+    {
+      "slot": "core",
+      "text": "<runtime-conventions>\nConventions ...\n</runtime-conventions>"
+    },
+    {
+      "slot": "identity",
+      "text": "<identity>\nYour name is Tater.\n</identity>",
+      "cache": true
+    }
+  ],
+  "caps": {
+    "max_output_tokens": 32000,
+    "max_tokens_field": "max_completion_tokens",
+    "system_role": "developer",
+    "reasoning": {
+      "efforts": [
+        "low",
+        "medium",
+        "high"
+      ]
+    }
+  },
+  "params": {
+    "reasoning": {
+      "effort": "minimal"
+    }
+  },
+  "messages": [
+    {
+      "v": 1,
+      "id": "msg_01",
+      "session_id": "ses_01",
+      "seq": 1,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Hi"
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"attempt":1,"kind":"job","progress":{},"result":{"content":[{"text":"Done without reading.","type":"text"}],"summary":"Done without reading."},"status":"succeeded","task_id":"task_01","title":"Job","unprocessed_instructions":[{"id":"ins_01","mode":"next_loop","text":"first"},{"id":"ins_02","mode":"queue","text":"second"}]}

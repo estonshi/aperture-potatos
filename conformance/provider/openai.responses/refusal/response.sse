@@ -1,0 +1,21 @@
+event: response.created
+data: {"type":"response.created","sequence_number":1,"response":{"id":"resp_01","object":"response","status":"in_progress","model":"gpt-5.6","output":[]}}
+
+event: response.in_progress
+data: {"type":"response.in_progress","sequence_number":2,"response":{"id":"resp_01","object":"response","status":"in_progress","model":"gpt-5.6","output":[]}}
+
+event: response.output_item.added
+data: {"type":"response.output_item.added","sequence_number":3,"output_index":0,"item":{"id":"msg_r","type":"message","status":"in_progress","role":"assistant","content":[]}}
+
+event: response.refusal.delta
+data: {"type":"response.refusal.delta","sequence_number":4,"item_id":"msg_r","output_index":0,"content_index":0,"delta":"I can't help with that."}
+
+event: response.refusal.done
+data: {"type":"response.refusal.done","sequence_number":5,"item_id":"msg_r","output_index":0,"content_index":0,"refusal":"I can't help with that."}
+
+event: response.output_item.done
+data: {"type":"response.output_item.done","sequence_number":6,"output_index":0,"item":{"id":"msg_r","type":"message","status":"completed","role":"assistant","content":[{"type":"refusal","refusal":"I can't help with that."}]}}
+
+event: response.completed
+data: {"type":"response.completed","sequence_number":7,"response":{"id":"resp_01","object":"response","status":"completed","model":"gpt-5.6","output":[],"usage":{"input_tokens":10,"input_tokens_details":{"cached_tokens":0},"output_tokens":8,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":18}}}
+

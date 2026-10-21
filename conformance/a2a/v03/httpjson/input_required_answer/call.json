@@ -1,0 +1,42 @@
+{
+  "description": "The peer asks for input, which ends the round; the answer goes to the same task and context.",
+  "base_url": "https://agent.test",
+  "calls": [
+    {
+      "op": "send",
+      "message": {
+        "message_id": "m-1",
+        "role": "user",
+        "parts": [
+          {
+            "text": "Translate hello"
+          }
+        ],
+        "metadata": {
+          "agent_call_chain": [
+            "Tater"
+          ]
+        }
+      }
+    },
+    {
+      "op": "send",
+      "message": {
+        "message_id": "m-2",
+        "role": "user",
+        "parts": [
+          {
+            "text": "Spanish"
+          }
+        ],
+        "metadata": {
+          "agent_call_chain": [
+            "Tater"
+          ]
+        },
+        "context_id": "c-1",
+        "task_id": "t-1"
+      }
+    }
+  ]
+}

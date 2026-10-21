@@ -1,0 +1,6 @@
+{
+  "api": "openai.responses",
+  "model": "gpt-5.6",
+  "source": "synthetic",
+  "notes": "A reasoning item with two summary parts joined by a blank line, then a function call run by call_id."
+}

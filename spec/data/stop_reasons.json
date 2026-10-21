@@ -1,0 +1,27 @@
+{
+  "description": "Wire stop values per API mapped to the neutral stop reason. A value not listed maps to other, and the wire value is kept in Stop.raw.",
+  "fallback": "other",
+  "apis": {
+    "anthropic.messages": {
+      "end_turn": "end_turn",
+      "tool_use": "tool_use",
+      "max_tokens": "max_tokens",
+      "stop_sequence": "stop_sequence",
+      "pause_turn": "pause",
+      "refusal": "refusal",
+      "model_context_window_exceeded": "context_window_exceeded"
+    },
+    "openai.chat": {
+      "stop": "end_turn",
+      "tool_calls": "tool_use",
+      "function_call": "tool_use",
+      "length": "max_tokens",
+      "content_filter": "content_filter"
+    },
+    "openai.responses": {
+      "completed": "end_turn",
+      "max_output_tokens": "max_tokens",
+      "content_filter": "content_filter"
+    }
+  }
+}

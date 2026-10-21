@@ -1,0 +1,26 @@
+{
+  "body": {
+    "error": {
+      "code": null,
+      "message": "Unrecognized request argument supplied: thinking_blocks",
+      "param": null,
+      "type": "invalid_request_error"
+    }
+  },
+  "expected": {
+    "api": "openai.chat",
+    "class": "reasoning_replay",
+    "message": "Unrecognized request argument supplied: thinking_blocks",
+    "raw": {
+      "error": {
+        "code": null,
+        "message": "Unrecognized request argument supplied: thinking_blocks",
+        "param": null,
+        "type": "invalid_request_error"
+      }
+    },
+    "status": 400,
+    "type": "invalid_request_error"
+  },
+  "status": 400
+}

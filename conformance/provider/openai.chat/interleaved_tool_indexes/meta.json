@@ -1,0 +1,6 @@
+{
+  "api": "openai.chat",
+  "model": "gpt-5.6",
+  "source": "synthetic",
+  "notes": "Argument fragments of two calls interleave, and one chunk carries two entries for the same index; they merge strictly by index."
+}

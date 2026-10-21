@@ -1,0 +1,80 @@
+{
+  "spec_version": "0.1",
+  "description": "The call ledger is kept in the session's calls file: after Resume the stored turn's calls come back, the usage totals, retries and turns are rebuilt from the file and the lines, and new calls continue its seq.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "echo",
+        "description": "Echo the text back.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "echo"
+        }
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-29T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "resume": {
+    "session_id": "ses_s1",
+    "file": "session.jsonl",
+    "calls": "calls.jsonl"
+  },
+  "actions": [
+    {
+      "ledger": {
+        "turn": "turn_s1"
+      }
+    },
+    {
+      "ledger": {
+        "usage": true
+      }
+    },
+    {
+      "send": {
+        "text": "Hi again."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "ledger": {
+        "turn": "turn_01"
+      }
+    },
+    {
+      "ledger": {
+        "usage": true
+      }
+    }
+  ],
+  "expect_calls": true
+}

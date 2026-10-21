@@ -1,0 +1,85 @@
+{
+  "spec_version": "0.1",
+  "description": "A main session's rewind drops its open side chats: each is closed, gets the dropped boundary and is announced as side_chat.dropped on the main session after the epoch's events; opening the name again starts a new side_chat epoch that carries the rewound context.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": []
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse",
+        "responses/04.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Hello."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Second question."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "side_chat": {
+        "name": "notes",
+        "as": "s1"
+      }
+    },
+    {
+      "send": {
+        "text": "A side question."
+      },
+      "on": "s1"
+    },
+    {
+      "wait": "idle",
+      "on": "s1"
+    },
+    {
+      "rewind": "turn_02"
+    },
+    {
+      "wait": {
+        "event": "side_chat.dropped"
+      }
+    },
+    {
+      "side_chat": {
+        "name": "notes",
+        "as": "s2"
+      }
+    },
+    {
+      "send": {
+        "text": "Start over."
+      },
+      "on": "s2"
+    },
+    {
+      "wait": "idle",
+      "on": "s2"
+    }
+  ]
+}

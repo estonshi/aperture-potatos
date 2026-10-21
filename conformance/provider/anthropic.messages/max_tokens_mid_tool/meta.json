@@ -1,0 +1,6 @@
+{
+  "api": "anthropic.messages",
+  "model": "claude-opus-5-5",
+  "source": "synthetic",
+  "notes": "max_tokens cut a tool call in half; the input does not parse and the stop reason says the response was truncated."
+}

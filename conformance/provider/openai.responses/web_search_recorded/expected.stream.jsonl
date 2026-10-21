@@ -1,0 +1,56 @@
+{"kind":"start","response_id":"4a0ab99b-6ded-4b46-ae21-65421c0944ed"}
+{"block_type":"reasoning","kind":"block_start","reasoning_kind":"summary"}
+{"kind":"reasoning_delta","reasoning_kind":"raw","text":"The"}
+{"kind":"reasoning_delta","reasoning_kind":"raw","text":" user"}
+{"kind":"reasoning_delta","reasoning_kind":"raw","text":" wants"}
+{"kind":"reasoning_delta","reasoning_kind":"raw","text":" me"}
+{"kind":"reasoning_delta","reasoning_kind":"raw","text":" to"}
+{"kind":"reasoning_delta","reasoning_kind":"raw","text":" use"}
+{"kind":"reasoning_delta","reasoning_kind":"raw","text":" web"}
+{"kind":"reasoning_delta","reasoning_kind":"raw","text":" search"}
+{"kind":"reasoning_delta","reasoning_kind":"raw","text":" once"}
+{"kind":"reasoning_delta","reasoning_kind":"raw","text":" to"}
+{"kind":"reasoning_delta","reasoning_kind":"raw","text":" find"}
+{"kind":"reasoning_delta","reasoning_kind":"raw","text":" the"}
+{"kind":"reasoning_delta","reasoning_kind":"raw","text":" population"}
+{"kind":"reasoning_delta","reasoning_kind":"raw","text":" of"}
+{"kind":"reasoning_delta","reasoning_kind":"raw","text":" Osaka"}
+{"kind":"reasoning_delta","reasoning_kind":"raw","text":" city"}
+{"kind":"reasoning_delta","reasoning_kind":"raw","text":"."}
+{"block":{"kind":"raw","native":{"api":"openai.responses","raw":{"content":[{"text":"The user wants me to use web search once to find the population of Osaka city.","type":"reasoning_text"}],"encrypted_content":"4a0ab99b-6ded-4b46-ae21-65421c0944ed-0","id":"62ce9be6-e78c-48ed-8a43-f54e9a38a9dd","status":"completed","summary":[],"type":"reasoning"}},"text":"The user wants me to use web search once to find the population of Osaka city.","type":"reasoning"},"block_type":"reasoning","kind":"block_stop"}
+{"block_type":"hosted_call","index":1,"kind":"block_start","tool_call_id":"call_00_XAO4kEkow7J5AuBNZdp15424","tool_name":"web_search"}
+{"block":{"id":"call_00_XAO4kEkow7J5AuBNZdp15424","input":{"queries":["population of Osaka city Japan","ws_call_id=call_00_XAO4kEkow7J5AuBNZdp15424"],"type":"search"},"name":"web_search","native":{"api":"openai.responses","raw":{"action":{"queries":["population of Osaka city Japan","ws_call_id=call_00_XAO4kEkow7J5AuBNZdp15424"],"type":"search"},"id":"call_00_XAO4kEkow7J5AuBNZdp15424","status":"completed","type":"web_search_call"}},"status":"completed","type":"hosted_call"},"block_type":"hosted_call","index":1,"kind":"block_stop"}
+{"block_type":"hosted_result","index":2,"kind":"block_start","tool_call_id":"call_00_XAO4kEkow7J5AuBNZdp15424","tool_name":"web_search"}
+{"block":{"call_id":"call_00_XAO4kEkow7J5AuBNZdp15424","name":"web_search","type":"hosted_result"},"block_type":"hosted_result","index":2,"kind":"block_stop"}
+{"block_type":"text","index":3,"kind":"block_start"}
+{"channel":"text","index":3,"kind":"text_delta","text":"The"}
+{"channel":"text","index":3,"kind":"text_delta","text":" population"}
+{"channel":"text","index":3,"kind":"text_delta","text":" of"}
+{"channel":"text","index":3,"kind":"text_delta","text":" Osaka"}
+{"channel":"text","index":3,"kind":"text_delta","text":" city"}
+{"channel":"text","index":3,"kind":"text_delta","text":" is"}
+{"channel":"text","index":3,"kind":"text_delta","text":" approximately"}
+{"channel":"text","index":3,"kind":"text_delta","text":" "}
+{"channel":"text","index":3,"kind":"text_delta","text":"2"}
+{"channel":"text","index":3,"kind":"text_delta","text":"."}
+{"channel":"text","index":3,"kind":"text_delta","text":"81"}
+{"channel":"text","index":3,"kind":"text_delta","text":" million"}
+{"channel":"text","index":3,"kind":"text_delta","text":" ("}
+{"channel":"text","index":3,"kind":"text_delta","text":"2"}
+{"channel":"text","index":3,"kind":"text_delta","text":","}
+{"channel":"text","index":3,"kind":"text_delta","text":"811"}
+{"channel":"text","index":3,"kind":"text_delta","text":","}
+{"channel":"text","index":3,"kind":"text_delta","text":"565"}
+{"channel":"text","index":3,"kind":"text_delta","text":" as"}
+{"channel":"text","index":3,"kind":"text_delta","text":" of"}
+{"channel":"text","index":3,"kind":"text_delta","text":" July"}
+{"channel":"text","index":3,"kind":"text_delta","text":" "}
+{"channel":"text","index":3,"kind":"text_delta","text":"1"}
+{"channel":"text","index":3,"kind":"text_delta","text":","}
+{"channel":"text","index":3,"kind":"text_delta","text":" "}
+{"channel":"text","index":3,"kind":"text_delta","text":"202"}
+{"channel":"text","index":3,"kind":"text_delta","text":"5"}
+{"channel":"text","index":3,"kind":"text_delta","text":")."}
+{"block":{"native":{"api":"openai.responses","raw":{"content":[{"annotations":[],"logprobs":[],"text":"The population of Osaka city is approximately 2.81 million (2,811,565 as of July 1, 2025).","type":"output_text"}],"id":"11dc4fa8-8ac1-43ce-91d2-eba4b6f22e85","phase":"final_answer","role":"assistant","status":"completed","type":"message"}},"text":"The population of Osaka city is approximately 2.81 million (2,811,565 as of July 1, 2025).","type":"text"},"block_type":"text","index":3,"kind":"block_stop"}
+{"kind":"usage","usage":{"cache_read_tokens":512,"cache_write_tokens":0,"hosted_calls":{"web_search":1},"input_tokens":2484,"output_tokens":96,"raw":{"input_tokens":2484,"input_tokens_details":{"cached_tokens":512},"output_tokens":96,"output_tokens_details":{"reasoning_tokens":17},"total_tokens":2580},"reasoning_tokens":17}}
+{"kind":"end","message":{"content":[{"kind":"raw","native":{"api":"openai.responses","raw":{"content":[{"text":"The user wants me to use web search once to find the population of Osaka city.","type":"reasoning_text"}],"encrypted_content":"4a0ab99b-6ded-4b46-ae21-65421c0944ed-0","id":"62ce9be6-e78c-48ed-8a43-f54e9a38a9dd","status":"completed","summary":[],"type":"reasoning"}},"text":"The user wants me to use web search once to find the population of Osaka city.","type":"reasoning"},{"id":"call_00_XAO4kEkow7J5AuBNZdp15424","input":{"queries":["population of Osaka city Japan","ws_call_id=call_00_XAO4kEkow7J5AuBNZdp15424"],"type":"search"},"name":"web_search","native":{"api":"openai.responses","raw":{"action":{"queries":["population of Osaka city Japan","ws_call_id=call_00_XAO4kEkow7J5AuBNZdp15424"],"type":"search"},"id":"call_00_XAO4kEkow7J5AuBNZdp15424","status":"completed","type":"web_search_call"}},"status":"completed","type":"hosted_call"},{"call_id":"call_00_XAO4kEkow7J5AuBNZdp15424","name":"web_search","type":"hosted_result"},{"native":{"api":"openai.responses","raw":{"content":[{"annotations":[],"logprobs":[],"text":"The population of Osaka city is approximately 2.81 million (2,811,565 as of July 1, 2025).","type":"output_text"}],"id":"11dc4fa8-8ac1-43ce-91d2-eba4b6f22e85","phase":"final_answer","role":"assistant","status":"completed","type":"message"}},"text":"The population of Osaka city is approximately 2.81 million (2,811,565 as of July 1, 2025).","type":"text"}],"origin":{"kind":"model"},"producer":{"api":"openai.responses","endpoint":"api.openai.com","model":"deepseek-v4-pro","response_id":"4a0ab99b-6ded-4b46-ae21-65421c0944ed"},"role":"assistant","stop_reason":"end_turn","usage":{"cache_read_tokens":512,"cache_write_tokens":0,"hosted_calls":{"web_search":1},"input_tokens":2484,"output_tokens":96,"raw":{"input_tokens":2484,"input_tokens_details":{"cached_tokens":512},"output_tokens":96,"output_tokens_details":{"reasoning_tokens":17},"total_tokens":2580},"reasoning_tokens":17}},"stop":{"raw":"completed","reason":"end_turn"},"usage":{"cache_read_tokens":512,"cache_write_tokens":0,"hosted_calls":{"web_search":1},"input_tokens":2484,"output_tokens":96,"raw":{"input_tokens":2484,"input_tokens_details":{"cached_tokens":512},"output_tokens":96,"output_tokens_details":{"reasoning_tokens":17},"total_tokens":2580},"reasoning_tokens":17}}

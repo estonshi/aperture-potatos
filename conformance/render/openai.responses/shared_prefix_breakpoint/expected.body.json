@@ -1,0 +1,100 @@
+{
+  "input": [
+    {
+      "content": [
+        {
+          "prompt_cache_breakpoint": {
+            "mode": "explicit"
+          },
+          "text": "Summary of the earlier conversation: the user is pricing items.",
+          "type": "input_text"
+        }
+      ],
+      "role": "user",
+      "type": "message"
+    },
+    {
+      "content": [
+        {
+          "text": "What does item 12 cost?",
+          "type": "input_text"
+        }
+      ],
+      "role": "user",
+      "type": "message"
+    },
+    {
+      "arguments": "{\"item\":\"12\"}",
+      "call_id": "call_1",
+      "name": "lookup",
+      "type": "function_call"
+    },
+    {
+      "call_id": "call_1",
+      "output": [
+        {
+          "prompt_cache_breakpoint": {
+            "mode": "explicit"
+          },
+          "text": "36 yen.",
+          "type": "input_text"
+        }
+      ],
+      "type": "function_call_output"
+    },
+    {
+      "content": [
+        {
+          "text": "<system-reminder source=\"side_chat\">\nThe messages above are the main conversation as it stands now.\n</system-reminder>",
+          "type": "input_text"
+        }
+      ],
+      "role": "user",
+      "type": "message"
+    },
+    {
+      "content": [
+        {
+          "prompt_cache_breakpoint": {
+            "mode": "explicit"
+          },
+          "text": "What did the main chat cover?",
+          "type": "input_text"
+        }
+      ],
+      "role": "user",
+      "type": "message"
+    }
+  ],
+  "instructions": "<runtime-conventions>\n...\n</runtime-conventions>",
+  "max_output_tokens": 64000,
+  "model": "gpt-5.6",
+  "prompt_cache_options": {
+    "mode": "explicit"
+  },
+  "store": false,
+  "stream": true,
+  "stream_options": {
+    "include_obfuscation": false
+  },
+  "tools": [
+    {
+      "description": "Look up a price.",
+      "name": "lookup",
+      "parameters": {
+        "properties": {
+          "item": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "item"
+        ],
+        "type": "object"
+      },
+      "strict": false,
+      "type": "function"
+    }
+  ],
+  "truncation": "disabled"
+}

@@ -1,0 +1,6 @@
+{
+  "api": "openai.chat",
+  "model": "deepseek-v4.1-flash",
+  "source": "synthetic",
+  "notes": "Reasoning in the string field reasoning (vLLM, Ollama, OpenRouter); a chunk whose reasoning is an object is ignored."
+}

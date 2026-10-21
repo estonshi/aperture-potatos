@@ -1,0 +1,55 @@
+[
+  {
+    "name": "task_status",
+    "description": "Get the status of tasks started in this conversation. Omit task_id to list them all. Tasks report back on their own when they finish or need input, so do not poll.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "task_id": { "type": "string" },
+        "include_result": { "type": "boolean", "default": false, "description": "Append the full result of a finished task." },
+        "wait_ms": { "type": "integer", "minimum": 0, "maximum": 600000, "default": 0, "description": "Wait up to this long for the task to finish or ask for input." }
+      },
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "task_send",
+    "description": "Send a message to a task: an extra instruction or an answer while it runs, or a follow-up that continues a finished task when its kind supports that.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "task_id": { "type": "string" },
+        "message": { "type": "string" },
+        "mode": { "type": "string", "enum": ["queue", "next_loop", "interrupt"], "default": "next_loop", "description": "next_loop: at the task's next step; queue: after its current work; interrupt: drop what it is doing and handle this first." }
+      },
+      "required": ["task_id", "message"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "task_stop",
+    "description": "Stop a running task. A task you stop does not send a notification.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "task_id": { "type": "string" },
+        "reason": { "type": "string", "maxLength": 200 }
+      },
+      "required": ["task_id"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "task_restart",
+    "description": "Run a task again from scratch, optionally with new input. The current run is stopped and its context is discarded.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "task_id": { "type": "string" },
+        "input": { "type": "object", "description": "New input, in the same shape the task was started with; omit to reuse the original input." }
+      },
+      "required": ["task_id"],
+      "additionalProperties": false
+    }
+  }
+]

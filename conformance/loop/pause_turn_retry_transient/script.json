@@ -1,0 +1,46 @@
+{
+  "spec_version": "0.1",
+  "description": "A pause_turn continuation ends with the assistant line; when it hits a 529 the retry still sends it that way.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "retry": {
+      "base_delay_ms": 1000
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        {
+          "sse": "responses/02.json",
+          "status": 529,
+          "headers": {
+            "content-type": "application/json",
+            "request-id": "req_529"
+          }
+        },
+        "responses/03.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "What is the weather in Osaka?"
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

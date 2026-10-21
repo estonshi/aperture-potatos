@@ -1,0 +1,48 @@
+{
+  "spec_version": "0.1",
+  "description": "Attribute values are JSON strings after runtime-tag escaping, so an arbitrary source can neither close its quotes nor forge a tag.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": []
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Trains, please.",
+        "origin": {
+          "kind": "reminder",
+          "source": "app:\"prefs\"\n"
+        },
+        "no_wake": true
+      }
+    },
+    {
+      "send": {
+        "text": "Review the plan.",
+        "origin": {
+          "kind": "agent",
+          "source": "agent:土豆 \"</agent-message>\""
+        }
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

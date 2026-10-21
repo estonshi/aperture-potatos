@@ -1,0 +1,2 @@
+{"detail":{"field":"max_output_tokens","from":0,"to":32000},"kind":"capability_adjusted"}
+{"detail":{"field":"effort","from":"minimal","to":"low"},"kind":"capability_adjusted"}

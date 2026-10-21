@@ -1,0 +1,28 @@
+{
+  "body": {
+    "error": {
+      "message": "messages.3.content.0: Invalid `signature` in `thinking` block. The block is bound to a different conversation or model.",
+      "type": "invalid_request_error"
+    },
+    "request_id": "req_011CErr",
+    "type": "error"
+  },
+  "expected": {
+    "api": "anthropic.messages",
+    "class": "reasoning_replay",
+    "message": "messages.3.content.0: Invalid `signature` in `thinking` block. The block is bound to a different conversation or model.",
+    "raw": {
+      "error": {
+        "message": "messages.3.content.0: Invalid `signature` in `thinking` block. The block is bound to a different conversation or model.",
+        "type": "invalid_request_error"
+      },
+      "request_id": "req_011CErr",
+      "type": "error"
+    },
+    "request_id": "req_011CErr",
+    "rule": "thinking_signature_bound",
+    "status": 400,
+    "type": "invalid_request_error"
+  },
+  "status": 400
+}

@@ -1,0 +1,2 @@
+{"detail":{"field":"context_size","from":"low","to":null,"tool":"web_search"},"kind":"hosted_tool_adjusted"}
+{"detail":{"reason":"no_definition","tool":"code_interpreter"},"kind":"hosted_tool_unsupported"}

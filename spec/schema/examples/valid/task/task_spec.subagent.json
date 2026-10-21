@@ -1,0 +1,9 @@
+{
+  "kind": "subagent",
+  "title": "Research flights",
+  "input": {
+    "prompt": "Find flights to Osaka"
+  },
+  "foreground": true,
+  "notify_mode": "queue"
+}

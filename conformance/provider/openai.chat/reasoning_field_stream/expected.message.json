@@ -1,0 +1,42 @@
+{
+  "content": [
+    {
+      "kind": "raw",
+      "native": {
+        "api": "openai.chat",
+        "raw": {
+          "field": "reasoning"
+        }
+      },
+      "text": "Consider the question. Two plus two is four.",
+      "type": "reasoning"
+    },
+    {
+      "text": "4",
+      "type": "text"
+    }
+  ],
+  "origin": {
+    "kind": "model"
+  },
+  "producer": {
+    "api": "openai.chat",
+    "endpoint": "api.openai.com",
+    "model": "deepseek-v4.1-flash",
+    "response_id": "chatcmpl-1"
+  },
+  "role": "assistant",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 8,
+    "output_tokens": 9,
+    "raw": {
+      "completion_tokens": 9,
+      "prompt_tokens": 8,
+      "total_tokens": 17
+    },
+    "reasoning_tokens": 0
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "spec_version": "0.1",
+  "description": "Clear opens an epoch with a re-rendered system and no old line: the pin set empties, a reminder queued before it is dropped, and session_start{clear} gives the new epoch head.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "load_plan",
+        "description": "Load load_plan.",
+        "input_schema": {
+          "type": "object"
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "fixed",
+          "text": "Loaded.",
+          "pin": {
+            "key": "plan",
+            "content": "Step 1 of 3: gather data."
+          }
+        }
+      }
+    ],
+    "hooks": [
+      {
+        "point": "session_start",
+        "name": "fresh",
+        "cases": [
+          {
+            "when": {
+              "source": "clear"
+            },
+            "call": {
+              "output": {
+                "additional_context": "Fresh start."
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Load the plan."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Remember the budget.",
+        "origin": {
+          "kind": "reminder",
+          "source": "note"
+        },
+        "no_wake": true
+      }
+    },
+    {
+      "clear": true
+    },
+    {
+      "send": {
+        "text": "Hi again."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

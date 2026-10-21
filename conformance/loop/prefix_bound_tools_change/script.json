@@ -1,0 +1,113 @@
+{
+  "spec_version": "0.1",
+  "description": "On a prefix-bound model the tool definitions stay frozen for the epoch: adding and removing tools changes no request byte, the registry announces effective epoch, and a call to a removed tool gets unknown_tool.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "capabilities": [
+      {
+        "api": "anthropic.messages",
+        "model_glob": "claude-opus-5-5*",
+        "caps": {
+          "thinking_prefix_bound": true
+        }
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Hi."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "add_tool": {
+        "name": "extra",
+        "description": "A tool added mid-epoch.",
+        "input_schema": {
+          "type": "object"
+        },
+        "concurrency": "parallel",
+        "behavior": {
+          "type": "fixed",
+          "text": "extra"
+        }
+      }
+    },
+    {
+      "remove_tool": "lookup"
+    },
+    {
+      "send": {
+        "text": "Look up tater."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ],
+  "session": {
+    "tools": [
+      {
+        "name": "echo",
+        "description": "Echo the text back.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "echo"
+        }
+      },
+      {
+        "name": "lookup",
+        "description": "Look a word up.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "word": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "word"
+          ]
+        },
+        "concurrency": "parallel",
+        "behavior": {
+          "type": "fixed",
+          "text": "A definition."
+        }
+      }
+    ]
+  }
+}

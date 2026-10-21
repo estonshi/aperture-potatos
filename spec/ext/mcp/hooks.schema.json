@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/estonshi/aperture-potatos/spec/ext/mcp/hooks.schema.json",
+  "title": "MCP hook points",
+  "description": "The JSON form of this extension's hook points: <point>_input carries the kernel hook environment, <point>_output is what a hook answers.",
+  "$defs": {
+    "mcp_elicitation_input": {
+      "type": "object",
+      "description": "A server's request for user input during a call, in the session that made the call.",
+      "allOf": [
+        {
+          "$ref": "../../schema/hook.schema.json#/$defs/env"
+        }
+      ],
+      "properties": {
+        "server": {
+          "type": "string"
+        },
+        "tool": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "form",
+            "url"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "requested_schema": {
+          "description": "The form's JSON Schema, in form mode."
+        },
+        "url": {
+          "type": "string",
+          "description": "The page to open, in url mode; always https."
+        }
+      },
+      "required": [
+        "server",
+        "mode",
+        "message"
+      ]
+    },
+    "mcp_elicitation_output": {
+      "type": "object",
+      "description": "The user's answer; content goes back to the server only, never to the model.",
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": [
+            "accept",
+            "decline",
+            "cancel"
+          ]
+        },
+        "content": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "action"
+      ]
+    }
+  }
+}

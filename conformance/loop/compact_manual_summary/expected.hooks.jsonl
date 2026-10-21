@@ -1,0 +1,4 @@
+{"input":{"agent":"Tater","model":{"api":"anthropic.messages","endpoint":"api.anthropic.com","model":"claude-opus-5-5"},"session_id":"ses_01","source":"new"},"name":"memory","point":"session_start"}
+{"input":{"agent":"Tater","instructions":"Be short.","pre_tokens":37,"session_id":"ses_01","trigger":"manual"},"name":"focus","point":"pre_compact"}
+{"input":{"agent":"Tater","model":{"api":"anthropic.messages","endpoint":"api.anthropic.com","model":"claude-opus-5-5"},"session_id":"ses_01","source":"compact"},"name":"memory","point":"session_start"}
+{"input":{"agent":"Tater","epoch":2,"post_tokens":15,"pre_tokens":37,"session_id":"ses_01","summary":"The user asked about the weather in Osaka; it is sunny, 24C.","trigger":"manual"},"name":"tail","point":"post_compact"}

@@ -1,0 +1,6 @@
+{
+  "api": "openai.responses",
+  "model": "gpt-oss-120b",
+  "source": "synthetic",
+  "notes": "gpt-oss and vLLM stream reasoning_text, which is raw chain of thought."
+}

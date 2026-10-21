@@ -1,0 +1,64 @@
+{
+  "max_tokens": 64000,
+  "messages": [
+    {
+      "content": [
+        {
+          "cache_control": {
+            "type": "ephemeral"
+          },
+          "text": "What is the weather in Osaka?",
+          "type": "text"
+        }
+      ],
+      "role": "user"
+    }
+  ],
+  "model": "claude-opus-5-5",
+  "stream": true,
+  "system": [
+    {
+      "cache_control": {
+        "type": "ephemeral"
+      },
+      "text": "<runtime-conventions>\n...\n</runtime-conventions>",
+      "type": "text"
+    }
+  ],
+  "tools": [
+    {
+      "description": "Get the weather.",
+      "input_schema": {
+        "properties": {
+          "city": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "city"
+        ],
+        "type": "object"
+      },
+      "name": "get_weather"
+    },
+    {
+      "allowed_domains": [
+        "example.com"
+      ],
+      "max_uses": 3,
+      "name": "web_search",
+      "type": "web_search_20250305",
+      "user_location": {
+        "city": "Osaka",
+        "country": "JP",
+        "timezone": "Asia/Tokyo",
+        "type": "approximate"
+      }
+    },
+    {
+      "max_uses": 2,
+      "name": "web_fetch",
+      "type": "web_fetch_20250910"
+    }
+  ]
+}

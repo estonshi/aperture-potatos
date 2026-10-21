@@ -1,0 +1,106 @@
+{
+  "spec_version": "0.1",
+  "description": "A host starts a tool_exec task: its run reviews the input as the model's background call would be, under the tool's name with background:true and the task hop in the path, and the reviewer denies it, so the task fails with the denial. The denied input was never approved, so a restart without a new input is reviewed again; approved, the second attempt runs.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "fetch_page",
+        "description": "Fetch a web page.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url"
+          ]
+        },
+        "concurrency": "parallel",
+        "background": true,
+        "behavior": {
+          "type": "echo",
+          "sleep_ms": 1000
+        }
+      }
+    ],
+    "approval_rules": [
+      {
+        "id": "bg-fetch",
+        "tool": "fetch_page",
+        "when": {
+          "background": {
+            "eq": true
+          }
+        },
+        "action": "ask",
+        "reason": "runs in the background"
+      }
+    ],
+    "hooks": [
+      {
+        "point": "approval",
+        "name": "ops",
+        "calls": [
+          {
+            "output": {
+              "verdict": "deny",
+              "reason": "not now"
+            }
+          },
+          {
+            "output": {
+              "verdict": "approve"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-29T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "task": {
+        "start": {
+          "kind": "tool_exec",
+          "title": "fetch_page",
+          "input": {
+            "tool": "fetch_page",
+            "input": {
+              "url": "https://a.test"
+            }
+          }
+        }
+      }
+    },
+    {
+      "wait_quiet": true
+    },
+    {
+      "task": {
+        "restart": "task_01"
+      }
+    },
+    {
+      "wait_quiet": true
+    }
+  ]
+}

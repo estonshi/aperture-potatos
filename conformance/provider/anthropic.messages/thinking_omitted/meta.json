@@ -1,0 +1,6 @@
+{
+  "api": "anthropic.messages",
+  "model": "claude-opus-5-5",
+  "source": "synthetic",
+  "notes": "display omitted: the thinking block carries only a signature, and the block must still be kept for replay."
+}

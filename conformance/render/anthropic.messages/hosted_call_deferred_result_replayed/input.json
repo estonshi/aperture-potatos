@@ -1,0 +1,193 @@
+{
+  "model": "claude-opus-5-5",
+  "system": [
+    {
+      "slot": "core",
+      "text": "<runtime-conventions>\n...\n</runtime-conventions>"
+    }
+  ],
+  "tools": [
+    {
+      "name": "get_weather",
+      "description": "Get the weather.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "city": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "city"
+        ]
+      }
+    }
+  ],
+  "hosted_tools": [
+    {
+      "name": "web_search",
+      "web_search": {}
+    }
+  ],
+  "messages": [
+    {
+      "v": 1,
+      "id": "msg_01",
+      "session_id": "ses_01",
+      "seq": 1,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Find a hotel in Osaka and check the weather."
+        }
+      ],
+      "ts": "2026-10-13T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_02",
+      "session_id": "ses_01",
+      "seq": 2,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "hosted_call",
+          "id": "srvtoolu_03",
+          "name": "web_search",
+          "input": {
+            "query": "osaka hotels"
+          },
+          "native": {
+            "api": "anthropic.messages",
+            "raw": {
+              "type": "server_tool_use",
+              "id": "srvtoolu_03",
+              "name": "web_search",
+              "input": {
+                "query": "osaka hotels"
+              }
+            }
+          }
+        },
+        {
+          "type": "tool_call",
+          "id": "toolu_03",
+          "name": "get_weather",
+          "input": {
+            "city": "Osaka"
+          }
+        }
+      ],
+      "ts": "2026-10-13T08:00:00Z",
+      "producer": {
+        "api": "anthropic.messages",
+        "endpoint": "api.anthropic.com",
+        "model": "claude-opus-5-5"
+      },
+      "stop_reason": "tool_use"
+    },
+    {
+      "v": 1,
+      "id": "msg_03",
+      "session_id": "ses_01",
+      "seq": 3,
+      "epoch": 1,
+      "role": "tool",
+      "origin": {
+        "kind": "tool"
+      },
+      "content": [
+        {
+          "type": "tool_result",
+          "call_id": "toolu_03",
+          "name": "get_weather",
+          "content": [
+            {
+              "type": "text",
+              "text": "Sunny, 24C."
+            }
+          ],
+          "outcome": "success"
+        }
+      ],
+      "ts": "2026-10-13T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_04",
+      "session_id": "ses_01",
+      "seq": 4,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "hosted_result",
+          "call_id": "srvtoolu_03",
+          "name": "web_search",
+          "sources": [
+            {
+              "url": "https://example.com/osaka",
+              "title": "Osaka weather"
+            }
+          ],
+          "native": {
+            "api": "anthropic.messages",
+            "raw": {
+              "type": "web_search_tool_result",
+              "tool_use_id": "srvtoolu_03",
+              "content": [
+                {
+                  "type": "web_search_result",
+                  "url": "https://example.com/osaka",
+                  "title": "Osaka weather",
+                  "encrypted_content": "EqgBCioI"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "text",
+          "text": "It is sunny; here is a hotel."
+        }
+      ],
+      "ts": "2026-10-13T08:00:00Z",
+      "producer": {
+        "api": "anthropic.messages",
+        "endpoint": "api.anthropic.com",
+        "model": "claude-opus-5-5"
+      },
+      "stop_reason": "end_turn"
+    },
+    {
+      "v": 1,
+      "id": "msg_05",
+      "session_id": "ses_01",
+      "seq": 5,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Thanks. Book it."
+        }
+      ],
+      "ts": "2026-10-13T08:00:00Z"
+    }
+  ]
+}

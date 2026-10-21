@@ -1,0 +1,18 @@
+{
+  "v": 1,
+  "id": "msg_02",
+  "session_id": "ses_01",
+  "seq": 2,
+  "epoch": 1,
+  "role": "user",
+  "origin": {
+    "kind": "human"
+  },
+  "content": [
+    {
+      "type": "text",
+      "text": "What's the weather in Osaka?"
+    }
+  ],
+  "turn_id": "turn_01"
+}

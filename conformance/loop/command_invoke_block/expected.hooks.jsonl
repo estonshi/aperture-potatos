@@ -1,0 +1,2 @@
+{"input":{"agent":"Tater","args":"prod","busy":false,"name":"deploy","session_id":"ses_01"},"name":"freeze","point":"command_invoke"}
+{"input":{"agent":"Tater","args":"all","busy":false,"name":"status","session_id":"ses_01"},"name":"freeze","point":"command_invoke"}

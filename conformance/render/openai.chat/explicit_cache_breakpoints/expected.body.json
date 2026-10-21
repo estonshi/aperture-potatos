@@ -1,0 +1,70 @@
+{
+  "max_tokens": 64000,
+  "messages": [
+    {
+      "content": [
+        {
+          "text": "<runtime-conventions>\nConventions of the runtime you are running in: ...\n</runtime-conventions>",
+          "type": "text"
+        },
+        {
+          "text": "<identity>\nYour name is Tater.\n</identity>",
+          "type": "text"
+        },
+        {
+          "cache_control": {
+            "type": "ephemeral"
+          },
+          "text": "# Instructions from the agent developer\n\nBe brief.",
+          "type": "text"
+        },
+        {
+          "cache_control": {
+            "type": "ephemeral"
+          },
+          "text": "<available_skills>\n...\n</available_skills>",
+          "type": "text"
+        }
+      ],
+      "role": "system"
+    },
+    {
+      "content": [
+        {
+          "cache_control": {
+            "type": "ephemeral"
+          },
+          "text": "<system-reminder source=\"instructions\">\nAnswer in metric units.\n</system-reminder>\n\n<system-reminder source=\"pin:plan\">\nStep 2 of 3.\n</system-reminder>",
+          "type": "text"
+        }
+      ],
+      "role": "user"
+    },
+    {
+      "content": "First question",
+      "role": "user"
+    },
+    {
+      "content": "First answer",
+      "role": "assistant"
+    },
+    {
+      "content": [
+        {
+          "cache_control": {
+            "type": "ephemeral"
+          },
+          "text": "Second question",
+          "type": "text"
+        }
+      ],
+      "role": "user"
+    }
+  ],
+  "model": "claude-sonnet-5",
+  "stream": true,
+  "stream_options": {
+    "include_obfuscation": false,
+    "include_usage": true
+  }
+}

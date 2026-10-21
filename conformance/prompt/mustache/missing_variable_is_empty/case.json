@@ -1,0 +1,8 @@
+{
+  "template": "[{{missing}}]",
+  "vars": {
+    "name": "Tater",
+    "desc": "Plans trips.",
+    "empty": ""
+  }
+}

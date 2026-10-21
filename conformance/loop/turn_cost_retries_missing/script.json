@@ -1,0 +1,81 @@
+{
+  "spec_version": "0.1",
+  "description": "TurnCost prices a turn of two requests: the first is logged at once, the second only on the third round, and the second round fails with a 503 that is retried. The waits are 1s and 2s of virtual time.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "echo",
+        "description": "Echo the text back.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "echo"
+        }
+      }
+    ],
+    "cost_source": {
+      "prices": {
+        "msg_r01": {
+          "amount": 0.0125,
+          "currency": "USD",
+          "from_round": 1
+        },
+        "msg_r02": {
+          "amount": 0.0075,
+          "currency": "USD",
+          "from_round": 3
+        }
+      },
+      "errors": {
+        "2": {
+          "status": 503,
+          "message": "spend logs not ready"
+        }
+      }
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Echo hi, then tell me."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "ledger": {
+        "turn": "turn_01",
+        "cost": true
+      }
+    }
+  ]
+}

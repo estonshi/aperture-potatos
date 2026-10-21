@@ -1,0 +1,33 @@
+{
+  "content": [
+    {
+      "text": "one two",
+      "type": "text"
+    }
+  ],
+  "origin": {
+    "kind": "model"
+  },
+  "producer": {
+    "api": "anthropic.messages",
+    "endpoint": "api.anthropic.com",
+    "model": "claude-opus-5-5",
+    "request_id": "req_011CT5",
+    "response_id": "msg_01"
+  },
+  "role": "assistant",
+  "stop_reason": "stop_sequence",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 25,
+    "output_tokens": 3,
+    "raw": {
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "input_tokens": 25,
+      "output_tokens": 3
+    },
+    "reasoning_tokens": 0
+  }
+}

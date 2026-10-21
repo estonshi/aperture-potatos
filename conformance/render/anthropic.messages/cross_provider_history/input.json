@@ -1,0 +1,185 @@
+{
+  "model": "claude-opus-5-5",
+  "system": [
+    {
+      "slot": "core",
+      "text": "<runtime-conventions>\nConventions of the runtime you are running in: ...\n</runtime-conventions>"
+    },
+    {
+      "slot": "identity",
+      "text": "<identity>\nYour name is Tater.\n</identity>"
+    }
+  ],
+  "messages": [
+    {
+      "v": 1,
+      "id": "msg_01",
+      "session_id": "ses_01",
+      "seq": 1,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Plan a trip."
+        }
+      ],
+      "ts": "2026-09-27T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_02",
+      "session_id": "ses_01",
+      "seq": 2,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "kind": "raw",
+          "text": "thinking in chat",
+          "native": {
+            "api": "openai.chat",
+            "raw": {
+              "field": "reasoning_content"
+            }
+          }
+        },
+        {
+          "type": "text",
+          "text": "Where to?"
+        },
+        {
+          "type": "tool_call",
+          "id": "call.a/1",
+          "name": "search",
+          "input": {
+            "q": "kyoto"
+          }
+        }
+      ],
+      "ts": "2026-09-27T08:00:00Z",
+      "producer": {
+        "api": "openai.chat",
+        "endpoint": "api.deepseek.com",
+        "model": "deepseek-chat"
+      }
+    },
+    {
+      "v": 1,
+      "id": "msg_03",
+      "session_id": "ses_01",
+      "seq": 3,
+      "epoch": 1,
+      "role": "tool",
+      "origin": {
+        "kind": "tool"
+      },
+      "content": [
+        {
+          "type": "tool_result",
+          "call_id": "call.a/1",
+          "content": [
+            {
+              "type": "text",
+              "text": "Kyoto is nice"
+            }
+          ],
+          "outcome": "success"
+        }
+      ],
+      "ts": "2026-09-27T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_04",
+      "session_id": "ses_01",
+      "seq": 4,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "kind": "encrypted",
+          "native": {
+            "api": "openai.responses",
+            "raw": {
+              "type": "reasoning",
+              "id": "rs_1",
+              "encrypted_content": "gAAA"
+            }
+          }
+        },
+        {
+          "type": "opaque",
+          "kind": "openai.responses:web_search_call",
+          "native": {
+            "api": "openai.responses",
+            "raw": {
+              "type": "web_search_call"
+            }
+          }
+        },
+        {
+          "type": "text",
+          "text": "Kyoto it is.",
+          "native": {
+            "api": "openai.responses",
+            "raw": {
+              "type": "message",
+              "phase": "final_answer"
+            }
+          }
+        }
+      ],
+      "ts": "2026-09-27T08:00:00Z",
+      "producer": {
+        "api": "openai.responses",
+        "endpoint": "api.openai.com",
+        "model": "gpt-5"
+      }
+    },
+    {
+      "v": 1,
+      "id": "msg_05",
+      "session_id": "ses_01",
+      "seq": 5,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Now book it."
+        }
+      ],
+      "ts": "2026-09-27T08:00:00Z"
+    }
+  ],
+  "tools": [
+    {
+      "name": "search",
+      "description": "Search the web.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string"
+          }
+        }
+      },
+      "strict": true
+    }
+  ]
+}

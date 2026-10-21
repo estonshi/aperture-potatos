@@ -1,0 +1,92 @@
+{
+  "spec_version": "0.1",
+  "description": "On a prefix-bound model, rewinding inside an epoch that summarized up to a turn keeps replay_fallback: the kept lines still follow the changed prefix, so the next request still renders with degraded replay.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "compactor": {
+      "instructions": "Summarize the conversation.",
+      "keep": "after_cut"
+    },
+    "capabilities": [
+      {
+        "api": "anthropic.messages",
+        "model_glob": "claude-opus-5-5",
+        "caps": {
+          "thinking_prefix_bound": true
+        }
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse",
+        "responses/04.sse",
+        "responses/05.sse",
+        "responses/06.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "First question."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Second question."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Third question."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "compact": {
+        "up_to": "turn_03"
+      }
+    },
+    {
+      "send": {
+        "text": "Fourth question."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "rewind": "turn_04"
+    },
+    {
+      "send": {
+        "text": "Fourth question, again."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

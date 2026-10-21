@@ -1,0 +1,76 @@
+{
+  "input": [
+    {
+      "content": [
+        {
+          "text": "Find kyoto.",
+          "type": "input_text"
+        }
+      ],
+      "role": "user",
+      "type": "message"
+    },
+    {
+      "arguments": "{\"q\":\"kyoto\"}",
+      "call_id": "call_1",
+      "name": "search",
+      "status": "completed",
+      "type": "function_call"
+    },
+    {
+      "arguments": "{}",
+      "call_id": "call_2",
+      "name": "now",
+      "type": "function_call"
+    },
+    {
+      "call_id": "call_1",
+      "output": "Kyoto is a city.",
+      "type": "function_call_output"
+    },
+    {
+      "call_id": "call_2",
+      "output": "boom",
+      "type": "function_call_output"
+    }
+  ],
+  "max_output_tokens": 64000,
+  "model": "gpt-5.6",
+  "parallel_tool_calls": false,
+  "store": false,
+  "stream": true,
+  "stream_options": {
+    "include_obfuscation": false
+  },
+  "tool_choice": "required",
+  "tools": [
+    {
+      "description": "Search the web.",
+      "name": "search",
+      "parameters": {
+        "additionalProperties": false,
+        "properties": {
+          "q": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "q"
+        ],
+        "type": "object"
+      },
+      "strict": true,
+      "type": "function"
+    },
+    {
+      "description": "Current time.",
+      "name": "now",
+      "parameters": {
+        "type": "object"
+      },
+      "strict": false,
+      "type": "function"
+    }
+  ],
+  "truncation": "disabled"
+}

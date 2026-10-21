@@ -1,0 +1,6 @@
+{
+  "api": "openai.chat",
+  "model": "deepseek-v4.1-flash",
+  "source": "synthetic",
+  "notes": "The body ends after a finish reason without data: [DONE], which is never a success."
+}

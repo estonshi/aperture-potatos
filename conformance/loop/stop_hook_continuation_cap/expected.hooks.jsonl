@@ -1,0 +1,3 @@
+{"input":{"agent":"Tater","continuations":0,"last_assistant_text":"Title one.","session_id":"ses_01","step":1,"stop_hook_active":false,"turn_id":"turn_01"},"name":"keep-going","point":"stop"}
+{"input":{"agent":"Tater","continuations":1,"last_assistant_text":"Title two.","session_id":"ses_01","step":2,"stop_hook_active":true,"turn_id":"turn_01"},"name":"keep-going","point":"stop"}
+{"input":{"agent":"Tater","continuations":2,"last_assistant_text":"Title three.","session_id":"ses_01","step":3,"stop_hook_active":true,"turn_id":"turn_01"},"name":"keep-going","point":"stop"}

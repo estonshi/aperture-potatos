@@ -1,0 +1,6 @@
+{
+  "api": "openai.chat",
+  "model": "claude-sonnet-5",
+  "source": "synthetic",
+  "notes": "LiteLLM relaying Claude: reasoning_content carries the text once while thinking_blocks fragments merge until a signature closes each block; a fragment after a signature opens a new block and redacted_thinking stands alone."
+}

@@ -1,0 +1,27 @@
+{
+  "body": {
+    "error": {
+      "message": "messages.1.content.0: Invalid `signature` in `thinking` block",
+      "type": "invalid_request_error"
+    },
+    "request_id": "req_011CErr",
+    "type": "error"
+  },
+  "expected": {
+    "api": "anthropic.messages",
+    "class": "reasoning_replay",
+    "message": "messages.1.content.0: Invalid `signature` in `thinking` block",
+    "raw": {
+      "error": {
+        "message": "messages.1.content.0: Invalid `signature` in `thinking` block",
+        "type": "invalid_request_error"
+      },
+      "request_id": "req_011CErr",
+      "type": "error"
+    },
+    "request_id": "req_011CErr",
+    "status": 400,
+    "type": "invalid_request_error"
+  },
+  "status": 400
+}

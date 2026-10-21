@@ -1,0 +1,1 @@
+{"type":"error","error":{"type":"invalid_request_error","message":"messages.1.content.0: Invalid `signature` in `thinking` block: the signature is bound to a different conversation"},"request_id":"req_err"}

@@ -1,0 +1,1 @@
+{"input":{"agent":"Tater","call":{"id":"toolu_01","input":{"text":"hunter2"},"name":"echo","type":"tool_call"},"duration_ms":10,"result":{"call_id":"toolu_01","content":[{"text":"{\"text\":\"hunter2\"}","type":"text"}],"name":"echo","outcome":"success","type":"tool_result"},"session_id":"ses_01","step":1,"turn_id":"turn_01"},"name":"redact","point":"post_tool_use"}

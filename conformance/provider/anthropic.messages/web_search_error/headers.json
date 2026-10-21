@@ -1,0 +1,7 @@
+{
+  "status": 200,
+  "headers": {
+    "request-id": "req_ws",
+    "content-type": "text/event-stream"
+  }
+}

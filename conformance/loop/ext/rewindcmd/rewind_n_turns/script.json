@@ -1,0 +1,79 @@
+{
+  "spec_version": "0.1",
+  "description": "/rewind 2 undoes the last two turns, and a count past the turns there are undoes them all.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "extensions": {
+      "cmd.rewind": {}
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "First question."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Second question."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Third question."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "command": {
+        "name": "rewind",
+        "args": "2"
+      }
+    },
+    {
+      "wait": {
+        "event": "command.completed",
+        "count": 1
+      }
+    },
+    {
+      "command": {
+        "name": "rewind",
+        "args": "5"
+      }
+    },
+    {
+      "wait": {
+        "event": "command.completed",
+        "count": 2
+      }
+    }
+  ]
+}

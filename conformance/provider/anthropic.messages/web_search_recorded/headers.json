@@ -1,0 +1,7 @@
+{
+  "status": 200,
+  "headers": {
+    "content-type": "text/event-stream; charset=utf-8",
+    "x-ds-trace-id": "0f0e0d0c0b0a09080706050403020101"
+  }
+}

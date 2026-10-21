@@ -1,0 +1,8 @@
+data: {"id":"chatcmpl-1","object":"chat.completion.chunk","created":1790000000,"model":"gpt-5.6","choices":[{"index":0,"delta":{"role":"assistant","content":"Writing the file."},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-1","object":"chat.completion.chunk","created":1790000000,"model":"gpt-5.6","choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"id":"call_w","type":"function","function":{"name":"write_file","arguments":"{\"path\":\"a.md\",\"body\":\"# Ti"}}]},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-1","object":"chat.completion.chunk","created":1790000000,"model":"gpt-5.6","choices":[{"index":0,"delta":{},"finish_reason":"length"}],"usage":{"prompt_tokens":60,"completion_tokens":64,"total_tokens":124}}
+
+data: [DONE]
+

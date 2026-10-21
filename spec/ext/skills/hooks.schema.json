@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/estonshi/aperture-potatos/spec/ext/skills/hooks.schema.json",
+  "title": "Skills hook points",
+  "description": "The JSON form of this extension's hook points: <point>_input carries the kernel hook environment, <point>_output is what a hook answers.",
+  "$defs": {
+    "skill_activate_input": {
+      "type": "object",
+      "description": "A skill is about to be loaded.",
+      "allOf": [
+        {
+          "$ref": "../../schema/hook.schema.json#/$defs/env"
+        }
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "trigger": {
+          "type": "string",
+          "enum": [
+            "model",
+            "user"
+          ]
+        },
+        "allowed_tools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "name",
+        "trigger"
+      ]
+    },
+    "skill_activate_output": {
+      "type": "object",
+      "description": "Deny stops the activation.",
+      "properties": {
+        "deny": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

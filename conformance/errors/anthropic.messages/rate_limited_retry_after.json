@@ -1,0 +1,31 @@
+{
+  "body": {
+    "error": {
+      "message": "Number of request tokens has exceeded your per-minute rate limit",
+      "type": "rate_limit_error"
+    },
+    "request_id": "req_011CErr",
+    "type": "error"
+  },
+  "expected": {
+    "api": "anthropic.messages",
+    "class": "rate_limited",
+    "message": "Number of request tokens has exceeded your per-minute rate limit",
+    "raw": {
+      "error": {
+        "message": "Number of request tokens has exceeded your per-minute rate limit",
+        "type": "rate_limit_error"
+      },
+      "request_id": "req_011CErr",
+      "type": "error"
+    },
+    "request_id": "req_011CErr",
+    "retry_after_ms": 7000,
+    "status": 429,
+    "type": "rate_limit_error"
+  },
+  "headers": {
+    "retry-after": "7"
+  },
+  "status": 429
+}

@@ -1,0 +1,27 @@
+{
+  "body": {
+    "error": {
+      "code": "context_length_exceeded",
+      "message": "Your input exceeds the context window of this model. Please adjust your input and try again.",
+      "param": "input",
+      "type": "invalid_request_error"
+    }
+  },
+  "expected": {
+    "api": "openai.responses",
+    "class": "context_overflow",
+    "code": "context_length_exceeded",
+    "message": "Your input exceeds the context window of this model. Please adjust your input and try again.",
+    "raw": {
+      "error": {
+        "code": "context_length_exceeded",
+        "message": "Your input exceeds the context window of this model. Please adjust your input and try again.",
+        "param": "input",
+        "type": "invalid_request_error"
+      }
+    },
+    "status": 400,
+    "type": "invalid_request_error"
+  },
+  "status": 400
+}

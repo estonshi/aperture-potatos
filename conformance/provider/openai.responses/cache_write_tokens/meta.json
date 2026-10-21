@@ -1,0 +1,6 @@
+{
+  "api": "openai.responses",
+  "model": "gpt-5.6",
+  "source": "synthetic",
+  "notes": "Usage with cached_tokens and cache_write_tokens among the input token details, read as cache reads and writes."
+}

@@ -1,0 +1,70 @@
+{
+  "spec_version": "0.1",
+  "description": "A section registered inside an epoch does not change the frozen system prompt; with announce_changes it reaches the model as a registry reminder, and so does its removal.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "sections": [
+      {
+        "name": "house-rules",
+        "slot": "catalog",
+        "text": "Answer in one sentence."
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Hi."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "add_section": {
+        "name": "deadline",
+        "slot": "environment",
+        "text": "The report is due Friday.",
+        "announce_changes": true
+      }
+    },
+    {
+      "send": {
+        "text": "When is it due?"
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "remove_section": "deadline"
+    },
+    {
+      "send": {
+        "text": "And now?"
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

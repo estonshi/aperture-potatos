@@ -1,0 +1,31 @@
+{
+  "body": {
+    "error": {
+      "code": "string_above_max_length",
+      "message": "Invalid 'messages[1].content': string too long.",
+      "param": null,
+      "type": "invalid_request_error"
+    }
+  },
+  "expected": {
+    "api": "openai.chat",
+    "class": "invalid_request",
+    "code": "string_above_max_length",
+    "message": "Invalid 'messages[1].content': string too long.",
+    "raw": {
+      "error": {
+        "code": "string_above_max_length",
+        "message": "Invalid 'messages[1].content': string too long.",
+        "param": null,
+        "type": "invalid_request_error"
+      }
+    },
+    "request_id": "req_bad",
+    "status": 400,
+    "type": "invalid_request_error"
+  },
+  "headers": {
+    "x-request-id": "req_bad"
+  },
+  "status": 400
+}

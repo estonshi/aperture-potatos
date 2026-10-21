@@ -1,0 +1,80 @@
+{
+  "spec_version": "0.1",
+  "description": "A side chat asked while the main session waits on a tool carries the main session's whole context: the running turn's input and the call, which the side chat's request alone answers with a placeholder result that no file stores.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "slow",
+        "description": "Takes a while.",
+        "input_schema": {
+          "type": "object"
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "fixed",
+          "text": "done",
+          "sleep_ms": 1000
+        }
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse",
+        "responses/04.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Hello."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Run the slow tool."
+      }
+    },
+    {
+      "wait": {
+        "event": "tool.started"
+      }
+    },
+    {
+      "side_chat": {
+        "name": "s",
+        "as": "s"
+      }
+    },
+    {
+      "send": {
+        "text": "What did I just ask for?"
+      },
+      "on": "s"
+    },
+    {
+      "wait": "idle",
+      "on": "s"
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

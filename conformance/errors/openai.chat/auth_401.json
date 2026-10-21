@@ -1,0 +1,27 @@
+{
+  "body": {
+    "error": {
+      "code": "invalid_api_key",
+      "message": "Incorrect API key provided.",
+      "param": null,
+      "type": "invalid_request_error"
+    }
+  },
+  "expected": {
+    "api": "openai.chat",
+    "class": "auth",
+    "code": "invalid_api_key",
+    "message": "Incorrect API key provided.",
+    "raw": {
+      "error": {
+        "code": "invalid_api_key",
+        "message": "Incorrect API key provided.",
+        "param": null,
+        "type": "invalid_request_error"
+      }
+    },
+    "status": 401,
+    "type": "invalid_request_error"
+  },
+  "status": 401
+}

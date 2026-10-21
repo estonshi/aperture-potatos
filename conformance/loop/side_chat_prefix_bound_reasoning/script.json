@@ -1,0 +1,101 @@
+{
+  "spec_version": "0.1",
+  "description": "On a model whose signatures are bound to the prefix, a side chat's requests keep the main session's thinking, whose prefix is unchanged, leave out the thinking of the side chat's earlier turns, made on another main part, and keep the thinking of the turn that is running.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "echo",
+        "description": "Echo the text back.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "echo"
+        }
+      }
+    ],
+    "capabilities": [
+      {
+        "api": "anthropic.messages",
+        "model_glob": "claude-opus-5-5*",
+        "caps": {
+          "thinking_prefix_bound": true
+        }
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse",
+        "responses/04.sse",
+        "responses/05.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Hello."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "side_chat": {
+        "name": "s",
+        "as": "s"
+      }
+    },
+    {
+      "send": {
+        "text": "What did I say?"
+      },
+      "on": "s"
+    },
+    {
+      "wait": "idle",
+      "on": "s"
+    },
+    {
+      "send": {
+        "text": "Kyoto next."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Echo Kyoto."
+      },
+      "on": "s"
+    },
+    {
+      "wait": "idle",
+      "on": "s"
+    }
+  ]
+}

@@ -1,0 +1,2938 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/estonshi/aperture-potatos/spec/schema/event.schema.json",
+  "title": "Event",
+  "description": "One event: the envelope plus a payload chosen by type. Kernel payloads are checked by type; a type this schema does not list is accepted with any data object, because consumers must ignore unknown event types. Optional fields are omitted, never null.",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)?$",
+      "description": "domain.action; kernel types are listed in $defs, extension types use the extension name as domain."
+    },
+    "seq": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Per root session, strictly increasing from 1."
+    },
+    "time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "session_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agent": {
+      "type": "string"
+    },
+    "turn_id": {
+      "type": "string"
+    },
+    "step": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "path": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/hop"
+      },
+      "description": "Nesting from the subscriber's session to the emitter; empty or absent means the subscriber's own loop."
+    },
+    "data": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "type",
+    "seq",
+    "time",
+    "session_id",
+    "agent",
+    "data"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "session.started"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/session_started"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "session.state_changed"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/session_state_changed"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "session.closed"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/session_closed"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "system.rendered"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/system_rendered"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "input.accepted"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/input_accepted"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "input.injected"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/input_injected"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "input.dropped"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/input_dropped"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "turn.started"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/turn_started"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "turn.interrupt_requested"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/turn_interrupt_requested"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "turn.completed"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/turn_completed"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "step.started"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/step_started"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "step.completed"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/step_completed"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "model.retry"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/model_retry"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "model.notice"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/model_notice"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "message.started"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/message_started"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "message.delta"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/message_delta"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "message.block"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/message_block"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "message.completed"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/message_completed"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "message.discarded"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/message_discarded"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "reasoning.started"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/reasoning_started"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "reasoning.delta"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/reasoning_delta"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "reasoning.completed"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/reasoning_completed"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "tool_call.started"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/tool_call_started"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "tool_call.delta"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/tool_call_delta"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "tool_call.completed"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/tool_call_completed"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "approval.requested"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/approval_requested"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "approval.resolved"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/approval_resolved"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "tool.started"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/tool_started"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "tool.progress"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/tool_progress"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "tool.completed"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/tool_completed"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "tool.abandoned"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/tool_abandoned"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "task.started"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/task_started"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "task.progress"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/task_progress"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "task.status_changed"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/task_status_changed"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "task.instruction"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/task_instruction"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "task.finished"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/task_finished"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "tasks.snapshot"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/tasks_snapshot"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "hook.started"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/hook_started"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "hook.completed"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/hook_completed"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "hook.failed"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/hook_failed"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "usage.updated"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/usage_updated"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "context.injected"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/context_injected"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "context.compaction_started"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/context_compaction_started"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "context.compacted"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/context_compacted"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "context.compaction_failed"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/context_compaction_failed"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "context.cleared"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/context_cleared"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "context.rewound"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/context_rewound"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "side_chat.dropped"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/side_chat_dropped"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "command.started"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/command_started"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "command.output"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/command_output"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "command.completed"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/command_completed"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "provider.switched"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/provider_switched"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "provider.switch_rejected"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/provider_switch_rejected"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "provider.raw"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/provider_raw"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "registry.changed"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/registry_changed"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "notice"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/notice"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "error"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/error"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "session_started": {
+      "type": "object",
+      "description": "Payload of session.started.",
+      "properties": {
+        "spec_version": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "new",
+            "resume",
+            "fork"
+          ]
+        },
+        "agent": {
+          "type": "string"
+        },
+        "model": {
+          "$ref": "#/$defs/model_info"
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "extensions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "capabilities": {
+          "type": "object"
+        },
+        "system_hash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "spec_version",
+        "source",
+        "agent",
+        "model",
+        "system_hash"
+      ]
+    },
+    "session_state_changed": {
+      "type": "object",
+      "description": "Payload of session.state_changed.",
+      "properties": {
+        "from": {
+          "type": "string",
+          "enum": [
+            "initializing",
+            "idle",
+            "running",
+            "maintenance",
+            "closing",
+            "closed"
+          ]
+        },
+        "to": {
+          "type": "string",
+          "enum": [
+            "initializing",
+            "idle",
+            "running",
+            "maintenance",
+            "closing",
+            "closed"
+          ]
+        }
+      },
+      "required": [
+        "from",
+        "to"
+      ]
+    },
+    "session_closed": {
+      "type": "object",
+      "description": "Payload of session.closed.",
+      "properties": {
+        "reason": {
+          "type": "string"
+        },
+        "leaked_workers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/leaked_worker"
+          }
+        }
+      },
+      "required": [
+        "reason"
+      ]
+    },
+    "system_rendered": {
+      "type": "object",
+      "description": "Payload of system.rendered.",
+      "properties": {
+        "epoch": {
+          "type": "integer"
+        },
+        "sections": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/section"
+          }
+        },
+        "hash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "epoch",
+        "hash"
+      ]
+    },
+    "input_accepted": {
+      "type": "object",
+      "description": "Payload of input.accepted.",
+      "properties": {
+        "input_id": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "queue",
+            "next_loop",
+            "interrupt"
+          ]
+        },
+        "origin": {
+          "$ref": "message.schema.json#/$defs/origin"
+        },
+        "text": {
+          "type": "string"
+        },
+        "queue_len": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "input_id",
+        "mode",
+        "origin",
+        "text",
+        "queue_len"
+      ]
+    },
+    "input_injected": {
+      "type": "object",
+      "description": "Payload of input.injected.",
+      "properties": {
+        "input_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "turn_id": {
+          "type": "string"
+        },
+        "step": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "turn_id",
+        "step"
+      ]
+    },
+    "input_dropped": {
+      "type": "object",
+      "description": "Payload of input.dropped.",
+      "properties": {
+        "input_id": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "blocked",
+            "interrupted",
+            "session_closing",
+            "cleared",
+            "merged_overflow",
+            "rewound",
+            "superseded",
+            "withdrawn"
+          ]
+        }
+      },
+      "required": [
+        "input_id",
+        "reason"
+      ]
+    },
+    "turn_started": {
+      "type": "object",
+      "description": "Payload of turn.started.",
+      "properties": {
+        "turn_id": {
+          "type": "string"
+        },
+        "trigger": {
+          "type": "string",
+          "enum": [
+            "human",
+            "command",
+            "agent",
+            "task",
+            "reminder"
+          ]
+        },
+        "input_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "turn_id",
+        "trigger"
+      ]
+    },
+    "turn_interrupt_requested": {
+      "type": "object",
+      "description": "Payload of turn.interrupt_requested.",
+      "properties": {
+        "turn_id": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "turn_id",
+        "reason"
+      ]
+    },
+    "turn_completed": {
+      "type": "object",
+      "description": "Payload of turn.completed.",
+      "properties": {
+        "turn_id": {
+          "type": "string"
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "completed",
+            "max_steps",
+            "max_tokens",
+            "refused",
+            "hook_stopped",
+            "interrupted",
+            "error",
+            "canceled"
+          ]
+        },
+        "stop_reason": {
+          "type": "string"
+        },
+        "steps": {
+          "type": "integer"
+        },
+        "usage": {
+          "$ref": "common.schema.json#/$defs/usage"
+        },
+        "error": {
+          "$ref": "#/$defs/error_info"
+        },
+        "duration_ms": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "turn_id",
+        "outcome",
+        "steps",
+        "usage",
+        "duration_ms"
+      ]
+    },
+    "step_started": {
+      "type": "object",
+      "description": "Payload of step.started.",
+      "properties": {
+        "message_id": {
+          "type": "string"
+        },
+        "api": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "attempt": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "message_id",
+        "api",
+        "model",
+        "attempt"
+      ]
+    },
+    "step_completed": {
+      "type": "object",
+      "description": "Payload of step.completed.",
+      "properties": {
+        "message_id": {
+          "type": "string"
+        },
+        "stop_reason": {
+          "type": "string"
+        },
+        "raw_stop_reason": {
+          "type": "string"
+        },
+        "usage": {
+          "$ref": "common.schema.json#/$defs/usage"
+        },
+        "ttft_ms": {
+          "type": "integer"
+        },
+        "duration_ms": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "message_id",
+        "stop_reason",
+        "usage",
+        "ttft_ms",
+        "duration_ms"
+      ]
+    },
+    "model_retry": {
+      "type": "object",
+      "description": "Payload of model.retry.",
+      "properties": {
+        "attempt": {
+          "type": "integer"
+        },
+        "error": {
+          "$ref": "#/$defs/error_info"
+        },
+        "delay_ms": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "attempt",
+        "error",
+        "delay_ms"
+      ]
+    },
+    "model_notice": {
+      "type": "object",
+      "description": "Payload of model.notice.",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "capability_adjusted",
+            "capability_lookup_failed",
+            "capability_hint",
+            "fallback",
+            "reasoning_summary_disabled",
+            "reasoning_replay_fallback",
+            "thinking_dropped",
+            "reasoning_exhausted",
+            "sequence_regression",
+            "dangling_tool_call_healed",
+            "empty_reply_continue",
+            "hosted_tool_unsupported",
+            "hosted_tool_adjusted"
+          ]
+        },
+        "detail": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind"
+      ]
+    },
+    "message_started": {
+      "type": "object",
+      "description": "Payload of message.started.",
+      "properties": {
+        "message_id": {
+          "type": "string"
+        },
+        "role": {
+          "$ref": "message.schema.json#/$defs/role"
+        }
+      },
+      "required": [
+        "message_id",
+        "role"
+      ]
+    },
+    "message_delta": {
+      "type": "object",
+      "description": "Payload of message.delta. Bulk: takes backpressure credit and may be dropped under DropDeltas.",
+      "properties": {
+        "message_id": {
+          "type": "string"
+        },
+        "block_index": {
+          "type": "integer"
+        },
+        "channel": {
+          "type": "string",
+          "enum": [
+            "text",
+            "refusal"
+          ]
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "message_id",
+        "block_index",
+        "channel",
+        "text"
+      ]
+    },
+    "message_block": {
+      "type": "object",
+      "description": "Payload of message.block: a closed opaque or hosted block, without provider wire data.",
+      "properties": {
+        "message_id": {
+          "type": "string"
+        },
+        "block_index": {
+          "type": "integer"
+        },
+        "block_type": {
+          "type": "string"
+        },
+        "opaque": {
+          "$ref": "#/$defs/opaque_info"
+        },
+        "hosted_call": {
+          "$ref": "message.schema.json#/$defs/hosted_call_block",
+          "description": "Set for a hosted_call block; native is left out."
+        },
+        "hosted_result": {
+          "$ref": "message.schema.json#/$defs/hosted_result_block",
+          "description": "Set for a hosted_result block; native is left out."
+        }
+      },
+      "required": [
+        "message_id",
+        "block_index",
+        "block_type"
+      ]
+    },
+    "message_completed": {
+      "type": "object",
+      "description": "Payload of message.completed.",
+      "properties": {
+        "message": {
+          "$ref": "message.schema.json"
+        },
+        "partial": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "message",
+        "partial"
+      ]
+    },
+    "message_discarded": {
+      "type": "object",
+      "description": "Payload of message.discarded.",
+      "properties": {
+        "message_id": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "retry",
+            "refusal",
+            "content_filter",
+            "hook_rejected",
+            "empty"
+          ]
+        },
+        "stop_details": {}
+      },
+      "required": [
+        "message_id",
+        "reason"
+      ]
+    },
+    "reasoning_started": {
+      "type": "object",
+      "description": "Payload of reasoning.started.",
+      "properties": {
+        "message_id": {
+          "type": "string"
+        },
+        "block_index": {
+          "type": "integer"
+        },
+        "kind": {
+          "$ref": "message.schema.json#/$defs/reasoning_kind"
+        }
+      },
+      "required": [
+        "message_id",
+        "block_index",
+        "kind"
+      ]
+    },
+    "reasoning_delta": {
+      "type": "object",
+      "description": "Payload of reasoning.delta. Bulk: takes backpressure credit and may be dropped under DropDeltas.",
+      "properties": {
+        "message_id": {
+          "type": "string"
+        },
+        "block_index": {
+          "type": "integer"
+        },
+        "kind": {
+          "$ref": "message.schema.json#/$defs/reasoning_kind"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "message_id",
+        "block_index",
+        "kind",
+        "text"
+      ]
+    },
+    "reasoning_completed": {
+      "type": "object",
+      "description": "Payload of reasoning.completed.",
+      "properties": {
+        "message_id": {
+          "type": "string"
+        },
+        "block_index": {
+          "type": "integer"
+        },
+        "kind": {
+          "$ref": "message.schema.json#/$defs/reasoning_kind"
+        },
+        "text": {
+          "type": "string"
+        },
+        "replayable": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "message_id",
+        "block_index",
+        "kind",
+        "text",
+        "replayable"
+      ]
+    },
+    "tool_call_started": {
+      "type": "object",
+      "description": "Payload of tool_call.started.",
+      "properties": {
+        "message_id": {
+          "type": "string"
+        },
+        "block_index": {
+          "type": "integer"
+        },
+        "call_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "message_id",
+        "block_index",
+        "call_id",
+        "name"
+      ]
+    },
+    "tool_call_delta": {
+      "type": "object",
+      "description": "Payload of tool_call.delta. Bulk: takes backpressure credit and may be dropped under DropDeltas.",
+      "properties": {
+        "message_id": {
+          "type": "string"
+        },
+        "call_id": {
+          "type": "string"
+        },
+        "args_delta": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "message_id",
+        "call_id",
+        "args_delta"
+      ]
+    },
+    "tool_call_completed": {
+      "type": "object",
+      "description": "Payload of tool_call.completed.",
+      "properties": {
+        "message_id": {
+          "type": "string"
+        },
+        "call_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "input": {
+          "type": "object"
+        },
+        "input_error": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "message_id",
+        "call_id",
+        "name"
+      ]
+    },
+    "approval_requested": {
+      "type": "object",
+      "description": "Payload of approval.requested.",
+      "properties": {
+        "approval_id": {
+          "type": "string"
+        },
+        "call_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "input": {
+          "type": "object"
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/rule_ref"
+          }
+        },
+        "batch_id": {
+          "type": "string"
+        },
+        "batch_size": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "approval_id",
+        "call_id",
+        "name",
+        "batch_id",
+        "batch_size"
+      ]
+    },
+    "approval_resolved": {
+      "type": "object",
+      "description": "Payload of approval.resolved.",
+      "properties": {
+        "approval_id": {
+          "type": "string"
+        },
+        "call_id": {
+          "type": "string"
+        },
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "approve",
+            "deny",
+            "deny_and_stop"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "by": {
+          "type": "string"
+        },
+        "input_updated": {
+          "type": "boolean"
+        },
+        "duration_ms": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "approval_id",
+        "call_id",
+        "verdict",
+        "reason",
+        "by",
+        "input_updated",
+        "duration_ms"
+      ]
+    },
+    "tool_started": {
+      "type": "object",
+      "description": "Payload of tool.started.",
+      "properties": {
+        "call_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "input": {
+          "type": "object"
+        },
+        "group": {
+          "type": "integer"
+        },
+        "movable": {
+          "type": "boolean",
+          "description": "The host may move this running call to the background."
+        }
+      },
+      "required": [
+        "call_id",
+        "name",
+        "group"
+      ]
+    },
+    "tool_progress": {
+      "type": "object",
+      "description": "Payload of tool.progress. Bulk: takes backpressure credit and may be dropped under DropDeltas.",
+      "properties": {
+        "call_id": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "data": {}
+      },
+      "required": [
+        "call_id"
+      ]
+    },
+    "tool_completed": {
+      "type": "object",
+      "description": "Payload of tool.completed.",
+      "properties": {
+        "call_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "outcome": {
+          "$ref": "message.schema.json#/$defs/outcome"
+        },
+        "is_error": {
+          "type": "boolean"
+        },
+        "content": {
+          "$ref": "message.schema.json#/$defs/content"
+        },
+        "structured": {},
+        "duration_ms": {
+          "type": "integer"
+        },
+        "original_chars": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "The length of the tool's text, in characters, when the model was given only its head and tail (limits.max_tool_result_chars); absent when nothing was cut."
+        }
+      },
+      "required": [
+        "call_id",
+        "name",
+        "outcome",
+        "is_error",
+        "duration_ms"
+      ]
+    },
+    "tool_abandoned": {
+      "type": "object",
+      "description": "Payload of tool.abandoned.",
+      "properties": {
+        "call_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "grace_ms": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "call_id",
+        "name",
+        "grace_ms"
+      ]
+    },
+    "task_started": {
+      "type": "object",
+      "description": "Payload of task.started.",
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "foreground": {
+          "type": "boolean"
+        },
+        "attempt": {
+          "type": "integer"
+        },
+        "call_id": {
+          "type": "string"
+        },
+        "continuation": {
+          "type": "boolean"
+        },
+        "detail": {
+          "$ref": "#/$defs/task_detail"
+        }
+      },
+      "required": [
+        "task_id",
+        "kind",
+        "title",
+        "foreground",
+        "attempt",
+        "continuation",
+        "detail"
+      ]
+    },
+    "task_progress": {
+      "type": "object",
+      "description": "Payload of task.progress. Bulk: takes backpressure credit and may be dropped under DropDeltas.",
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "percent": {
+          "type": "number"
+        },
+        "data": {}
+      },
+      "required": [
+        "task_id"
+      ]
+    },
+    "task_status_changed": {
+      "type": "object",
+      "description": "Payload of task.status_changed.",
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "from": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "running",
+            "waiting_input",
+            "succeeded",
+            "failed",
+            "canceled",
+            "lost"
+          ]
+        },
+        "to": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "running",
+            "waiting_input",
+            "succeeded",
+            "failed",
+            "canceled",
+            "lost"
+          ]
+        },
+        "question": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "from",
+        "to"
+      ]
+    },
+    "task_instruction": {
+      "type": "object",
+      "description": "Payload of task.instruction.",
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "instruction_id": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "queue",
+            "next_loop",
+            "interrupt"
+          ]
+        },
+        "text": {
+          "type": "string"
+        },
+        "accepted": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "instruction_id",
+        "mode",
+        "text",
+        "accepted"
+      ]
+    },
+    "task_finished": {
+      "type": "object",
+      "description": "Payload of task.finished.",
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "running",
+            "waiting_input",
+            "succeeded",
+            "failed",
+            "canceled",
+            "lost"
+          ]
+        },
+        "attempt": {
+          "type": "integer"
+        },
+        "is_error": {
+          "type": "boolean"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "unprocessed_instructions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/instruction"
+          }
+        },
+        "duration_ms": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "task_id",
+        "status",
+        "attempt",
+        "is_error",
+        "summary",
+        "duration_ms"
+      ]
+    },
+    "tasks_snapshot": {
+      "type": "object",
+      "description": "Payload of tasks.snapshot.",
+      "properties": {
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/task_summary"
+          }
+        }
+      }
+    },
+    "hook_started": {
+      "type": "object",
+      "description": "Payload of hook.started.",
+      "properties": {
+        "hook_id": {
+          "type": "string"
+        },
+        "point": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "call_id": {
+          "type": "string",
+          "description": "The tool call a per-call point (pre_tool_use, approval, post_tool_use) fired for."
+        },
+        "async": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "hook_id",
+        "point",
+        "name",
+        "async"
+      ]
+    },
+    "hook_completed": {
+      "type": "object",
+      "description": "Payload of hook.completed.",
+      "properties": {
+        "hook_id": {
+          "type": "string"
+        },
+        "point": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "call_id": {
+          "type": "string",
+          "description": "The tool call a per-call point (pre_tool_use, approval, post_tool_use) fired for."
+        },
+        "decision": {
+          "type": "string"
+        },
+        "duration_ms": {
+          "type": "integer"
+        },
+        "system_message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "hook_id",
+        "point",
+        "name",
+        "duration_ms"
+      ]
+    },
+    "hook_failed": {
+      "type": "object",
+      "description": "Payload of hook.failed.",
+      "properties": {
+        "hook_id": {
+          "type": "string"
+        },
+        "point": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "call_id": {
+          "type": "string",
+          "description": "The tool call a per-call point (pre_tool_use, approval, post_tool_use) fired for."
+        },
+        "error": {
+          "type": "string"
+        },
+        "timeout": {
+          "type": "boolean"
+        },
+        "canceled": {
+          "type": "boolean"
+        },
+        "policy_applied": {
+          "type": "string",
+          "enum": [
+            "open",
+            "closed"
+          ]
+        }
+      },
+      "required": [
+        "hook_id",
+        "point",
+        "name",
+        "error",
+        "timeout",
+        "canceled",
+        "policy_applied"
+      ]
+    },
+    "usage_updated": {
+      "type": "object",
+      "description": "Payload of usage.updated.",
+      "properties": {
+        "bucket": {
+          "type": "string"
+        },
+        "step_usage": {
+          "$ref": "common.schema.json#/$defs/usage"
+        },
+        "session_total": {
+          "$ref": "common.schema.json#/$defs/usage"
+        },
+        "forwarded": {
+          "type": "boolean"
+        },
+        "context": {
+          "$ref": "#/$defs/context_info"
+        }
+      },
+      "required": [
+        "bucket",
+        "step_usage",
+        "session_total",
+        "context"
+      ]
+    },
+    "context_injected": {
+      "type": "object",
+      "description": "Payload of context.injected.",
+      "properties": {
+        "message_id": {
+          "type": "string"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "count": {
+          "type": "integer"
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "message_id",
+        "count",
+        "truncated"
+      ]
+    },
+    "context_compaction_started": {
+      "type": "object",
+      "description": "Payload of context.compaction_started.",
+      "properties": {
+        "trigger": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "manual",
+            "overflow",
+            "switch"
+          ]
+        },
+        "pre_tokens": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "trigger",
+        "pre_tokens"
+      ]
+    },
+    "context_compacted": {
+      "type": "object",
+      "description": "Payload of context.compacted.",
+      "properties": {
+        "trigger": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "manual",
+            "overflow",
+            "switch"
+          ]
+        },
+        "strategy": {
+          "type": "string"
+        },
+        "pre_tokens": {
+          "type": "integer"
+        },
+        "post_tokens": {
+          "type": "integer"
+        },
+        "epoch": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "trigger",
+        "strategy",
+        "pre_tokens",
+        "post_tokens",
+        "epoch"
+      ]
+    },
+    "context_compaction_failed": {
+      "type": "object",
+      "description": "Payload of context.compaction_failed.",
+      "properties": {
+        "trigger": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "manual",
+            "overflow",
+            "switch"
+          ]
+        },
+        "error": {
+          "type": "string"
+        },
+        "canceled": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "trigger",
+        "error",
+        "canceled"
+      ]
+    },
+    "context_cleared": {
+      "type": "object",
+      "description": "Payload of context.cleared.",
+      "properties": {
+        "epoch": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "epoch"
+      ]
+    },
+    "context_rewound": {
+      "type": "object",
+      "description": "Payload of context.rewound.",
+      "properties": {
+        "turn_id": {
+          "type": "string"
+        },
+        "epoch": {
+          "type": "integer"
+        },
+        "dropped": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "turn_id",
+        "epoch",
+        "dropped"
+      ]
+    },
+    "side_chat_dropped": {
+      "type": "object",
+      "description": "Payload of side_chat.dropped.",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "cleared",
+            "rewound"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "reason"
+      ]
+    },
+    "command_started": {
+      "type": "object",
+      "description": "Payload of command.started.",
+      "properties": {
+        "command_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "args": {
+          "type": "string"
+        },
+        "busy": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "command_id",
+        "name",
+        "args",
+        "busy"
+      ]
+    },
+    "command_output": {
+      "type": "object",
+      "description": "Payload of command.output. Bulk: takes backpressure credit and may be dropped under DropDeltas.",
+      "properties": {
+        "command_id": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "command_id",
+        "text"
+      ]
+    },
+    "command_completed": {
+      "type": "object",
+      "description": "Payload of command.completed.",
+      "properties": {
+        "command_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "data": {},
+        "error": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "command_id",
+        "name",
+        "text"
+      ]
+    },
+    "provider_switched": {
+      "type": "object",
+      "description": "Payload of provider.switched.",
+      "properties": {
+        "from": {
+          "$ref": "#/$defs/model_name"
+        },
+        "to": {
+          "$ref": "#/$defs/model_name"
+        },
+        "dropped_reasoning": {
+          "type": "integer"
+        },
+        "dropped_opaque": {
+          "type": "integer"
+        },
+        "cache_reset": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "from",
+        "to",
+        "dropped_reasoning",
+        "dropped_opaque",
+        "cache_reset"
+      ]
+    },
+    "provider_switch_rejected": {
+      "type": "object",
+      "description": "Payload of provider.switch_rejected.",
+      "properties": {
+        "to": {
+          "$ref": "#/$defs/model_name"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "hook_blocked",
+            "capacity"
+          ]
+        }
+      },
+      "required": [
+        "to",
+        "reason"
+      ]
+    },
+    "provider_raw": {
+      "type": "object",
+      "description": "Payload of provider.raw. Bulk: takes backpressure credit and may be dropped under DropDeltas.",
+      "properties": {
+        "api": {
+          "type": "string"
+        },
+        "event": {
+          "type": "string"
+        },
+        "data": {}
+      },
+      "required": [
+        "api",
+        "event"
+      ]
+    },
+    "registry_changed": {
+      "type": "object",
+      "description": "Payload of registry.changed.",
+      "properties": {
+        "scope": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "tool",
+            "command",
+            "section",
+            "context_provider",
+            "compactor",
+            "task_kind",
+            "hosted_tool"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "op": {
+          "type": "string",
+          "enum": [
+            "add",
+            "remove",
+            "update"
+          ]
+        },
+        "effective": {
+          "type": "string",
+          "enum": [
+            "now",
+            "turn",
+            "epoch"
+          ]
+        }
+      },
+      "required": [
+        "scope",
+        "kind",
+        "name",
+        "op",
+        "effective"
+      ]
+    },
+    "notice": {
+      "type": "object",
+      "description": "Payload of notice.",
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "text"
+      ]
+    },
+    "error": {
+      "type": "object",
+      "description": "Payload of error.",
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": [
+            "subscriber_detached",
+            "store_failed",
+            "async_hook_dropped",
+            "duplicate_call",
+            "hook_recursion",
+            "worker_leaked",
+            "section_render_failed",
+            "context_provider_failed",
+            "internal"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "fatal": {
+          "type": "boolean"
+        },
+        "detail": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "fatal"
+      ]
+    },
+    "model_info": {
+      "type": "object",
+      "description": "Model identity of a session.",
+      "properties": {
+        "api": {
+          "type": "string"
+        },
+        "endpoint": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "api",
+        "endpoint",
+        "model"
+      ]
+    },
+    "model_name": {
+      "type": "object",
+      "description": "One end of a provider switch.",
+      "properties": {
+        "api": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "api",
+        "model"
+      ]
+    },
+    "leaked_worker": {
+      "type": "object",
+      "description": "A worker the runtime started that did not exit in time.",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "age_ms": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name",
+        "age_ms"
+      ]
+    },
+    "section": {
+      "type": "object",
+      "description": "One rendered system prompt section.",
+      "properties": {
+        "slot": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "chars": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "slot",
+        "name",
+        "chars"
+      ]
+    },
+    "error_info": {
+      "type": "object",
+      "description": "A classified error as events report it.",
+      "properties": {
+        "class": {
+          "type": "string"
+        },
+        "status": {
+          "type": "integer"
+        },
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "request_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "class",
+        "message"
+      ]
+    },
+    "opaque_info": {
+      "type": "object",
+      "description": "The readable part of an opaque block.",
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind"
+      ]
+    },
+    "rule_ref": {
+      "type": "object",
+      "description": "An approval rule that matched a call.",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "allow",
+            "ask",
+            "deny"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "action"
+      ]
+    },
+    "task_detail": {
+      "type": "object",
+      "description": "The spec and state an attempt starts with.",
+      "properties": {
+        "spec": {},
+        "state": {}
+      }
+    },
+    "instruction": {
+      "type": "object",
+      "description": "A task instruction as events report it.",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "data": {},
+        "mode": {
+          "type": "string",
+          "enum": [
+            "queue",
+            "next_loop",
+            "interrupt"
+          ]
+        },
+        "answer": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "text",
+        "mode"
+      ]
+    },
+    "task_summary": {
+      "type": "object",
+      "description": "One task in a tasks.snapshot.",
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "running",
+            "waiting_input",
+            "succeeded",
+            "failed",
+            "canceled",
+            "lost"
+          ]
+        },
+        "attempt": {
+          "type": "integer"
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "task_id",
+        "kind",
+        "title",
+        "status",
+        "attempt",
+        "started_at"
+      ]
+    },
+    "context_info": {
+      "type": "object",
+      "description": "Context window use after a model call.",
+      "properties": {
+        "used_tokens": {
+          "type": "integer"
+        },
+        "window_tokens": {
+          "type": "integer"
+        },
+        "threshold_tokens": {
+          "type": "integer"
+        },
+        "basis": {
+          "type": "string",
+          "enum": [
+            "reported",
+            "estimated"
+          ]
+        }
+      },
+      "required": [
+        "used_tokens",
+        "window_tokens",
+        "threshold_tokens",
+        "basis"
+      ]
+    }
+  }
+}

@@ -1,0 +1,431 @@
+{
+  "model": "gpt-5.6",
+  "tools": [
+    {
+      "name": "search",
+      "description": "Search the web.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "q"
+        ],
+        "additionalProperties": false
+      },
+      "strict": true
+    }
+  ],
+  "messages": [
+    {
+      "v": 1,
+      "id": "msg_01",
+      "session_id": "ses_01",
+      "seq": 1,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Q1"
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_02",
+      "session_id": "ses_01",
+      "seq": 2,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "kind": "summary",
+          "text": "same family",
+          "native": {
+            "api": "openai.responses",
+            "raw": {
+              "id": "rs_1",
+              "type": "reasoning",
+              "summary": [
+                {
+                  "type": "summary_text",
+                  "text": "same family"
+                }
+              ],
+              "encrypted_content": "gAAAA-1"
+            }
+          }
+        },
+        {
+          "type": "text",
+          "text": "Let me look.",
+          "native": {
+            "api": "openai.responses",
+            "raw": {
+              "id": "msg_x",
+              "type": "message",
+              "role": "assistant",
+              "status": "completed",
+              "phase": "commentary",
+              "content": [
+                {
+                  "type": "output_text",
+                  "text": "Let me look.",
+                  "annotations": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "tool_call",
+          "id": "call_1",
+          "name": "search",
+          "input": {
+            "q": "a"
+          },
+          "native": {
+            "api": "openai.responses",
+            "raw": {
+              "id": "fc_1",
+              "type": "function_call",
+              "status": "completed",
+              "call_id": "call_1",
+              "name": "search",
+              "arguments": "{\"q\":\"a\"}"
+            }
+          }
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z",
+      "producer": {
+        "api": "openai.responses",
+        "endpoint": "api.openai.com",
+        "model": "gpt-5.6"
+      }
+    },
+    {
+      "v": 1,
+      "id": "msg_03",
+      "session_id": "ses_01",
+      "seq": 3,
+      "epoch": 1,
+      "role": "tool",
+      "origin": {
+        "kind": "tool"
+      },
+      "content": [
+        {
+          "type": "tool_result",
+          "call_id": "call_1",
+          "name": "search",
+          "content": [
+            {
+              "type": "text",
+              "text": "r"
+            }
+          ],
+          "outcome": "success"
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_04",
+      "session_id": "ses_01",
+      "seq": 4,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "kind": "summary",
+          "text": "no encrypted content",
+          "native": {
+            "api": "openai.responses",
+            "raw": {
+              "id": "rs_2",
+              "type": "reasoning",
+              "summary": []
+            }
+          }
+        },
+        {
+          "type": "text",
+          "text": "A2"
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z",
+      "producer": {
+        "api": "openai.responses",
+        "endpoint": "api.openai.com",
+        "model": "gpt-5.6"
+      }
+    },
+    {
+      "v": 1,
+      "id": "msg_05",
+      "session_id": "ses_01",
+      "seq": 5,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Q3"
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_06",
+      "session_id": "ses_01",
+      "seq": 6,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "kind": "summary",
+          "text": "other family",
+          "native": {
+            "api": "openai.responses",
+            "raw": {
+              "id": "rs_3",
+              "type": "reasoning",
+              "summary": [],
+              "encrypted_content": "gAAAA-3"
+            }
+          }
+        },
+        {
+          "type": "text",
+          "text": "A3"
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z",
+      "producer": {
+        "api": "openai.responses",
+        "endpoint": "api.openai.com",
+        "model": "o5-mini"
+      }
+    },
+    {
+      "v": 1,
+      "id": "msg_07",
+      "session_id": "ses_01",
+      "seq": 7,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Q4"
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_08",
+      "session_id": "ses_01",
+      "seq": 8,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "A4"
+        },
+        {
+          "type": "reasoning",
+          "kind": "summary",
+          "text": "trailing, interrupted",
+          "native": {
+            "api": "openai.responses",
+            "raw": {
+              "id": "rs_4",
+              "type": "reasoning",
+              "summary": [],
+              "encrypted_content": "gAAAA-4"
+            }
+          }
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z",
+      "producer": {
+        "api": "openai.responses",
+        "endpoint": "api.openai.com",
+        "model": "gpt-5.6"
+      },
+      "partial": true
+    },
+    {
+      "v": 1,
+      "id": "msg_09",
+      "session_id": "ses_01",
+      "seq": 9,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Q5"
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_10",
+      "session_id": "ses_01",
+      "seq": 10,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "kind": "raw",
+          "text": "raw reasoning from this endpoint",
+          "native": {
+            "api": "openai.responses",
+            "raw": {
+              "id": "rs_5",
+              "type": "reasoning",
+              "summary": [],
+              "content": [
+                {
+                  "type": "reasoning_text",
+                  "text": "raw reasoning from this endpoint"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "text",
+          "text": "A5"
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z",
+      "producer": {
+        "api": "openai.responses",
+        "endpoint": "api.openai.com",
+        "model": "gpt-5.6"
+      }
+    },
+    {
+      "v": 1,
+      "id": "msg_11",
+      "session_id": "ses_01",
+      "seq": 11,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Q6"
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z"
+    },
+    {
+      "v": 1,
+      "id": "msg_12",
+      "session_id": "ses_01",
+      "seq": 12,
+      "epoch": 1,
+      "role": "assistant",
+      "origin": {
+        "kind": "model"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "kind": "raw",
+          "text": "raw reasoning from another endpoint",
+          "native": {
+            "api": "openai.responses",
+            "raw": {
+              "id": "rs_6",
+              "type": "reasoning",
+              "summary": [],
+              "content": [
+                {
+                  "type": "reasoning_text",
+                  "text": "raw reasoning from another endpoint"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "text",
+          "text": "A6"
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z",
+      "producer": {
+        "api": "openai.responses",
+        "endpoint": "gw.example",
+        "model": "gpt-5.6"
+      }
+    },
+    {
+      "v": 1,
+      "id": "msg_13",
+      "session_id": "ses_01",
+      "seq": 13,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Q7"
+        }
+      ],
+      "ts": "2026-09-28T08:00:00Z"
+    }
+  ]
+}

@@ -1,0 +1,160 @@
+{
+  "spec_version": "0.1",
+  "description": "Reviewer a approves, then reviewer b approves with a rewritten statement; the round restarts so a decides again on the new bytes, told what it approved before, and the tool runs the final input.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "sql_exec",
+        "description": "Run one SQL statement.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "database": {
+              "type": "string"
+            },
+            "statement": {
+              "type": "string"
+            },
+            "read_only": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "database",
+            "statement"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "echo"
+        }
+      }
+    ],
+    "approval_rules": [
+      {
+        "id": "no-drop",
+        "tool": "sql_exec",
+        "when": {
+          "statement": {
+            "regex": "\\s*[dD][rR][oO][pP]\\b[\\s\\S]*"
+          }
+        },
+        "action": "deny",
+        "reason": "DROP statements are never allowed"
+      },
+      {
+        "id": "prod-writes",
+        "tool": "sql_exec",
+        "when": {
+          "database": {
+            "eq": "prod"
+          }
+        },
+        "action": "ask",
+        "reason": "writes to the production database"
+      },
+      {
+        "id": "prod-read-only",
+        "tool": "sql_exec",
+        "when": {
+          "database": {
+            "eq": "prod"
+          },
+          "read_only": {
+            "eq": true
+          }
+        },
+        "action": "allow"
+      },
+      {
+        "id": "http-mutations",
+        "tool": "http_*",
+        "when": {
+          "method": {
+            "in": [
+              "POST",
+              "PUT",
+              "DELETE"
+            ]
+          }
+        },
+        "action": "ask",
+        "reason": "changes remote state"
+      },
+      {
+        "id": "system-files",
+        "tool": "write_file",
+        "when": {
+          "path": {
+            "prefix": "/etc/",
+            "normalize": "path"
+          }
+        },
+        "action": "deny",
+        "reason": "system configuration is read-only"
+      }
+    ],
+    "hooks": [
+      {
+        "point": "approval",
+        "name": "a",
+        "calls": [
+          {
+            "output": {
+              "verdict": "approve"
+            }
+          }
+        ]
+      },
+      {
+        "point": "approval",
+        "name": "b",
+        "priority": 1,
+        "calls": [
+          {
+            "output": {
+              "verdict": "approve",
+              "updated_input": {
+                "database": "prod",
+                "statement": "SELECT * FROM orders LIMIT 100"
+              }
+            }
+          },
+          {
+            "output": {
+              "verdict": "approve"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "List the orders."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

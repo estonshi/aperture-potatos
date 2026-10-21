@@ -1,0 +1,11 @@
+{
+  "context_window": 200000,
+  "max_output_tokens": 64000,
+  "sampling_with_thinking": "top_p_only",
+  "reasoning": {
+    "modes": [
+      "enabled"
+    ],
+    "budget_min": 1024
+  }
+}

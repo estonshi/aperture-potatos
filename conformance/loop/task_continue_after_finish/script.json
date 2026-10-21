@@ -1,0 +1,90 @@
+{
+  "spec_version": "0.1",
+  "description": "An instruction to a finished job whose kind supports continuation starts attempt 2 in the background with the saved state and that instruction; it is notified like the first.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "task_kinds": [
+      {
+        "name": "job",
+        "caps": {
+          "instructions": true,
+          "continue": true
+        }
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-29T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "task": {
+        "start": {
+          "kind": "job",
+          "title": "Hotels",
+          "input": {
+            "title": "Hotels"
+          }
+        }
+      }
+    },
+    {
+      "task": {
+        "step": "task_01",
+        "do": {
+          "save": {
+            "city": "Kyoto"
+          }
+        }
+      }
+    },
+    {
+      "task": {
+        "step": "task_01",
+        "do": {
+          "succeed": "Kyoto: 3 hotels."
+        }
+      }
+    },
+    {
+      "wait_quiet": true
+    },
+    {
+      "task": {
+        "send": "task_01",
+        "text": "Now Osaka."
+      }
+    },
+    {
+      "task": {
+        "step": "task_01",
+        "do": {
+          "succeed": "Osaka: 2 hotels."
+        }
+      }
+    },
+    {
+      "wait_quiet": true
+    },
+    {
+      "task": {
+        "get": "task_01"
+      }
+    }
+  ]
+}

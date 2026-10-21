@@ -1,0 +1,2 @@
+{"input":{"agent":"Tater","est_tokens":0,"model":"claude-opus-5-5","params":{"max_output_tokens":64000},"session_id":"ses_01","step":1,"tool_names":["echo"],"turn_id":"turn_01"},"name":"canned","point":"pre_model_request"}
+{"input":{"agent":"Tater","est_tokens":0,"model":"claude-opus-5-5","params":{"max_output_tokens":64000},"session_id":"ses_01","step":2,"tool_names":["echo"],"turn_id":"turn_01"},"name":"canned","point":"pre_model_request"}

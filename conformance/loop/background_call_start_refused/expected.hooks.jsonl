@@ -1,0 +1,2 @@
+{"input":{"agent":"Tater","attempt":1,"call_id":"toolu_01","continuation":false,"session_id":"ses_01","spec":{"input":{"input":{"target":"all"},"tool":"run_build"},"kind":"tool_exec","title":"run_build"},"turn_id":"turn_01"},"name":"gate","point":"task_start"}
+{"input":{"agent":"Tater","attempt":1,"continuation":false,"session_id":"ses_01","spec":{"input":{},"kind":"job","title":"hold"}},"name":"gate","point":"task_start"}

@@ -1,0 +1,28 @@
+{
+  "model": "claude-opus-5-5",
+  "messages": [
+    {
+      "v": 1,
+      "id": "m1",
+      "session_id": "s",
+      "seq": 1,
+      "epoch": 1,
+      "role": "user",
+      "origin": {
+        "kind": "human"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Weather in Osaka?"
+        }
+      ],
+      "ts": "2026-09-27T08:00:00Z"
+    }
+  ],
+  "params": {
+    "reasoning": {
+      "mode": "on"
+    }
+  }
+}

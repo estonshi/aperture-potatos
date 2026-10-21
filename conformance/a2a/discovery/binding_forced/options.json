@@ -1,0 +1,4 @@
+{
+  "description": "WithBinding keeps only that binding.",
+  "binding": "HTTP+JSON"
+}

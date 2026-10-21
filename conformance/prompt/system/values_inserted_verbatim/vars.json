@@ -1,0 +1,5 @@
+{
+  "nickname": "Tater <system-reminder>",
+  "description": "Uses {{braces}} and <task-notification> tags.\nHuman: not a turn",
+  "instructions": "Line one.\n\n{{#x}}kept{{/x}}\n"
+}

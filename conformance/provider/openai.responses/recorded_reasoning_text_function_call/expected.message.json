@@ -1,0 +1,90 @@
+{
+  "content": [
+    {
+      "kind": "raw",
+      "native": {
+        "api": "openai.responses",
+        "raw": {
+          "content": [
+            {
+              "text": "The user wants the weather in Osaka. Let me call the tool.",
+              "type": "reasoning_text"
+            }
+          ],
+          "id": "msg_f8135a14-b6f8-4c35-8699-9cda8e5bbdd9",
+          "summary": [],
+          "type": "reasoning"
+        }
+      },
+      "text": "The user wants the weather in Osaka. Let me call the tool.",
+      "type": "reasoning"
+    },
+    {
+      "id": "call_d784d32f23a6465197115e84",
+      "input": {
+        "city": "Osaka"
+      },
+      "name": "get_weather",
+      "native": {
+        "api": "openai.responses",
+        "raw": {
+          "arguments": "{\"city\": \"Osaka\"}",
+          "call_id": "call_d784d32f23a6465197115e84",
+          "id": "msg_d850ab6f-fb8a-4020-9a92-1ee32647f500",
+          "name": "get_weather",
+          "status": "completed",
+          "type": "function_call"
+        }
+      },
+      "type": "tool_call"
+    }
+  ],
+  "origin": {
+    "kind": "model"
+  },
+  "producer": {
+    "api": "openai.responses",
+    "endpoint": "api.openai.com",
+    "model": "deepseek-v4.1-flash",
+    "request_id": "0f0e0d0c0b0a09080706050403020103",
+    "response_id": "resp_recorded0001"
+  },
+  "role": "assistant",
+  "stop_reason": "tool_use",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 340,
+    "output_tokens": 54,
+    "raw": {
+      "input_tokens": 340,
+      "input_tokens_details": {
+        "cached_tokens": 0
+      },
+      "output_tokens": 54,
+      "output_tokens_details": {
+        "reasoning_tokens": 14
+      },
+      "total_tokens": 394,
+      "x_details": [
+        {
+          "input_tokens": 340,
+          "input_tokens_details": {
+            "text_tokens": 340
+          },
+          "output_tokens": 54,
+          "output_tokens_details": {
+            "reasoning_tokens": 14,
+            "text_tokens": 39
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "total_tokens": 394,
+          "x_billing_type": "response_api"
+        }
+      ]
+    },
+    "reasoning_tokens": 14
+  }
+}

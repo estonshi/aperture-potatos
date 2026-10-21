@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/estonshi/aperture-potatos/spec/ext/peer/events.schema.json",
+  "title": "Peer events",
+  "description": "One event of this extension: the kernel envelope (event.schema.json) with the payload chosen by type.",
+  "allOf": [
+    {
+      "$ref": "../../schema/event.schema.json"
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "peer.auth_required"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/peer_auth_required"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "peer_auth_required": {
+      "type": "object",
+      "description": "A peer wants credentials; published under the task's hop before the hook runs.",
+      "properties": {
+        "peer": {
+          "type": "string"
+        },
+        "task_id": {
+          "type": "string"
+        },
+        "context_id": {
+          "type": "string"
+        },
+        "status": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "HTTP status of a rejected request; absent when the task itself entered auth-required."
+        },
+        "detail": {
+          "type": "string"
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "peer",
+        "attempt"
+      ]
+    }
+  }
+}

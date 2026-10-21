@@ -1,0 +1,94 @@
+{
+  "spec_version": "0.1",
+  "description": "set_labels merges by key, an empty value removing it; a fork and a side chat start with the labels of their source, and find_sessions returns top-level sessions only, so the fork is found and the side chat, even after changing its own labels, is not.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": []
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "session": {
+    "labels": {
+      "team": "a",
+      "user_id": "u1"
+    }
+  },
+  "actions": [
+    {
+      "set_labels": {
+        "user_id": "u2",
+        "tier": "gold"
+      }
+    },
+    {
+      "set_labels": {
+        "tier": ""
+      }
+    },
+    {
+      "labels": true
+    },
+    {
+      "set_labels": {
+        "": "x"
+      },
+      "error": "invalid name"
+    },
+    {
+      "send": {
+        "text": "Hello."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "fork": {
+        "as": "f"
+      }
+    },
+    {
+      "side_chat": {
+        "name": "s",
+        "as": "s"
+      }
+    },
+    {
+      "labels": true,
+      "on": "s"
+    },
+    {
+      "find_sessions": {
+        "team": "a"
+      }
+    },
+    {
+      "set_labels": {
+        "team": "c"
+      },
+      "on": "s"
+    },
+    {
+      "find_sessions": {
+        "team": "c"
+      }
+    },
+    {
+      "find_sessions": {}
+    }
+  ]
+}

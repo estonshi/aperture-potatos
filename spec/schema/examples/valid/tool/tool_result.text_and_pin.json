@@ -1,0 +1,1 @@
+{"content": [{"type": "text", "text": "3 tests failed."}], "is_error": true, "structured": {"failed": 3}, "pin": {"key": "tests", "content": "3 failing", "max_tokens": 50}}

@@ -1,0 +1,4 @@
+{
+  "description": "A card fetched over https may not point to plain http, even on its own host.",
+  "base_url": "https://a.test"
+}

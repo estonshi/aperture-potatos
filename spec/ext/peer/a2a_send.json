@@ -1,0 +1,14 @@
+{
+  "name": "a2a_send",
+  "description": "Send a message to another agent listed in <available_agents> and return its reply. The other agent cannot see this conversation, so put everything it needs into message. A later message to the same agent continues the same conversation unless new_conversation is set.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "agent": { "type": "string", "enum": [], "description": "Name of the agent, from <available_agents>." },
+      "message": { "type": "string", "description": "The complete message for that agent." },
+      "new_conversation": { "type": "boolean", "default": false, "description": "Start a fresh conversation with that agent." }
+    },
+    "required": ["agent", "message"],
+    "additionalProperties": false
+  }
+}

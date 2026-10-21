@@ -1,0 +1,56 @@
+{
+  "spec_version": "0.1",
+  "clock": {
+    "start": "2026-10-13T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "description": "A registered web search reaches the request as the API's own tool; the search and its sources come back as hosted blocks, the count reaches the usage totals, and the dropped context_size is announced once.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "hosted_tools": [
+      {
+        "name": "web_search",
+        "web_search": {
+          "max_uses": 2,
+          "context_size": "low"
+        }
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "send": {
+        "text": "What is the weather in Osaka?"
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Thanks."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "ledger": {
+        "usage": true
+      }
+    }
+  ]
+}

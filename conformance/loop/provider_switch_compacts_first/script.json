@@ -1,0 +1,69 @@
+{
+  "spec_version": "0.1",
+  "description": "The history does not fit the window of the model switched to, so the turn the switch takes effect in first compacts with trigger switch on the current model, then runs on the new one.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "capabilities": [
+      {
+        "api": "anthropic.messages",
+        "model_glob": "claude-small",
+        "caps": {
+          "context_window": 1000,
+          "max_output_tokens": 64
+        }
+      }
+    ],
+    "compactor": {
+      "summary": "The user said hi.",
+      "keep": "none"
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    },
+    {
+      "name": "small",
+      "api": "anthropic.messages",
+      "model": "claude-small",
+      "responses": [
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Hi."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "switch_model": {
+        "provider": "small"
+      }
+    },
+    {
+      "send": {
+        "text": "Again."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "spec_version": "0.1",
+  "description": "A task's Run that waits on its own session with WaitQuiet is refused as re-entrant instead of waiting for itself.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "task_kinds": [
+      {
+        "name": "job",
+        "caps": {},
+        "auto": [
+          {
+            "wait_quiet": true
+          },
+          {
+            "succeed": "checked"
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-29T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "task": {
+        "start": {
+          "kind": "job",
+          "title": "Job",
+          "input": {
+            "title": "Job"
+          }
+        }
+      }
+    },
+    {
+      "wait_quiet": true
+    }
+  ]
+}

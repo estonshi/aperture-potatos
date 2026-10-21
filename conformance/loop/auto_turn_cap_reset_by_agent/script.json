@@ -1,0 +1,92 @@
+{
+  "spec_version": "0.1",
+  "description": "An input from another agent resets the count of automatic turns as a human one does: after it, a reminder starts a turn of its own again.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "limits": {
+      "max_consecutive_auto_turns": 2
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse",
+        "responses/04.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Disk at 80%.",
+        "origin": {
+          "kind": "reminder",
+          "source": "monitor"
+        }
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Disk at 90%.",
+        "origin": {
+          "kind": "reminder",
+          "source": "monitor"
+        }
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Disk at 95%.",
+        "origin": {
+          "kind": "reminder",
+          "source": "monitor"
+        }
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Status?",
+        "origin": {
+          "kind": "agent",
+          "source": "agent:Planner"
+        }
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Disk at 97%.",
+        "origin": {
+          "kind": "reminder",
+          "source": "monitor"
+        }
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

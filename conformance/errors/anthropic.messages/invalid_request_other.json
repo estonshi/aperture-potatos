@@ -1,0 +1,27 @@
+{
+  "body": {
+    "error": {
+      "message": "tools.0.name: String should match pattern '^[a-zA-Z0-9_-]{1,128}$'",
+      "type": "invalid_request_error"
+    },
+    "request_id": "req_011CErr",
+    "type": "error"
+  },
+  "expected": {
+    "api": "anthropic.messages",
+    "class": "invalid_request",
+    "message": "tools.0.name: String should match pattern '^[a-zA-Z0-9_-]{1,128}$'",
+    "raw": {
+      "error": {
+        "message": "tools.0.name: String should match pattern '^[a-zA-Z0-9_-]{1,128}$'",
+        "type": "invalid_request_error"
+      },
+      "request_id": "req_011CErr",
+      "type": "error"
+    },
+    "request_id": "req_011CErr",
+    "status": 400,
+    "type": "invalid_request_error"
+  },
+  "status": 400
+}

@@ -1,0 +1,5 @@
+{"kind":"start","response_id":"resp_01"}
+{"block_type":"text","kind":"block_start"}
+{"channel":"text","kind":"text_delta","text":"Hi"}
+{"block":{"native":{"api":"openai.responses","raw":{"content":[{"annotations":[],"text":"Hi","type":"output_text"}],"id":"msg_s","role":"assistant","status":"completed","type":"message"}},"text":"Hi","type":"text"},"block_type":"text","kind":"block_stop"}
+{"error":{"api":"openai.responses","class":"transient","code":"server_error","message":"Something went wrong.","mid_stream":true,"raw":{"error":{"code":"server_error","message":"Something went wrong."}}}}

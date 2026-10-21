@@ -1,0 +1,63 @@
+{
+  "spec_version": "0.1",
+  "description": "A skill the model loaded is pinned, so after a compaction the new epoch head carries its body, and loading it again only points back at it. The skill has no command, so the case does not depend on when commands are registered.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "extensions": {
+      "skills": {
+        "files": {
+          "pdf-processing/SKILL.md": "---\nname: pdf-processing\ndescription: Extract PDF text, fill forms, merge files. Use when handling PDFs.\nuser-invocable: false\n---\n\n# PDF processing\n\nFill every field, then flatten the form.\n"
+        }
+      }
+    },
+    "compactor": {
+      "instructions": "Summarize the conversation.",
+      "keep": "none"
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse",
+        "responses/04.sse",
+        "responses/05.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-30T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Fill in the form in a.pdf."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "compact": {}
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Now the form in b.pdf."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

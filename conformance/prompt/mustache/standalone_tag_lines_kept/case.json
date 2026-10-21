@@ -1,0 +1,8 @@
+{
+  "template": "line1\n{{#desc}}\nbody\n{{/desc}}\nline2\n{{! note }}\nend",
+  "vars": {
+    "name": "Tater",
+    "desc": "Plans trips.",
+    "empty": ""
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "max_completion_tokens": 32000,
+  "messages": [
+    {
+      "content": "<runtime-conventions>\nConventions ...\n</runtime-conventions>\n\n<identity>\nYour name is Tater.\n</identity>",
+      "role": "developer"
+    },
+    {
+      "content": "Hi",
+      "role": "user"
+    }
+  ],
+  "model": "o5-mini",
+  "reasoning_effort": "low",
+  "stream": true,
+  "stream_options": {
+    "include_obfuscation": false,
+    "include_usage": true
+  }
+}

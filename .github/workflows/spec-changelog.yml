@@ -1,0 +1,28 @@
+name: spec changelog
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Spec and fixture changes have a changelog entry
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [ "$EVENT" = pull_request ]; then
+            range="origin/$BASE_REF...HEAD"
+          elif [ -n "$(printf '%s' "$BEFORE" | tr -d 0)" ]; then
+            range="$BEFORE..HEAD"
+          else
+            echo "A new branch has no earlier commit to compare with."
+            exit 0
+          fi
+          .github/scripts/check-changelog.sh "$range"

@@ -1,0 +1,200 @@
+{
+  "spec_version": "0.1",
+  "description": "Two calls of one batch need review; both requests go out together with one batch id, the batch waits for both verdicts, then the approved call and the allowed one run and the declined one is denied.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "sql_exec",
+        "description": "Run one SQL statement.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "database": {
+              "type": "string"
+            },
+            "statement": {
+              "type": "string"
+            },
+            "read_only": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "database",
+            "statement"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "fixed",
+          "text": "3 rows affected."
+        }
+      },
+      {
+        "name": "http_post",
+        "description": "Send an HTTP request.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "method": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url",
+            "method"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "fixed",
+          "text": "201 Created"
+        }
+      },
+      {
+        "name": "get_weather",
+        "description": "Current weather for a city.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "city": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "city"
+          ]
+        },
+        "concurrency": "parallel",
+        "behavior": {
+          "type": "fixed",
+          "text": "Sunny, 24C."
+        }
+      }
+    ],
+    "approval_rules": [
+      {
+        "id": "no-drop",
+        "tool": "sql_exec",
+        "when": {
+          "statement": {
+            "regex": "\\s*[dD][rR][oO][pP]\\b[\\s\\S]*"
+          }
+        },
+        "action": "deny",
+        "reason": "DROP statements are never allowed"
+      },
+      {
+        "id": "prod-writes",
+        "tool": "sql_exec",
+        "when": {
+          "database": {
+            "eq": "prod"
+          }
+        },
+        "action": "ask",
+        "reason": "writes to the production database"
+      },
+      {
+        "id": "prod-read-only",
+        "tool": "sql_exec",
+        "when": {
+          "database": {
+            "eq": "prod"
+          },
+          "read_only": {
+            "eq": true
+          }
+        },
+        "action": "allow"
+      },
+      {
+        "id": "http-mutations",
+        "tool": "http_*",
+        "when": {
+          "method": {
+            "in": [
+              "POST",
+              "PUT",
+              "DELETE"
+            ]
+          }
+        },
+        "action": "ask",
+        "reason": "changes remote state"
+      },
+      {
+        "id": "system-files",
+        "tool": "write_file",
+        "when": {
+          "path": {
+            "prefix": "/etc/",
+            "normalize": "path"
+          }
+        },
+        "action": "deny",
+        "reason": "system configuration is read-only"
+      }
+    ],
+    "hooks": [
+      {
+        "point": "approval",
+        "name": "ui",
+        "cases": [
+          {
+            "when": {
+              "call.name": "sql_exec"
+            },
+            "call": {
+              "output": {
+                "verdict": "approve"
+              }
+            }
+          },
+          {
+            "when": {
+              "call.name": "http_post"
+            },
+            "call": {
+              "output": {
+                "verdict": "deny",
+                "reason": "declined by the user"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Ship order 7, notify the shop, and check Osaka's weather."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "api": "openai.chat",
+  "model": "llama-3.3",
+  "source": "synthetic",
+  "notes": "A llama.cpp-style server sends one call with an empty id and one without an id; each gets a fresh unique id instead of an empty one."
+}

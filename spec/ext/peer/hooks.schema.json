@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/estonshi/aperture-potatos/spec/ext/peer/hooks.schema.json",
+  "title": "Peer hook points",
+  "description": "The JSON form of this extension's hook points: <point>_input carries the kernel hook environment, <point>_output is what a hook answers.",
+  "$defs": {
+    "peer_auth_required_input": {
+      "type": "object",
+      "description": "A peer rejected the credentials or asked for authorization.",
+      "allOf": [
+        {
+          "$ref": "../../schema/hook.schema.json#/$defs/env"
+        }
+      ],
+      "properties": {
+        "peer": {
+          "type": "string"
+        },
+        "task_id": {
+          "type": "string"
+        },
+        "context_id": {
+          "type": "string"
+        },
+        "status": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "HTTP status of a rejected request; absent when the task itself entered auth-required."
+        },
+        "detail": {
+          "type": "string"
+        },
+        "data": {
+          "description": "Extra detail from the peer, as it sent it."
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "peer",
+        "attempt"
+      ]
+    },
+    "peer_auth_required_output": {
+      "type": "object",
+      "description": "Retry means the host fixed the credentials out of band.",
+      "properties": {
+        "retry": {
+          "type": "boolean"
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Sent first, in a message without parts, to a task waiting for credentials."
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

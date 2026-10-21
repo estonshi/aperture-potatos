@@ -1,0 +1,27 @@
+{
+  "body": {
+    "error": {
+      "code": "model_not_found",
+      "message": "The model `gpt-9` does not exist or you do not have access to it.",
+      "param": null,
+      "type": "invalid_request_error"
+    }
+  },
+  "expected": {
+    "api": "openai.responses",
+    "class": "not_found",
+    "code": "model_not_found",
+    "message": "The model `gpt-9` does not exist or you do not have access to it.",
+    "raw": {
+      "error": {
+        "code": "model_not_found",
+        "message": "The model `gpt-9` does not exist or you do not have access to it.",
+        "param": null,
+        "type": "invalid_request_error"
+      }
+    },
+    "status": 404,
+    "type": "invalid_request_error"
+  },
+  "status": 404
+}

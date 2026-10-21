@@ -1,0 +1,12 @@
+/.idea/
+/.vscode/
+.DS_Store
+*.test
+*.out
+/coverage*
+/docs/
+/.claude
+go.work
+go.work.sum
+*.prof
+.env

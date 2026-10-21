@@ -1,0 +1,1 @@
+{"decision": "deny", "reason": "the database is read-only today", "system_message": "Blocked a write to prod."}

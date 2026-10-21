@@ -1,0 +1,34 @@
+data: {"type":"response.created","response":{"id":"resp_recorded0001","created_at":1790588506,"metadata":{},"model":"deepseek-v4.1-flash","object":"response","output":[],"parallel_tool_calls":true,"temperature":1.0,"tool_choice":"auto","tools":[{"name":"get_weather","parameters":{"type":"object","properties":{"city":{"type":"string"}},"required":["city"],"additionalProperties":false},"strict":false,"type":"function","description":"Get the current weather for a city."}],"top_p":1.0,"max_output_tokens":2048,"status":"queued","truncation":"disabled","store":false,"background":false,"service_tier":"default","top_logprobs":0,"completed_at":1790588506,"frequency_penalty":0.0,"presence_penalty":0.0},"sequence_number":0,"model":"deepseek-v4.1-flash"}
+
+data: {"type":"response.in_progress","response":{"id":"resp_recorded0001","created_at":1790588506,"metadata":{},"model":"deepseek-v4.1-flash","object":"response","output":[],"parallel_tool_calls":true,"temperature":1.0,"tool_choice":"auto","tools":[{"name":"get_weather","parameters":{"type":"object","properties":{"city":{"type":"string"}},"required":["city"],"additionalProperties":false},"strict":false,"type":"function","description":"Get the current weather for a city."}],"top_p":1.0,"max_output_tokens":2048,"status":"in_progress","truncation":"disabled","store":false,"background":false,"service_tier":"default","top_logprobs":0,"completed_at":1790588506,"frequency_penalty":0.0,"presence_penalty":0.0},"sequence_number":1,"model":"deepseek-v4.1-flash"}
+
+data: {"type":"response.output_item.added","output_index":0,"item":{"id":"msg_f8135a14-b6f8-4c35-8699-9cda8e5bbdd9","summary":[],"type":"reasoning","content":[]},"sequence_number":2,"model":"deepseek-v4.1-flash"}
+
+data: {"type":"response.reasoning_text.delta","content_index":0,"delta":"The","item_id":"msg_f8135a14-b6f8-4c35-8699-9cda8e5bbdd9","output_index":0,"sequence_number":3,"model":"deepseek-v4.1-flash"}
+
+data: {"type":"response.reasoning_text.delta","content_index":0,"delta":" user wants the","item_id":"msg_f8135a14-b6f8-4c35-8699-9cda8e5bbdd9","output_index":0,"sequence_number":4,"model":"deepseek-v4.1-flash"}
+
+data: {"type":"response.reasoning_text.delta","content_index":0,"delta":" weather in Osaka. Let me","item_id":"msg_f8135a14-b6f8-4c35-8699-9cda8e5bbdd9","output_index":0,"sequence_number":5,"model":"deepseek-v4.1-flash"}
+
+data: {"type":"response.reasoning_text.delta","content_index":0,"delta":" call the tool.","item_id":"msg_f8135a14-b6f8-4c35-8699-9cda8e5bbdd9","output_index":0,"sequence_number":6,"model":"deepseek-v4.1-flash"}
+
+data: {"type":"response.reasoning_text.delta","content_index":0,"delta":"","item_id":"msg_f8135a14-b6f8-4c35-8699-9cda8e5bbdd9","output_index":0,"sequence_number":7,"model":"deepseek-v4.1-flash"}
+
+data: {"type":"response.reasoning_text.done","content_index":0,"item_id":"msg_f8135a14-b6f8-4c35-8699-9cda8e5bbdd9","output_index":0,"sequence_number":8,"text":"The user wants the weather in Osaka. Let me call the tool.","model":"deepseek-v4.1-flash"}
+
+data: {"type":"response.output_item.done","output_index":0,"sequence_number":9,"item":{"id":"msg_f8135a14-b6f8-4c35-8699-9cda8e5bbdd9","summary":[],"type":"reasoning","content":[{"text":"The user wants the weather in Osaka. Let me call the tool.","type":"reasoning_text"}]},"model":"deepseek-v4.1-flash"}
+
+data: {"type":"response.output_item.added","output_index":1,"item":{"arguments":"","call_id":"call_d784d32f23a6465197115e84","name":"get_weather","type":"function_call","id":"msg_d850ab6f-fb8a-4020-9a92-1ee32647f500","status":"in_progress"},"sequence_number":10,"model":"deepseek-v4.1-flash"}
+
+data: {"type":"response.function_call_arguments.delta","item_id":"msg_d850ab6f-fb8a-4020-9a92-1ee32647f500","output_index":1,"delta":"","sequence_number":11,"model":"deepseek-v4.1-flash"}
+
+data: {"type":"response.function_call_arguments.delta","item_id":"msg_d850ab6f-fb8a-4020-9a92-1ee32647f500","output_index":1,"delta":"{","sequence_number":12,"model":"deepseek-v4.1-flash"}
+
+data: {"type":"response.function_call_arguments.delta","item_id":"msg_d850ab6f-fb8a-4020-9a92-1ee32647f500","output_index":1,"delta":"\"city\": \"Osaka\"}","sequence_number":13,"model":"deepseek-v4.1-flash"}
+
+data: {"type":"response.function_call_arguments.done","item_id":"msg_d850ab6f-fb8a-4020-9a92-1ee32647f500","output_index":1,"arguments":"{\"city\": \"Osaka\"}","name":"get_weather","sequence_number":14,"model":"deepseek-v4.1-flash"}
+
+data: {"type":"response.output_item.done","output_index":1,"sequence_number":15,"item":{"arguments":"{\"city\": \"Osaka\"}","call_id":"call_d784d32f23a6465197115e84","name":"get_weather","type":"function_call","id":"msg_d850ab6f-fb8a-4020-9a92-1ee32647f500","status":"completed"},"model":"deepseek-v4.1-flash"}
+
+data: {"type":"response.completed","response":{"id":"resp_recorded0001","created_at":1790588506,"metadata":{},"model":"deepseek-v4.1-flash","object":"response","output":[{"id":"msg_f8135a14-b6f8-4c35-8699-9cda8e5bbdd9","summary":[],"type":"reasoning","content":[{"text":"The user wants the weather in Osaka. Let me call the tool.","type":"reasoning_text"}]},{"arguments":"{\"city\": \"Osaka\"}","call_id":"call_d784d32f23a6465197115e84","name":"get_weather","type":"function_call","id":"msg_d850ab6f-fb8a-4020-9a92-1ee32647f500","status":"completed"}],"parallel_tool_calls":true,"temperature":1.0,"tool_choice":"auto","tools":[{"name":"get_weather","parameters":{"type":"object","properties":{"city":{"type":"string"}},"required":["city"],"additionalProperties":false},"strict":false,"type":"function","description":"Get the current weather for a city."}],"top_p":1.0,"max_output_tokens":2048,"status":"completed","truncation":"disabled","usage":{"input_tokens":340,"input_tokens_details":{"cached_tokens":0},"output_tokens":54,"output_tokens_details":{"reasoning_tokens":14},"total_tokens":394,"x_details":[{"input_tokens":340,"output_tokens":54,"total_tokens":394,"input_tokens_details":{"text_tokens":340},"output_tokens_details":{"text_tokens":39,"reasoning_tokens":14},"prompt_tokens_details":{"cached_tokens":0},"x_billing_type":"response_api"}]},"store":false,"background":false,"service_tier":"default","top_logprobs":0,"completed_at":1790588507,"frequency_penalty":0.0,"presence_penalty":0.0},"sequence_number":16,"model":"deepseek-v4.1-flash"}
+

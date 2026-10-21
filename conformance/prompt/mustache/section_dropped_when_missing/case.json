@@ -1,0 +1,8 @@
+{
+  "template": "a{{#nope}}x{{nope}}{{/nope}}b",
+  "vars": {
+    "name": "Tater",
+    "desc": "Plans trips.",
+    "empty": ""
+  }
+}

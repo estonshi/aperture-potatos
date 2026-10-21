@@ -1,0 +1,28 @@
+{
+  "body": {
+    "error": {
+      "code": "400",
+      "message": "litellm.BadRequestError: OpenAIException - data: {\"error\":{\"code\":\"invalid_parameter_error\",\"param\":null,\"message\":\"Range of max_tokens should be [1, 65536]\",\"type\":\"invalid_request_error\"},\"id\":\"chatcmpl-32e7169a\"}. Received Model Group=qwen3.6-flash\nAvailable Model Group Fallbacks=None",
+      "param": null,
+      "type": null
+    }
+  },
+  "expected": {
+    "api": "openai.chat",
+    "class": "invalid_request",
+    "code": "400",
+    "limit": 65536,
+    "message": "litellm.BadRequestError: OpenAIException - data: {\"error\":{\"code\":\"invalid_parameter_error\",\"param\":null,\"message\":\"Range of max_tokens should be [1, 65536]\",\"type\":\"invalid_request_error\"},\"id\":\"chatcmpl-32e7169a\"}. Received Model Group=qwen3.6-flash\nAvailable Model Group Fallbacks=None",
+    "raw": {
+      "error": {
+        "code": "400",
+        "message": "litellm.BadRequestError: OpenAIException - data: {\"error\":{\"code\":\"invalid_parameter_error\",\"param\":null,\"message\":\"Range of max_tokens should be [1, 65536]\",\"type\":\"invalid_request_error\"},\"id\":\"chatcmpl-32e7169a\"}. Received Model Group=qwen3.6-flash\nAvailable Model Group Fallbacks=None",
+        "param": null,
+        "type": null
+      }
+    },
+    "rule": "max_output_too_large",
+    "status": 400
+  },
+  "status": 400
+}

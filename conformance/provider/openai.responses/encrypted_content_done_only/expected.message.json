@@ -1,0 +1,72 @@
+{
+  "content": [
+    {
+      "kind": "summary",
+      "native": {
+        "api": "openai.responses",
+        "raw": {
+          "encrypted_content": "gAAAA-final",
+          "id": "rs_e",
+          "summary": [
+            {
+              "text": "Plan.",
+              "type": "summary_text"
+            }
+          ],
+          "type": "reasoning"
+        }
+      },
+      "text": "Plan.",
+      "type": "reasoning"
+    },
+    {
+      "native": {
+        "api": "openai.responses",
+        "raw": {
+          "content": [
+            {
+              "annotations": [],
+              "text": "Done.",
+              "type": "output_text"
+            }
+          ],
+          "id": "msg_e",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      },
+      "text": "Done.",
+      "type": "text"
+    }
+  ],
+  "origin": {
+    "kind": "model"
+  },
+  "producer": {
+    "api": "openai.responses",
+    "endpoint": "api.openai.com",
+    "model": "gpt-5.6",
+    "response_id": "resp_01"
+  },
+  "role": "assistant",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 30,
+    "output_tokens": 20,
+    "raw": {
+      "input_tokens": 30,
+      "input_tokens_details": {
+        "cached_tokens": 0
+      },
+      "output_tokens": 20,
+      "output_tokens_details": {
+        "reasoning_tokens": 10
+      },
+      "total_tokens": 50
+    },
+    "reasoning_tokens": 10
+  }
+}

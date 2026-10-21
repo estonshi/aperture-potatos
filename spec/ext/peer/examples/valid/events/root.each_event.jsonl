@@ -1,0 +1,1 @@
+{"type": "peer.auth_required", "seq": 1, "time": "2026-10-13T01:00:00.000Z", "session_id": "ses_01", "agent": "Tater", "data": {"peer": "billing", "task_id": "t1", "context_id": "c1", "status": 401, "detail": "token expired", "attempt": 1}}

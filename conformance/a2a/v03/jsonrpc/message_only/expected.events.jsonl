@@ -1,0 +1,2 @@
+{"kind":"message","context_id":"c-1","message":{"message_id":"r-1","context_id":"c-1","role":"agent","parts":[{"text":"Hi there."}]}}
+{"end":"ok"}

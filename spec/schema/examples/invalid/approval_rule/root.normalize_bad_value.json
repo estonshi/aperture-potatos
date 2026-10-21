@@ -1,0 +1,13 @@
+[
+  {
+    "id": "r",
+    "tool": "x",
+    "action": "deny",
+    "when": {
+      "f": {
+        "prefix": "/etc/",
+        "normalize": "lower"
+      }
+    }
+  }
+]

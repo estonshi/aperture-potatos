@@ -1,0 +1,13 @@
+{
+  "type": "message.delta",
+  "seq": 1,
+  "time": "2026-09-27T08:00:00Z",
+  "session_id": "ses_01",
+  "agent": "Tater",
+  "data": {
+    "message_id": "msg_03",
+    "block_index": 0,
+    "channel": "text",
+    "text": 3
+  }
+}

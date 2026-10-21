@@ -1,0 +1,6 @@
+{
+  "api": "openai.chat",
+  "model": "gpt-5.6",
+  "source": "synthetic",
+  "notes": "Text, then usage in a chunk with empty choices; cached and reasoning token details are read."
+}

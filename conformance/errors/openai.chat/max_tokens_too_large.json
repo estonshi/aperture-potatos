@@ -1,0 +1,29 @@
+{
+  "body": {
+    "error": {
+      "code": "invalid_value",
+      "message": "max_tokens is too large: 64000. This model supports at most 16384 completion tokens, whereas you provided 64000.",
+      "param": "max_tokens",
+      "type": "invalid_request_error"
+    }
+  },
+  "expected": {
+    "api": "openai.chat",
+    "class": "invalid_request",
+    "code": "invalid_value",
+    "limit": 16384,
+    "message": "max_tokens is too large: 64000. This model supports at most 16384 completion tokens, whereas you provided 64000.",
+    "raw": {
+      "error": {
+        "code": "invalid_value",
+        "message": "max_tokens is too large: 64000. This model supports at most 16384 completion tokens, whereas you provided 64000.",
+        "param": "max_tokens",
+        "type": "invalid_request_error"
+      }
+    },
+    "rule": "max_output_too_large",
+    "status": 400,
+    "type": "invalid_request_error"
+  },
+  "status": 400
+}

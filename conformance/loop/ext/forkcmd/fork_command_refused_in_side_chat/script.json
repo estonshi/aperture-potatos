@@ -1,0 +1,61 @@
+{
+  "spec_version": "0.1",
+  "description": "/fork in a side chat is refused with a line saying so and forks nothing; making a side chat a session of its own is the host's call, through Fork.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "extensions": {
+      "cmd.fork": {}
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Hello."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "side_chat": {
+        "name": "s",
+        "as": "s"
+      }
+    },
+    {
+      "command": {
+        "name": "fork",
+        "args": ""
+      },
+      "on": "s"
+    },
+    {
+      "wait": {
+        "event": "command.completed",
+        "count": 1
+      },
+      "on": "s"
+    },
+    {
+      "resume": "ses_02",
+      "error": "no stored session"
+    }
+  ]
+}

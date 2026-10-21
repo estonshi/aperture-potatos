@@ -1,0 +1,6 @@
+{
+  "api": "openai.chat",
+  "model": "openai/o4-mini",
+  "source": "synthetic",
+  "notes": "reasoning_details without a string reasoning field supplies the shown text; the block has no source field, so it is display only."
+}

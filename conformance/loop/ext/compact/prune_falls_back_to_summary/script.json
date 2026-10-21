@@ -1,0 +1,74 @@
+{
+  "spec_version": "0.1",
+  "description": "When clearing old results would not get under half the threshold, the strategy summarizes the original lines instead.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "fetch_log",
+        "description": "Fetch a log.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "n": {
+              "type": "integer"
+            }
+          }
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "fixed",
+          "text": "A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. A long log line with timestamps, levels and a message that repeats. "
+        }
+      }
+    ],
+    "context_policy": {
+      "max_context_tokens": 74000
+    },
+    "extensions": {
+      "compact": {
+        "prune": {
+          "keep_recent": -1,
+          "min_tokens": 100
+        }
+      }
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse",
+        "responses/04.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Fetch log 1."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Anything else?"
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

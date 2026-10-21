@@ -1,0 +1,2 @@
+{"detail":{"field":"max_uses","from":3,"to":null,"tool":"web_search"},"kind":"hosted_tool_adjusted"}
+{"detail":{"reason":"no_definition","tool":"web_fetch2"},"kind":"hosted_tool_unsupported"}

@@ -1,0 +1,43 @@
+{
+  "content": [
+    {
+      "id": "call_p",
+      "input": {
+        "path": "a.txt"
+      },
+      "name": "read",
+      "type": "tool_call"
+    },
+    {
+      "id": "call_q",
+      "input": {
+        "path": "b.txt"
+      },
+      "name": "read",
+      "type": "tool_call"
+    }
+  ],
+  "origin": {
+    "kind": "model"
+  },
+  "producer": {
+    "api": "openai.chat",
+    "endpoint": "api.openai.com",
+    "model": "gpt-5.6",
+    "response_id": "chatcmpl-1"
+  },
+  "role": "assistant",
+  "stop_reason": "tool_use",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 40,
+    "output_tokens": 20,
+    "raw": {
+      "completion_tokens": 20,
+      "prompt_tokens": 40,
+      "total_tokens": 60
+    },
+    "reasoning_tokens": 0
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "template": "<b>{{name}}</b> & {{desc}} \"q\"",
+  "vars": {
+    "name": "<i>T&T</i>",
+    "desc": "a \"quoted\" 'word'"
+  }
+}

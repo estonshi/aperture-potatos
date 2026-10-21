@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/estonshi/aperture-potatos/spec/ext/skills/events.schema.json",
+  "title": "Skills events",
+  "description": "One event of this extension: the kernel envelope (event.schema.json) with the payload chosen by type.",
+  "allOf": [
+    {
+      "$ref": "../../schema/event.schema.json"
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "skills.activated"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/skills_activated"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "skills.catalog_changed"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/skills_catalog_changed"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "skills_activated": {
+      "type": "object",
+      "description": "A skill was loaded by the model's tool call or a person's command.",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "trigger": {
+          "type": "string",
+          "enum": [
+            "model",
+            "user"
+          ]
+        },
+        "tokens": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Estimated size of the body."
+        },
+        "deduplicated": {
+          "type": "boolean",
+          "description": "The skill was already active, so its body was not added again."
+        },
+        "allowed_tools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "name",
+        "trigger",
+        "tokens",
+        "deduplicated"
+      ]
+    },
+    "skills_catalog_changed": {
+      "type": "object",
+      "description": "Skills were added or removed after the extension was installed.",
+      "properties": {
+        "added": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "removed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "added",
+        "removed"
+      ]
+    }
+  }
+}

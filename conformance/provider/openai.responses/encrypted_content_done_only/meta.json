@@ -1,0 +1,6 @@
+{
+  "api": "openai.responses",
+  "model": "gpt-5.6",
+  "source": "synthetic",
+  "notes": "encrypted_content is taken from output_item.done, never from the partial value in .added."
+}

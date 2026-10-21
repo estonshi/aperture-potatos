@@ -1,0 +1,2 @@
+{"type": "memory.loaded", "seq": 1, "time": "2026-10-13T01:00:00.000Z", "session_id": "ses_01", "agent": "Tater", "data": {"ids": ["m1", "m2"]}}
+{"type": "memory.saved", "seq": 2, "time": "2026-10-13T01:00:00.000Z", "session_id": "ses_01", "agent": "Tater", "data": {"changes": [{"op": "add", "id": "m3", "content": "Prefers pnpm.", "user": "u1"}, {"op": "delete", "id": "m1"}], "trigger": "tool"}}

@@ -1,0 +1,1 @@
+{"session_id": "ses_01", "agent": "Tater", "turn_id": "turn_01", "step": 1, "server": "github", "tool": "create_issue", "mode": "form", "message": "Which repository?", "requested_schema": {"type": "object", "properties": {"repo": {"type": "string"}}}}

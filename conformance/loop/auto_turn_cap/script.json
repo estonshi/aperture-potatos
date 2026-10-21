@@ -1,0 +1,75 @@
+{
+  "spec_version": "0.1",
+  "description": "Turns fed only by reminders stop at max_consecutive_auto_turns; the reminder over the cap waits and rides the next human turn, which resets the count.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "limits": {
+      "max_consecutive_auto_turns": 2
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Disk at 80%.",
+        "origin": {
+          "kind": "reminder",
+          "source": "monitor"
+        }
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Disk at 90%.",
+        "origin": {
+          "kind": "reminder",
+          "source": "monitor"
+        }
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "Disk at 95%.",
+        "origin": {
+          "kind": "reminder",
+          "source": "monitor"
+        }
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "What's new?"
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

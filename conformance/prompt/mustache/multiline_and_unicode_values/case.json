@@ -1,0 +1,6 @@
+{
+  "template": "{{v}}.",
+  "vars": {
+    "v": "第一行\n  second line\ttab\n🥔"
+  }
+}

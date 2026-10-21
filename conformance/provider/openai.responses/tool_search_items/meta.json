@@ -1,0 +1,6 @@
+{
+  "api": "openai.responses",
+  "model": "gpt-5.6",
+  "source": "synthetic",
+  "notes": "The hosted tool search: tool_search_call becomes a hosted call named tool_search with its arguments as input, tool_search_output a hosted result answering it that lists the loaded tools, a namespace's functions included; both keep their item for replay, and nothing is counted in hosted_calls."
+}

@@ -1,0 +1,34 @@
+{
+  "body": {
+    "error": {
+      "details": {
+        "error_code": "enforced_spend_limit_reached"
+      },
+      "message": "You have reached your specified API usage limits.",
+      "type": "rate_limit_error"
+    },
+    "request_id": "req_011CErr",
+    "type": "error"
+  },
+  "expected": {
+    "api": "anthropic.messages",
+    "class": "quota",
+    "code": "enforced_spend_limit_reached",
+    "message": "You have reached your specified API usage limits.",
+    "raw": {
+      "error": {
+        "details": {
+          "error_code": "enforced_spend_limit_reached"
+        },
+        "message": "You have reached your specified API usage limits.",
+        "type": "rate_limit_error"
+      },
+      "request_id": "req_011CErr",
+      "type": "error"
+    },
+    "request_id": "req_011CErr",
+    "status": 429,
+    "type": "rate_limit_error"
+  },
+  "status": 429
+}

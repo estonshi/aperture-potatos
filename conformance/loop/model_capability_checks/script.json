@@ -1,0 +1,154 @@
+{
+  "spec_version": "0.1",
+  "description": "A failed lookup falls back to the defaults; a model with no room or no tools is refused when the switch is asked for; a history too large for the new window refuses the switch at the turn's start; a resolved window caps the output at a quarter of it.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "echo",
+        "description": "Echo the text back.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "echo"
+        }
+      }
+    ],
+    "capabilities": [
+      {
+        "api": "anthropic.messages",
+        "model_glob": "claude-tiny",
+        "caps": {
+          "context_window": 32768,
+          "max_output_tokens": 64000
+        }
+      },
+      {
+        "api": "openai.chat",
+        "model_glob": "gpt-6-*",
+        "caps": {
+          "no_tools": true
+        }
+      },
+      {
+        "api": "anthropic.messages",
+        "model_glob": "claude-small",
+        "caps": {
+          "context_window": 100,
+          "max_output_tokens": 64
+        }
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ],
+      "resolve_error": "models endpoint unreachable"
+    },
+    {
+      "name": "tiny",
+      "api": "anthropic.messages",
+      "model": "claude-tiny",
+      "responses": [
+        "responses/unused.sse"
+      ]
+    },
+    {
+      "name": "notools",
+      "api": "openai.chat",
+      "model": "gpt-6-astra",
+      "responses": [
+        "responses/unused_chat.sse"
+      ]
+    },
+    {
+      "name": "small",
+      "api": "anthropic.messages",
+      "model": "claude-small",
+      "responses": [
+        "responses/unused.sse"
+      ]
+    },
+    {
+      "name": "mid",
+      "api": "anthropic.messages",
+      "model": "claude-sonnet-5",
+      "responses": [
+        "responses/03.sse"
+      ],
+      "resolved": {
+        "context_window": 100000
+      }
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Hi."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "switch_model": {
+        "provider": "tiny"
+      },
+      "error": "leaves no room"
+    },
+    {
+      "switch_model": {
+        "provider": "notools"
+      },
+      "error": "takes no tools"
+    },
+    {
+      "switch_model": {
+        "provider": "small"
+      }
+    },
+    {
+      "send": {
+        "text": "Still on claude?"
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "switch_model": {
+        "provider": "mid"
+      }
+    },
+    {
+      "send": {
+        "text": "On sonnet now."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

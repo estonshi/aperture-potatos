@@ -1,0 +1,15 @@
+{
+  "nickname": "Tater",
+  "sections": [
+    {
+      "slot": "capabilities",
+      "name": "empty",
+      "text": ""
+    },
+    {
+      "slot": "catalog",
+      "name": "listed",
+      "text": "<catalog/>"
+    }
+  ]
+}

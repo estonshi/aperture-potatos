@@ -1,0 +1,4 @@
+{"detail":{"field":"reasoning.budget","from":70000,"to":63999},"kind":"capability_adjusted"}
+{"detail":{"field":"temperature","from":0.7,"to":null},"kind":"capability_adjusted"}
+{"detail":{"field":"top_p","from":0.5,"to":0.95},"kind":"capability_adjusted"}
+{"detail":{"field":"tool_choice","from":"any","to":"auto"},"kind":"capability_adjusted"}

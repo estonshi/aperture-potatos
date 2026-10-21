@@ -1,0 +1,67 @@
+{
+  "spec_version": "0.1",
+  "description": "A policy hook that times out denies the call, because pre_tool_use fails closed; the model is told only the kind of failure.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "echo",
+        "description": "Echo the text back.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "echo"
+        }
+      }
+    ],
+    "hooks": [
+      {
+        "point": "pre_tool_use",
+        "name": "slow-policy",
+        "timeout_ms": 100,
+        "calls": [
+          {
+            "sleep_ms": 1000
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Echo hi."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

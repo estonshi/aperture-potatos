@@ -1,0 +1,6 @@
+{
+  "api": "openai.chat",
+  "model": "anthropic/claude-sonnet-5",
+  "source": "synthetic",
+  "notes": "OpenRouter repeats finish_reason in the usage chunk; only the first counts."
+}

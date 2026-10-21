@@ -1,0 +1,62 @@
+{
+  "spec_version": "0.1",
+  "description": "/fork runs while a turn streams, without interrupting it, and copies only the stable prefix, so the running turn is not in the fork.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "extensions": {
+      "cmd.fork": {}
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        {
+          "sse": "responses/01.sse",
+          "hold_after_events": 3,
+          "hold_ms": 1000
+        }
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "A long question."
+      }
+    },
+    {
+      "wait": {
+        "event": "message.delta"
+      }
+    },
+    {
+      "command": {
+        "name": "fork",
+        "args": ""
+      }
+    },
+    {
+      "wait": {
+        "event": "command.completed",
+        "count": 1
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "resume": "ses_02",
+      "as": "f"
+    }
+  ]
+}

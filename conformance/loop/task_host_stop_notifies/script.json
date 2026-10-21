@@ -1,0 +1,87 @@
+{
+  "spec_version": "0.1",
+  "description": "A job the host stops is notified, because the model did not ask for it; a job the model stops through a tool is not, since the tool result already told it, and the stop's result line references that task.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "stop_job",
+        "description": "Stop the job.",
+        "input_schema": {
+          "type": "object"
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "task_stop",
+          "task": "task_02",
+          "text": "not needed"
+        }
+      }
+    ],
+    "task_kinds": [
+      {
+        "name": "job",
+        "caps": {}
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-29T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "task": {
+        "start": {
+          "kind": "job",
+          "title": "Job A",
+          "input": {
+            "title": "Job A"
+          }
+        }
+      }
+    },
+    {
+      "task": {
+        "stop": "task_01",
+        "reason": "the host changed its mind"
+      }
+    },
+    {
+      "wait_quiet": true
+    },
+    {
+      "task": {
+        "start": {
+          "kind": "job",
+          "title": "Job B",
+          "input": {
+            "title": "Job B"
+          }
+        }
+      }
+    },
+    {
+      "send": {
+        "text": "Stop job B."
+      }
+    },
+    {
+      "wait_quiet": true
+    }
+  ]
+}

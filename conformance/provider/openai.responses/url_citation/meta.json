@@ -1,0 +1,6 @@
+{
+  "api": "openai.responses",
+  "model": "gpt-5.6",
+  "source": "synthetic",
+  "notes": "url_citation annotations become citations; offsets are code points into the joined text, so a later part is shifted past the parts before it."
+}

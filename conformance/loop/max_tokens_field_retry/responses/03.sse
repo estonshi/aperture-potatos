@@ -1,0 +1,8 @@
+data: {"id":"chatcmpl-03","object":"chat.completion.chunk","model":"o5-mini","choices":[{"index":0,"delta":{"role":"assistant","content":null},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-03","object":"chat.completion.chunk","model":"o5-mini","choices":[{"index":0,"delta":{"content":"Hello again."},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-03","object":"chat.completion.chunk","model":"o5-mini","choices":[{"index":0,"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":30,"completion_tokens":12,"total_tokens":42}}
+
+data: [DONE]
+

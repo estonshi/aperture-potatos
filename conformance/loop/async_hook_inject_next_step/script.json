@@ -1,0 +1,71 @@
+{
+  "spec_version": "0.1",
+  "description": "An async user_prompt_submit hook answers while the turn's tool runs: its context reaches the running turn at the next safe point, in the user line after the tool line, before the second model call.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "echo",
+        "description": "Echo the text back.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "echo",
+          "sleep_ms": 20
+        }
+      }
+    ],
+    "hooks": [
+      {
+        "point": "user_prompt_submit",
+        "name": "lookup",
+        "async": true,
+        "calls": [
+          {
+            "output": {
+              "additional_context": "The ticket is P1."
+            },
+            "sleep_ms": 5
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Echo hello with the tool."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

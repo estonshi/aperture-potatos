@@ -1,0 +1,2 @@
+{"kind":"start","response_id":"resp_01"}
+{"error":{"api":"openai.responses","class":"transient","code":"server_error","message":"The server had an error while processing your request.","mid_stream":true,"raw":{"error":{"code":"server_error","message":"The server had an error while processing your request.","type":"server_error"}},"type":"server_error"}}

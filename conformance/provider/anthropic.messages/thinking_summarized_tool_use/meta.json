@@ -1,0 +1,6 @@
+{
+  "api": "anthropic.messages",
+  "model": "claude-opus-5-5",
+  "source": "synthetic",
+  "notes": "Summarized thinking with a signature, then text, then a tool call whose input arrives in pieces."
+}

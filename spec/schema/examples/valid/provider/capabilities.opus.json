@@ -1,0 +1,23 @@
+{
+  "family": "claude-opus-5",
+  "context_window": 1000000,
+  "max_output_tokens": 128000,
+  "thinking_prefix_bound": true,
+  "no_forced_tool_choice": true,
+  "no_sampling": true,
+  "reasoning": {
+    "visible": "summary",
+    "modes": [
+      "adaptive"
+    ],
+    "default_on": true,
+    "no_disable": true,
+    "efforts": [
+      "low",
+      "medium",
+      "high",
+      "xhigh",
+      "max"
+    ]
+  }
+}

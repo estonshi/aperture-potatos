@@ -1,0 +1,5 @@
+{"kind":"task","task_id":"t-1","context_id":"c-1","state":"working","message":{"message_id":"s-working","role":"agent","parts":[{"text":"Halfway"}]}}
+{"kind":"artifact","task_id":"t-1","context_id":"c-1","artifact":{"artifact_id":"a-1","parts":[{"text":"Hel"}]}}
+{"kind":"artifact","task_id":"t-1","context_id":"c-1","artifact":{"artifact_id":"a-1","parts":[{"text":"lo"}]},"append":true,"last_chunk":true}
+{"kind":"status","task_id":"t-1","context_id":"c-1","state":"completed"}
+{"end":"ok"}

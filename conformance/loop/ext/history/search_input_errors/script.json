@@ -1,0 +1,38 @@
+{
+  "spec_version": "0.1",
+  "description": "Without a parent, parent:true is an error; so is giving both query and seq, or neither; an unknown seq and a query without hits are reported too.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "extensions": {
+      "history": {}
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Try the tool."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

@@ -1,0 +1,1245 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/estonshi/aperture-potatos/spec/schema/message.schema.json",
+  "title": "Message",
+  "description": "One committed message, which is also exactly one line of a session file. Unknown fields on the message and on blocks are allowed and must be kept verbatim on copy and rewrite.",
+  "type": "object",
+  "properties": {
+    "v": {
+      "const": 1,
+      "description": "Line format version."
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "session_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "seq": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Strictly increasing from 1 within a session file."
+    },
+    "epoch": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "role": {
+      "$ref": "#/$defs/role"
+    },
+    "origin": {
+      "$ref": "#/$defs/origin"
+    },
+    "content": {
+      "$ref": "#/$defs/content"
+    },
+    "producer": {
+      "$ref": "#/$defs/producer"
+    },
+    "usage": {
+      "$ref": "common.schema.json#/$defs/usage"
+    },
+    "stop_reason": {
+      "type": "string"
+    },
+    "native": {
+      "$ref": "#/$defs/native"
+    },
+    "turn_id": {
+      "type": "string"
+    },
+    "partial": {
+      "type": "boolean",
+      "description": "Committed after an interrupt; only closed blocks are kept."
+    },
+    "boundary": {
+      "$ref": "#/$defs/boundary"
+    },
+    "tools": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/tool_def"
+      }
+    },
+    "hosted_tools": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/hosted_tool"
+      },
+      "description": "Hosted tools frozen with tools on a system line."
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/task_ref"
+      }
+    },
+    "copy_of": {
+      "type": "string",
+      "description": "Id of the line this one copies into a new epoch."
+    },
+    "batch": {
+      "type": "string",
+      "description": "Storage only: shared by the lines of one multi-line write."
+    },
+    "batch_end": {
+      "type": "boolean",
+      "description": "Storage only: marks the last line of a batch; a batch without it at the end of a file is dropped."
+    },
+    "ts": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "v",
+    "id",
+    "session_id",
+    "seq",
+    "epoch",
+    "role",
+    "origin",
+    "content",
+    "ts"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "role": {
+            "const": "system"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "origin": {
+            "properties": {
+              "kind": {
+                "const": "system"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "role": {
+            "const": "tool"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "origin": {
+            "properties": {
+              "kind": {
+                "const": "tool"
+              }
+            }
+          },
+          "content": {
+            "items": {
+              "properties": {
+                "type": {
+                  "const": "tool_result"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "role": {
+            "const": "assistant"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "origin": {
+            "properties": {
+              "kind": {
+                "const": "model"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "role": {
+            "const": "user"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "origin": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "human",
+                  "command",
+                  "agent",
+                  "task",
+                  "reminder",
+                  "continuation",
+                  "epoch_head"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": [
+          "batch_end"
+        ]
+      },
+      "then": {
+        "required": [
+          "batch"
+        ]
+      }
+    }
+  ],
+  "$defs": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "system",
+        "user",
+        "assistant",
+        "tool"
+      ]
+    },
+    "origin_kind": {
+      "type": "string",
+      "enum": [
+        "human",
+        "command",
+        "agent",
+        "task",
+        "reminder",
+        "continuation",
+        "epoch_head",
+        "model",
+        "tool",
+        "system"
+      ]
+    },
+    "origin": {
+      "type": "object",
+      "description": "Who authored the message, so the model and hooks can tell human input from runtime input.",
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/origin_kind"
+        },
+        "source": {
+          "type": "string",
+          "description": "Opaque to the runtime: hook:audit, agent:<name>, a2a:<caller> ..."
+        }
+      },
+      "required": [
+        "kind"
+      ]
+    },
+    "producer": {
+      "type": "object",
+      "description": "Which API and model generated an assistant message; replay decisions key on it.",
+      "properties": {
+        "api": {
+          "type": "string",
+          "minLength": 1,
+          "description": "anthropic.messages | openai.chat | openai.responses | synthetic"
+        },
+        "endpoint": {
+          "type": "string",
+          "description": "Normalized host."
+        },
+        "model": {
+          "type": "string"
+        },
+        "family": {
+          "type": "string",
+          "description": "Omitted when it equals the model; readers take a missing family as the model name."
+        },
+        "response_id": {
+          "type": "string",
+          "description": "The provider's id for this response; gateways key their spend logs by it."
+        },
+        "request_id": {
+          "type": "string",
+          "description": "The API's request id response header."
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Captured response headers, keys lowercase."
+        }
+      },
+      "required": [
+        "api",
+        "endpoint",
+        "model"
+      ]
+    },
+    "native": {
+      "type": "object",
+      "description": "A provider wire object kept semantically verbatim; only an adapter of the same API reads it.",
+      "properties": {
+        "api": {
+          "type": "string",
+          "minLength": 1
+        },
+        "raw": {}
+      },
+      "required": [
+        "api",
+        "raw"
+      ]
+    },
+    "reasoning_kind": {
+      "type": "string",
+      "enum": [
+        "summary",
+        "raw",
+        "progress",
+        "omitted",
+        "redacted",
+        "encrypted"
+      ]
+    },
+    "outcome": {
+      "type": "string",
+      "enum": [
+        "success",
+        "error",
+        "denied",
+        "interrupted",
+        "not_executed",
+        "invalid_input",
+        "unknown_tool",
+        "synthetic",
+        "lost"
+      ]
+    },
+    "pin": {
+      "type": "object",
+      "description": "Content re-injected into the next epoch head after compaction; the newest pin per key wins.",
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "content": {
+          "type": "string"
+        },
+        "max_tokens": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "key",
+        "content"
+      ]
+    },
+    "boundary": {
+      "type": "object",
+      "description": "Opens an epoch.",
+      "properties": {
+        "reason": {
+          "type": "string",
+          "enum": [
+            "new",
+            "clear",
+            "compaction",
+            "switch",
+            "rewind",
+            "fork",
+            "side_chat",
+            "dropped"
+          ]
+        },
+        "trigger": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "manual",
+            "overflow",
+            "switch"
+          ]
+        },
+        "strategy": {
+          "type": "string",
+          "description": "summarize or prune for the default compactor; a custom compactor's own value."
+        },
+        "pre_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "range": {
+          "type": "object",
+          "description": "Partial compaction: which side of a turn was summarized.",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "from",
+                "up_to"
+              ]
+            },
+            "turn_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "kind",
+            "turn_id"
+          ],
+          "additionalProperties": false
+        },
+        "turn_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Rewind: the turn that was dropped with everything after it."
+        },
+        "from": {
+          "type": "object",
+          "description": "Fork: the source session and the last line copied from it.",
+          "properties": {
+            "session_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "seq": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "session_id",
+            "seq"
+          ],
+          "additionalProperties": false
+        },
+        "tools_allowed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "On a fork epoch: the tools the fork may call, in name order; absent means every tool. A resumed session keeps the limit."
+        },
+        "replay_fallback": {
+          "type": "boolean",
+          "description": "The kept lines follow changed content on a model whose thinking signatures bind the prefix, so every request of this epoch renders with degraded replay."
+        },
+        "session": {
+          "$ref": "#/$defs/session_meta"
+        }
+      },
+      "required": [
+        "reason"
+      ]
+    },
+    "session_meta": {
+      "type": "object",
+      "description": "Carried by the boundary of the first line of a session file.",
+      "properties": {
+        "agent": {
+          "type": "string"
+        },
+        "parent_session_id": {
+          "type": "string",
+          "description": "Main session of a side chat, or owning session of a task's child session."
+        },
+        "side_chat": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Name of the side chat this file holds."
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "spec_version": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "agent",
+        "spec_version"
+      ]
+    },
+    "task_ref": {
+      "type": "object",
+      "description": "The only persisted trace of a task; status is the task's status when this line was committed.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "task.schema.json#/$defs/task_status"
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "spec": {
+          "$ref": "task.schema.json#/$defs/task_spec"
+        },
+        "state": {
+          "description": "The last SaveState at commit time."
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "status",
+        "attempt"
+      ]
+    },
+    "tool_def": {
+      "type": "object",
+      "description": "A tool definition as frozen on a system line.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]{1,64}$"
+        },
+        "description": {
+          "type": "string"
+        },
+        "input_schema": {
+          "type": "object"
+        },
+        "strict": {
+          "type": "boolean"
+        },
+        "deferred": {
+          "type": "boolean",
+          "description": "Loaded on demand when the request carries a tool search; sent as an ordinary tool otherwise."
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "input_schema"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "description": "A page a hosted call returned.",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "age": {
+          "type": "string",
+          "description": "As the provider wrote it, such as April 30, 2025."
+        }
+      },
+      "required": [
+        "url"
+      ]
+    },
+    "citation": {
+      "type": "object",
+      "description": "A structured citation of a source in a text block.",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "cited_text": {
+          "type": "string"
+        },
+        "start": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Code point offset into the text block, when the API gives one."
+        },
+        "end": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "url"
+      ]
+    },
+    "hosted_tool": {
+      "type": "object",
+      "description": "A tool the provider runs itself, frozen on a system line; exactly one of web_search, tool_search and raw is set.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]{1,64}$",
+          "description": "What the model calls it; unique among the session's tools."
+        },
+        "web_search": {
+          "$ref": "#/$defs/web_search",
+          "description": "The neutral web search, which each adapter maps to its API's own tool; name must be web_search."
+        },
+        "tool_search": {
+          "$ref": "#/$defs/tool_search",
+          "description": "The neutral tool search, which finds the request's deferred tools on the provider's side; name must be tool_search."
+        },
+        "raw": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          },
+          "description": "API name → that API's own tool definition, appended verbatim when the request goes to that API."
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "tool_search": {
+      "type": "object",
+      "description": "The neutral tool search; it has no options, since every API it maps to searches by natural language.",
+      "additionalProperties": false
+    },
+    "web_search": {
+      "type": "object",
+      "description": "Options of the neutral web search; an option the target API lacks is dropped with a hosted_tool_adjusted notice.",
+      "properties": {
+        "max_uses": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "allowed_domains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "blocked_domains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "At most one of allowed_domains and blocked_domains."
+        },
+        "user_location": {
+          "$ref": "#/$defs/user_location"
+        },
+        "context_size": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        }
+      }
+    },
+    "user_location": {
+      "type": "object",
+      "description": "Approximate location the search results are localized to.",
+      "properties": {
+        "city": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string",
+          "description": "ISO 3166-1 alpha-2."
+        },
+        "timezone": {
+          "type": "string",
+          "description": "IANA time zone id."
+        }
+      }
+    },
+    "content": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/block"
+      }
+    },
+    "block": {
+      "type": "object",
+      "description": "A content block discriminated by type. A type this schema does not list is kept as an opaque block, so any object with a string type is accepted.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "text"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/text_block"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "refusal"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/refusal_block"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "image"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/image_block"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "document"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/document_block"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "reasoning"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/reasoning_block"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "tool_call"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/tool_call_block"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "tool_result"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/tool_result_block"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "reminder"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/reminder_block"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "opaque"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/opaque_block"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "hosted_call"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/hosted_call_block"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "hosted_result"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/hosted_result_block"
+          }
+        }
+      ]
+    },
+    "text_block": {
+      "type": "object",
+      "description": "Visible text.",
+      "properties": {
+        "type": {
+          "const": "text"
+        },
+        "text": {
+          "type": "string"
+        },
+        "citations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/citation"
+          }
+        },
+        "native": {
+          "$ref": "#/$defs/native"
+        }
+      },
+      "required": [
+        "type",
+        "text"
+      ]
+    },
+    "refusal_block": {
+      "type": "object",
+      "description": "A refusal the model gave instead of an answer.",
+      "properties": {
+        "type": {
+          "const": "refusal"
+        },
+        "text": {
+          "type": "string"
+        },
+        "native": {
+          "$ref": "#/$defs/native"
+        }
+      },
+      "required": [
+        "type",
+        "text"
+      ]
+    },
+    "image_block": {
+      "type": "object",
+      "description": "An image, inline as base64 or by URL.",
+      "properties": {
+        "type": {
+          "const": "image"
+        },
+        "media_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "data": {
+          "type": "string",
+          "contentEncoding": "base64"
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "media_type"
+      ],
+      "anyOf": [
+        {
+          "required": [
+            "data"
+          ]
+        },
+        {
+          "required": [
+            "url"
+          ]
+        }
+      ]
+    },
+    "document_block": {
+      "type": "object",
+      "description": "A document such as a PDF, inline as base64 or by URL.",
+      "properties": {
+        "type": {
+          "const": "document"
+        },
+        "media_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "data": {
+          "type": "string",
+          "contentEncoding": "base64"
+        },
+        "url": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "media_type"
+      ],
+      "anyOf": [
+        {
+          "required": [
+            "data"
+          ]
+        },
+        {
+          "required": [
+            "url"
+          ]
+        }
+      ]
+    },
+    "reasoning_block": {
+      "type": "object",
+      "description": "Model reasoning. Signatures, redacted data and encrypted content live in native.raw and are replayed only to the same API.",
+      "properties": {
+        "type": {
+          "const": "reasoning"
+        },
+        "kind": {
+          "$ref": "#/$defs/reasoning_kind"
+        },
+        "text": {
+          "type": "string"
+        },
+        "native": {
+          "$ref": "#/$defs/native"
+        }
+      },
+      "required": [
+        "type",
+        "kind"
+      ]
+    },
+    "tool_call_block": {
+      "type": "object",
+      "description": "A call the model asked for; id pairs it with a tool_result.call_id.",
+      "properties": {
+        "type": {
+          "const": "tool_call"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "input": {
+          "type": "object",
+          "description": "Always a JSON object; an empty wire value becomes {}."
+        },
+        "raw_input": {
+          "type": "string",
+          "description": "Kept only when parsing failed."
+        },
+        "input_error": {
+          "type": "string",
+          "enum": [
+            "invalid_json",
+            "not_object",
+            "incomplete"
+          ],
+          "description": "Why input could not be used: invalid_json, not_object, or incomplete when the response was cut off while the arguments streamed."
+        },
+        "native": {
+          "$ref": "#/$defs/native"
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "name",
+        "input"
+      ]
+    },
+    "tool_result_block": {
+      "type": "object",
+      "description": "The result of one call.",
+      "properties": {
+        "type": {
+          "const": "tool_result"
+        },
+        "call_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string"
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/block"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "text",
+                      "image",
+                      "document"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "is_error": {
+          "type": "boolean"
+        },
+        "outcome": {
+          "$ref": "#/$defs/outcome"
+        },
+        "pin": {
+          "$ref": "#/$defs/pin"
+        },
+        "structured": {
+          "description": "For events and hooks; never sent to the model."
+        },
+        "cleared": {
+          "type": "boolean",
+          "description": "The content was replaced by the prune placeholder; the line this one copies keeps the original."
+        }
+      },
+      "required": [
+        "type",
+        "call_id",
+        "content",
+        "outcome"
+      ]
+    },
+    "reminder_block": {
+      "type": "object",
+      "description": "Runtime-authored context, rendered as a system-reminder text block.",
+      "properties": {
+        "type": {
+          "const": "reminder"
+        },
+        "source": {
+          "type": "string",
+          "description": "Opaque label: time, memory, hook:<name>, ext:<name>, interrupted, registry, pin:<key> ..."
+        },
+        "text": {
+          "type": "string"
+        },
+        "unpin": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The pin key this reminder retires."
+        }
+      },
+      "required": [
+        "type",
+        "source",
+        "text"
+      ]
+    },
+    "opaque_block": {
+      "type": "object",
+      "description": "A provider block the runtime does not model (server tools, fallback ...), replayed only to the same API.",
+      "properties": {
+        "type": {
+          "const": "opaque"
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1,
+          "description": "<api>:<wire type>, e.g. anthropic.messages:fallback."
+        },
+        "text": {
+          "type": "string",
+          "description": "Readable fallback text."
+        },
+        "native": {
+          "$ref": "#/$defs/native"
+        }
+      },
+      "required": [
+        "type",
+        "kind",
+        "native"
+      ]
+    },
+    "hosted_call_block": {
+      "type": "object",
+      "description": "A call of a tool the provider runs itself, such as web search; no tool_result answers it. native is replayed only to the same API.",
+      "properties": {
+        "type": {
+          "const": "hosted_call"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "input": {
+          "description": "The call's input as the provider reported it, such as {\"query\": \"...\"}."
+        },
+        "status": {
+          "type": "string",
+          "description": "completed, failed or incomplete; absent when the API does not say."
+        },
+        "native": {
+          "$ref": "#/$defs/native"
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "name"
+      ]
+    },
+    "hosted_result_block": {
+      "type": "object",
+      "description": "What the provider's run of a hosted call returned; it may arrive in a later assistant message than the call. Without native nothing is replayed for it.",
+      "properties": {
+        "type": {
+          "const": "hosted_result"
+        },
+        "call_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        },
+        "error": {
+          "type": "string",
+          "description": "The provider's error code, such as max_uses_exceeded."
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The tools a tool search loaded, by name."
+        },
+        "native": {
+          "$ref": "#/$defs/native"
+        }
+      },
+      "required": [
+        "type",
+        "call_id"
+      ]
+    }
+  }
+}

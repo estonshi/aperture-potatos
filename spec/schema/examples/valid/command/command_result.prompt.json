@@ -1,0 +1,1 @@
+{"text": "Reviewing the last change.", "data": {"files": 2}, "prompt": {"text": "Review the diff and list risks.", "origin": {"kind": "command", "source": "review"}, "metadata": {"command": "review"}}}

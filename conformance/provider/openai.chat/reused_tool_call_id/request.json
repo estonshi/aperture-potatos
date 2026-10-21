@@ -1,0 +1,8 @@
+{
+  "model": "llama-3.3",
+  "messages": [
+    {"v": 1, "id": "m1", "session_id": "s", "seq": 1, "epoch": 1, "role": "user", "origin": {"kind": "human"}, "content": [{"type": "text", "text": "Read a.txt, then b.txt."}], "ts": "2026-10-18T08:00:00Z"},
+    {"v": 1, "id": "m2", "session_id": "s", "seq": 2, "epoch": 1, "role": "assistant", "origin": {"kind": "model"}, "content": [{"type": "tool_call", "id": "call_0", "name": "read", "input": {"path": "a.txt"}}], "ts": "2026-10-18T08:00:01Z"},
+    {"v": 1, "id": "m3", "session_id": "s", "seq": 3, "epoch": 1, "role": "tool", "origin": {"kind": "tool"}, "content": [{"type": "tool_result", "call_id": "call_0", "name": "read", "outcome": "success", "content": [{"type": "text", "text": "alpha"}]}], "ts": "2026-10-18T08:00:02Z"}
+  ]
+}

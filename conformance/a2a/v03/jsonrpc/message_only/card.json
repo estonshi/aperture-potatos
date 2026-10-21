@@ -1,0 +1,30 @@
+{
+  "protocolVersion": "0.3.0",
+  "name": "Echo",
+  "description": "Echoes text.",
+  "url": "https://agent.test/a2a",
+  "preferredTransport": "JSONRPC",
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": true
+  },
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "echo",
+      "name": "Echo",
+      "description": "Repeats what it hears.",
+      "tags": [
+        "text"
+      ],
+      "examples": [
+        "say hi"
+      ]
+    }
+  ]
+}

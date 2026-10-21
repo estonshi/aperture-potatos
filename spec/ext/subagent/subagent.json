@@ -1,0 +1,14 @@
+{
+  "name": "subagent",
+  "description": "Delegate a self-contained task to a subagent. It starts with a fresh context and cannot see this conversation, so put everything it needs into prompt.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "agent_type": { "type": "string", "enum": [], "description": "Subagent definition to use." },
+      "description": { "type": "string", "maxLength": 120, "description": "3-8 word summary of the task." },
+      "prompt": { "type": "string", "description": "Complete, self-contained instructions and context." }
+    },
+    "required": ["agent_type", "description", "prompt"],
+    "additionalProperties": false
+  }
+}
