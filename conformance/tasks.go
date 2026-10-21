@@ -77,7 +77,7 @@ func (lk LoopTaskKind) kind(ts *taskScripts) kernel.TaskKind {
 			}
 			t := &scriptTask{auto: lk.Auto, scripts: ts}
 			if c := spec.Continue; c != nil {
-				t.notes = append(t.notes, fmt.Sprintf("continued with %q from %s", c.Instruction.Text, c.State))
+				t.notes = append(t.notes, fmt.Sprintf("continued with %q from %s", c.Instruction.Text, string(c.State)))
 			}
 			return t, nil
 		}}
