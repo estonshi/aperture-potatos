@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "The host moves a running call of a Background tool to the background. The call settles at once with task_started (moved) and skips the loop's post_tool_use; a tool_exec task with the call's id takes the running execution over without running the tool again, reports its progress, runs post_tool_use once on the real result under the task hop, and its success is notified.",
   "agent": {
     "nickname": "Tater",

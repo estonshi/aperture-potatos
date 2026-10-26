@@ -13,6 +13,12 @@ import (
 	"github.com/estonshi/aperture-potatos/message"
 )
 
+// TextSource supplies a host's overrides of the fixed runtime texts an adapter writes, such as the healed-call result; a missing entry falls back to the built-in text.
+type TextSource interface {
+	Text(key string) (string, bool)
+	File(name string) (string, bool)
+}
+
 // API names the wire protocol an adapter speaks; it keys the error rules, the mappings and ModelInfo.
 type API string
 
@@ -98,6 +104,7 @@ type Request struct {
 
 	FirstEventTimeout time.Duration `json:"-"` // from RetryPolicy; 0 uses the default in spec/data/limits.json, negative has none
 	IdleTimeout       time.Duration `json:"-"` // from RetryPolicy; 0 uses the default in spec/data/limits.json, negative has none
+	Texts             TextSource    `json:"-"` // the host's overrides of the fixed texts the adapter writes; nil for the built-ins
 }
 
 // SharedID is the last user-side message among the first SharedPrefix messages, which is where the session that owns them put its rolling breakpoint; "" when there is none.

@@ -26,6 +26,8 @@ If text passed to `Send` has the human origin, starts with `/`, and the `/` is f
 
 Breaking out of `Run` partway through or canceling ctx only stops the iteration; it does not stop the turn. If what you sent is a command, `Run` keeps yielding that command's events until `command.completed`.
 
+If ending iteration should also stop the work this input started, use `RunCancelable`: it interrupts only the turn this input is already in, or withdraws the input while it is still queued. A command is left to finish.
+
 If you want to wait until the whole session is quiet, use `sess.WaitQuiet(ctx)`. Quiet means that the turn has ended, the queued commands have run, the background tasks have finished, and the task notifications have been sent. `WaitQuiet` returns the `TurnResult` of the last turn.
 
 ## 5.2 Input content and send options

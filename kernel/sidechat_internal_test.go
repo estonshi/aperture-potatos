@@ -124,7 +124,7 @@ func TestSideChatNamesTheFirstNewMainLine(t *testing.T) {
 		line(9, message.RoleUser, &message.ImageBlock{}),
 		line(10, message.RoleUser, text("天气怎么样？请用工具查一下巴黎今天和明天的天气，然后把结果整理成一张表格发给我，谢谢你的帮助。再补充一句：")),
 	}
-	v := &mainView{lines: append(slices.Clone(main), pendingLine(nil)), shared: len(main)}
+	v := &mainView{lines: append(slices.Clone(main), pendingLine(nil, nil)), shared: len(main)}
 	for seq, want := range map[int64]string{
 		2:  "the calls to lookup, fetch",
 		3:  "the result of lookup",

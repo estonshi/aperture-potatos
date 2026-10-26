@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "At max_running_tasks unfinished tasks, the host's start fails and the model's start gets an error result naming the limit; nothing is recorded for either.",
   "agent": {
     "nickname": "Tater",

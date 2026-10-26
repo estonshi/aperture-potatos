@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "A turn that is not in the current epoch after its head cannot be a rewind target.",
   "agent": {
     "nickname": "Tater",

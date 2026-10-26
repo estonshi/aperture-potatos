@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "The history does not fit the window of the model switched to, so the turn the switch takes effect in first compacts with trigger switch on the current model, then runs on the new one.",
   "agent": {
     "nickname": "Tater",

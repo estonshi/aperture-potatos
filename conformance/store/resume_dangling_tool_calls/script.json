@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "The file ends with a call the process never answered. Resume gives it a lost result before anything else, never runs it, and the session_start{resume} context rides the next turn as a reminder.",
   "agent": {
     "nickname": "Tater",

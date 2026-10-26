@@ -376,7 +376,7 @@ func (s *Session) epochHead(ctx context.Context, source string) error {
 	var unsynced []message.Message
 	if err := s.exec(func(st *state) {
 		if len(notes) > 0 {
-			head, info := delivery(nil, nil, notes)
+			head, info := delivery(s.agent.cfg.texts, nil, nil, notes)
 			head.Origin = message.Origin{Kind: message.OriginEpochHead}
 			s.appendLine(st, head, "")
 			s.publishCommitted(st, head, &lineEvents{delivery: &info})

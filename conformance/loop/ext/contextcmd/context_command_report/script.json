@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "/context reports the model, epoch, window, usable window, threshold and estimate, with the parts largest first; data is the context report.",
   "agent": {
     "nickname": "Tater",

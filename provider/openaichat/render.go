@@ -50,7 +50,7 @@ func (p *Provider) render(req *provider.Request) (*rendered, error) {
 	if req.Replay == provider.ReplayFallback {
 		msgs = dropReplayedReasoning(msgs)
 	}
-	msgs, healed := project.HealDangling(msgs, prompt.Text("dangling_tool_call"))
+	msgs, healed := project.HealDangling(msgs, prompt.TextFrom(req.Texts, "dangling_tool_call"))
 	if len(healed) > 0 {
 		r.notices = append(r.notices, provider.Notice{Kind: "dangling_tool_call_healed", Detail: enc(map[string]any{"call_ids": healed})})
 	}
@@ -232,9 +232,9 @@ func renderMessages(req *provider.Request, msgs []message.Message) []json.RawMes
 				out = append(out, w)
 			}
 		case message.RoleTool:
-			out = append(out, renderResults(m)...)
+			out = append(out, renderResults(m, req.Texts)...)
 		default:
-			if parts := userParts(m.Content); len(parts) > 0 {
+			if parts := userParts(m.Content, req.Texts); len(parts) > 0 {
 				out = append(out, enc(map[string]any{"role": "user", "content": content(parts)}))
 			}
 		}
@@ -269,7 +269,7 @@ func content(parts []part) any {
 	return strings.Join(texts, "\n\n")
 }
 
-func userParts(blocks message.Content) []part {
+func userParts(blocks message.Content, texts provider.TextSource) []part {
 	var out []part
 	for _, b := range blocks {
 		switch v := b.(type) {
@@ -280,13 +280,13 @@ func userParts(blocks message.Content) []part {
 		case *message.ReminderBlock:
 			out = append(out, part{text: prompt.EncodeReminder(*v)})
 		case *message.ImageBlock, *message.DocumentBlock:
-			out = append(out, media(b))
+			out = append(out, media(b, texts))
 		}
 	}
 	return out
 }
 
-func media(b message.Block) part {
+func media(b message.Block, texts provider.TextSource) part {
 	switch v := b.(type) {
 	case *message.ImageBlock:
 		u := v.URL
@@ -296,7 +296,7 @@ func media(b message.Block) part {
 		return part{raw: enc(map[string]any{"type": "image_url", "image_url": map[string]any{"url": u}})}
 	case *message.DocumentBlock:
 		if len(v.Data) == 0 {
-			return part{text: prompt.Textf("document_link", map[string]string{"url": v.URL})} // Chat has no URL form for files
+			return part{text: prompt.TextfFrom(texts, "document_link", map[string]string{"url": v.URL})} // Chat has no URL form for files
 		}
 		f := map[string]any{"file_data": dataURL(v.MediaType, v.Data)}
 		if v.Filename != "" {
@@ -375,7 +375,7 @@ func renderAssistant(m message.Message) json.RawMessage {
 }
 
 // renderResults writes one tool message per result; media cannot sit in a tool message, so it moves to one user message after them.
-func renderResults(m message.Message) []json.RawMessage {
+func renderResults(m message.Message, src provider.TextSource) []json.RawMessage {
 	var out []json.RawMessage
 	var moved []part
 	for _, b := range m.Content {
@@ -392,12 +392,12 @@ func renderResults(m message.Message) []json.RawMessage {
 					texts = append(texts, v.Text)
 				}
 			case *message.ImageBlock, *message.DocumentBlock:
-				media = append(media, userParts(message.Content{c})...)
+				media = append(media, userParts(message.Content{c}, src)...)
 			}
 		}
 		out = append(out, enc(map[string]any{"role": "tool", "tool_call_id": r.CallID, "content": strings.Join(texts, "\n\n")}))
 		if len(media) > 0 {
-			moved = append(moved, part{text: prompt.Textf("tool_result_media", map[string]string{"call_id": r.CallID})})
+			moved = append(moved, part{text: prompt.TextfFrom(src, "tool_result_media", map[string]string{"call_id": r.CallID})})
 			moved = append(moved, media...)
 		}
 	}

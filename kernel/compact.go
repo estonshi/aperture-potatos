@@ -46,7 +46,8 @@ type CompactRequest struct {
 	Threshold    int64             // where automatic compaction starts, less a side chat's main part, so a strategy can tell whether a cheaper result leaves room
 	Caps         provider.Capabilities
 	Estimate     func(msgs []message.Message) int64
-	Summarize    Summarizer // bound to the current model; same system, tools and tool_choice
+	Summarize    Summarizer          // bound to the current model; same system, tools and tool_choice
+	Texts        provider.TextSource // the host's overrides of the fixed texts, for ClearedResult; nil for the built-ins
 }
 
 // CompactRange limits a manual compaction to one side of a turn boundary.
@@ -207,6 +208,7 @@ func (s *Session) compact(ctx context.Context, trigger CompactTrigger, instructi
 		Tokens: c.pre - c.main, Target: c.win.target, Threshold: max(c.win.threshold-c.main, 0), Caps: c.caps, // a side chat's compactor weighs its own lines against the room the main part leaves
 		Estimate:  func(msgs []message.Message) int64 { return tokens.Lines(msgs) },
 		Summarize: s.summarizer(turnID, c.win.target),
+		Texts:     s.agent.cfg.texts,
 	}
 	res, err := callCompactor(hctx, comp, req)
 	switch {
@@ -247,7 +249,7 @@ func (s *Session) summarizer(turnID string, target int64) Summarizer {
 		sr := SideRequest{IncludeHistory: msgs == nil, Messages: append(slices.Clone(msgs), message.Message{Role: message.RoleUser, Origin: message.Origin{Kind: message.OriginReminder, Source: "compaction"}, Content: message.Content{&message.TextBlock{Text: instructions}}}),
 			NoTools: true, MaxOutputTokens: int(limit), Bucket: "compaction"}
 		if s.parent != nil && msgs == nil {
-			sr.Preamble = prompt.Text("side_chat_compact_scope") // the main part rides in front but is never this summary's to keep
+			sr.Preamble = s.text("side_chat_compact_scope") // the main part rides in front but is never this summary's to keep
 		}
 		if turnID != "" && scopeOf(ctx) == nil {
 			ctx = withHookScope(ctx, &hookScope{turnID: turnID})
@@ -259,7 +261,7 @@ func (s *Session) summarizer(turnID string, target int64) Summarizer {
 		retry := sr // one retry with room to finish, since the cut-off tail is the progress and next step the summary ends with
 		retry.MaxOutputTokens *= 2
 		retry.Messages = slices.Clone(sr.Messages)
-		retry.Messages[len(retry.Messages)-1].Content = message.Content{&message.TextBlock{Text: instructions + "\n\n" + prompt.Textf("summary_too_long", map[string]string{"target": strconv.FormatInt(target, 10)})}}
+		retry.Messages[len(retry.Messages)-1].Content = message.Content{&message.TextBlock{Text: instructions + "\n\n" + s.textf("summary_too_long", map[string]string{"target": strconv.FormatInt(target, 10)})}}
 		m2, u2, err := s.SideCall(ctx, retry)
 		if err != nil {
 			return m.Text(), u, nil // the cut-off summary still beats none
@@ -376,10 +378,14 @@ func sameJSON(a, b any) (bool, error) {
 	return bytes.Equal(x, y), nil
 }
 
-// ClearedResult is the prune placeholder for one tool result: the kernel's fixed text, marked cleared.
-func ClearedResult(r message.ToolResultBlock) *message.ToolResultBlock {
+// ClearedResult is the prune placeholder for one tool result: the kernel's fixed text, marked cleared; texts may be left out for the built-in text.
+func ClearedResult(r message.ToolResultBlock, texts ...prompt.Source) *message.ToolResultBlock {
+	var src prompt.Source
+	if len(texts) > 0 {
+		src = texts[0]
+	}
 	c := r
-	c.Content = message.Content{&message.TextBlock{Text: prompt.Text("tool_result_cleared")}}
+	c.Content = message.Content{&message.TextBlock{Text: prompt.TextFrom(src, "tool_result_cleared")}}
 	c.Cleared, c.Pin, c.Structured = true, nil, nil
 	return &c
 }
@@ -441,7 +447,7 @@ func (s *Session) applyCompaction(ctx, hctx context.Context, c compaction, req C
 	head = append(head, sink.take()...)
 	var headLine *message.Message
 	if len(head) > 0 {
-		headLine, _ = delivery(nil, nil, head)
+		headLine, _ = delivery(s.agent.cfg.texts, nil, nil, head)
 		headLine.Origin = message.Origin{Kind: message.OriginEpochHead}
 	}
 	var rep CompactReport
@@ -479,7 +485,7 @@ func (s *Session) applyCompaction(ctx, hctx context.Context, c compaction, req C
 			}
 		}
 		if t != nil && c.current >= 0 && !endsWithInput(kept) { // a turn that has only its input so far needs no nudge
-			cont := continuation(prompt.Text("compact_continue"))
+			cont := continuation(s.text("compact_continue"))
 			s.appendLine(st, cont, turnID)
 			s.publishCommitted(st, cont, le)
 		}
@@ -545,7 +551,7 @@ func (s *Session) pinReminders(pins []Pin) []*message.ReminderBlock {
 		}
 		text := pin.Content
 		if tokens.Text(text) > limit {
-			text = cutTokens(text, limit) + "\n" + prompt.Text("pin_truncated")
+			text = cutTokens(text, limit) + "\n" + s.text("pin_truncated")
 		}
 		n := tokens.Text(text)
 		if n > total {
@@ -623,7 +629,7 @@ func (s *Session) Unpin(ctx context.Context, key string) error {
 			err = fmt.Errorf("%w: %s", ErrUnknownPin, key)
 			return
 		}
-		it := s.reminderItem("pin:"+key, prompt.Textf("pin_removed", map[string]string{"key": key}), false)
+		it := s.reminderItem("pin:"+key, s.textf("pin_removed", map[string]string{"key": key}), false)
 		it.parts[0].unpin = key
 		s.enqueue(it)
 	}); e != nil {
@@ -656,7 +662,7 @@ func (s *Session) clear(ctx context.Context) error {
 	var head *message.Message
 	var info deliveryInfo
 	if notes := s.sideHead(sink.take()); len(notes) > 0 {
-		head, info = delivery(nil, nil, notes)
+		head, info = delivery(s.agent.cfg.texts, nil, nil, notes)
 		head.Origin = message.Origin{Kind: message.OriginEpochHead}
 	}
 	var unsynced []message.Message
@@ -709,7 +715,7 @@ func (t *turn) autoCompact(ctx context.Context) {
 			off = true // a side chat's own lines within the summary target leave no room to win
 		}
 		if counter != nil {
-			req = &provider.Request{Model: t.model.info.Model, System: st.system, Messages: t.withMain(st.history[1:len(st.history):len(st.history)], st.system, t.model.caps.ThinkingPrefixBound), Tools: t.defs, HostedTools: t.hosted, Params: t.model.ref.Params, Caps: t.model.caps}
+			req = &provider.Request{Model: t.model.info.Model, System: st.system, Messages: t.withMain(st.history[1:len(st.history):len(st.history)], st.system, t.model.caps.ThinkingPrefixBound), Tools: t.defs, HostedTools: t.hosted, Params: t.model.ref.Params, Caps: t.model.caps, Texts: s.agent.cfg.texts}
 		}
 	})
 	if off || th <= 0 {

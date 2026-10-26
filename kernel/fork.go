@@ -10,7 +10,6 @@ import (
 	"sync/atomic"
 
 	"github.com/estonshi/aperture-potatos/event"
-	"github.com/estonshi/aperture-potatos/internal/prompt"
 	"github.com/estonshi/aperture-potatos/internal/tokens"
 	"github.com/estonshi/aperture-potatos/message"
 	"github.com/estonshi/aperture-potatos/provider"
@@ -95,7 +94,7 @@ func (s *Session) fork(ctx context.Context, id string, parent *Session, name str
 		src = forkSource{id: s.id, system: slices.Clone(st.system), model: st.model, meter: st.meter, learned: map[provider.ModelInfo]*learned{}}
 		switch {
 		case parent != nil:
-			lines, src.main = lines[:1], st.view()
+			lines, src.main = lines[:1], st.view(s.agent.cfg.texts)
 			src.meter.Reset() // the side chat's own lines start here; the main session's estimate stands for its part
 		case main != nil:
 			lines, src.fromSide = slices.Concat(lines[:1], main.lines[:main.stable], lines[1:]), true
@@ -131,9 +130,8 @@ func (s *Session) fork(ctx context.Context, id string, parent *Session, name str
 	})
 }
 
-// inherit gives ns what a fork keeps of s: rules, the session-scope registrations as they are now, and the fork's own options.
+// inherit gives ns what a fork keeps of s: the session-scope registrations, rules included, as they are now, and the fork's own options.
 func (s *Session) inherit(ns *Session, parent *Session, fc forkConfig) {
-	ns.rules = slices.Clone(s.rules)
 	ns.exts = slices.Clone(s.exts[len(s.agent.exts):])
 	ns.parent = parent
 	s.reg.mu.Lock()
@@ -178,7 +176,7 @@ func (s *Session) openFork(ctx context.Context, src forkSource, meta *message.Se
 			s.appendCopy(st, m, nil)
 		}
 		if src.main != nil {
-			head, info := delivery(nil, nil, s.sideHead(nil))
+			head, info := delivery(s.agent.cfg.texts, nil, nil, s.sideHead(nil))
 			head.Origin = message.Origin{Kind: message.OriginEpochHead}
 			s.appendLine(st, head, "")
 			s.publishCommitted(st, head, &lineEvents{delivery: &info})
@@ -203,7 +201,7 @@ func (s *Session) openFork(ctx context.Context, src forkSource, meta *message.Se
 		if list == "" {
 			list = "none"
 		}
-		notes = append(notes, &message.ReminderBlock{Source: "tools", Text: prompt.Textf("tools_allowed", map[string]string{"names": list})})
+		notes = append(notes, &message.ReminderBlock{Source: "tools", Text: s.textf("tools_allowed", map[string]string{"names": list})})
 	}
 	for _, n := range notes {
 		s.post(func(*state) { s.enqueue(s.reminderItem(n.Source, n.Text, false)) })

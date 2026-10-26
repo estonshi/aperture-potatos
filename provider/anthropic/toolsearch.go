@@ -6,6 +6,7 @@ import (
 
 	"github.com/estonshi/aperture-potatos/internal/prompt"
 	"github.com/estonshi/aperture-potatos/message"
+	"github.com/estonshi/aperture-potatos/provider"
 )
 
 // toolSearchName is what the BM25 tool search, the neutral one's definition, is called on the wire.
@@ -14,7 +15,7 @@ const toolSearchName = "tool_search_tool_bm25"
 var toolSearchDef = json.RawMessage(`{"type":"tool_search_tool_bm25_20251119","name":"` + toolSearchName + `"}`)
 
 // removedTools stands in for each tool a replayed search loaded that the request no longer has, since the API refuses a reference to a missing definition.
-func removedTools(msgs []message.Message, tools []message.ToolDef, deferred bool) []json.RawMessage {
+func removedTools(msgs []message.Message, tools []message.ToolDef, deferred bool, texts provider.TextSource) []json.RawMessage {
 	have := map[string]bool{}
 	for _, t := range tools {
 		have[t.Name] = true
@@ -35,7 +36,7 @@ func removedTools(msgs []message.Message, tools []message.ToolDef, deferred bool
 	slices.Sort(missing)
 	out := make([]json.RawMessage, len(missing))
 	for i, name := range missing {
-		w := map[string]any{"name": name, "description": prompt.Text("tool_removed"), "input_schema": json.RawMessage(`{"type":"object"}`)}
+		w := map[string]any{"name": name, "description": prompt.TextFrom(texts, "tool_removed"), "input_schema": json.RawMessage(`{"type":"object"}`)}
 		if deferred {
 			w["defer_loading"] = true
 		}

@@ -53,7 +53,9 @@ Each condition in `when` can set only one operator. The available operators are:
 
 Two details matter during evaluation. When a field does not exist, only `{"exists": false}` holds, and every other operator fails. When the type of the field value does not fit the operator, for example `glob` on a number, the condition also fails.
 
-In Go, you can also set `Match func(ToolCallView) bool` on a `kernel.ApprovalRule` to decide with arbitrary logic whether the rule matches. Such a rule, however, cannot be written to a file or shared across languages.
+In Go, you can also set `Match func(ToolCallView) bool` on a `kernel.ApprovalRule` to decide with arbitrary logic whether the rule matches. It is the Go form of the binding-native predicate recommended by the spec: it runs only after `tool` and `when` match and is ANDed with them, so a predicate cannot make a rule match when its declarative part does not. A predicate must be deterministic, free of side effects and safe for concurrent use. When it panics, `deny` and `ask` count as matching and `allow` counts as not matching, and the failure is logged, so a failure only makes the policy stricter. A rule that carries a predicate cannot be written to a rule file: `json.Marshal` returns an error, and `ParseApprovalRules` refuses a `match` field in a rule file.
+
+**Adding and removing rules at runtime.** `r.ApprovalRule(rule)` returns a `*Registration`; the rule takes effect from the next gate, and `Remove()` revokes it the same way. An agent-level registration checks every open session of that agent and of the agents derived from it, while a session-level registration checks what it inherits. The same id in two layers returns `ErrDuplicate` rather than being silently resolved by shadowing. `sess.ApprovalRules()` lists the effective rules in evaluation order, each with its `Scope` and `Portable`, for display or auditing.
 
 > Note: When a rule matches a free-text field such as SQL or a shell command, the rule is not a security boundary, because the same intent can always be expressed in another way. For truly dangerous tools, use `ask` so that a person looks at each call, or do not register the tool at all.
 
@@ -69,7 +71,7 @@ A single tool call can match several rules at once and can also be affected by h
 
 ## 8.3 Approvers
 
-An approver is a function that receives an approval request and returns a verdict. Register one with `kernel.WithApprover`:
+An approver is a function that receives an approval request and returns a verdict. Register one with `kernel.WithApprover`, which is `kernel.WithApproverNamed("approver", fn)`:
 
 ```go
 kernel.WithApprover(func(ctx context.Context, req kernel.ApprovalRequest) (kernel.ApprovalDecision, error) {
@@ -83,7 +85,7 @@ The `ApprovalRequest` an approver receives has the following fields:
 |---|---|
 | `ApprovalID` | The id of this approval, which matches the id in the `approval.requested` event. |
 | `Call` | A `ToolCallView` with `CallID`, `Name` and `Input`. `Input` is the normalized input, byte for byte the same as the input the tool receives. |
-| `Rules` | The list of rules that matched, each with `ID`, `Action` and `Reason`. |
+| `Rules` | The list of rules that matched, each with `ID`, `Action`, `Reason` and `Scope` (`agent` or `session`, the scope the rule was registered in). |
 | `HookReasons` | The reasons attached when a `pre_tool_use` hook returned `ask`. |
 | `BatchID`, `BatchSize` | The id of the batch of tool calls this call belongs to and the number of calls in it. The UI can use them to show a batch together. |
 | `Round` | Which round of approval this is. When an approver rewrites the input, approval runs again and the round goes up by one. |
@@ -98,13 +100,15 @@ In the `ApprovalDecision` an approver returns, the `Verdict` field determines th
 | `VerdictDeny` | Denies the call. The model receives "Denied by reviewer: <Reason>". |
 | `VerdictDenyAndStop` | Denies the call and ends the turn once this batch of calls has run. |
 
+For two or more approvers, name each one with `kernel.WithApproverNamed(name, fn)` and order them with `kernel.Priority`. The same name twice in one scope returns `ErrDuplicate`; agent and session scope may use the same name.
+
 ## 8.4 Events
 
 Approval emits the following two events:
 
 | Event | Fields |
 |---|---|
-| `approval.requested` | `ApprovalID`, `CallID`, `Name`, `Input`, `Rules`, `BatchID`, `BatchSize` |
+| `approval.requested` | `ApprovalID`, `CallID`, `Name`, `Input`, `Rules` (each with `ID`, `Action`, `Reason`, `Scope`), `BatchID`, `BatchSize` |
 | `approval.resolved` | `ApprovalID`, `CallID`, `Verdict`, `Reason`, `By` (which approver gave the verdict), `InputUpdated`, `DurationMs` |
 
 The `approval.requested` event is emitted before any approver is called. The UI can therefore show a "waiting for approval" state based on this event, while the approver waits for the UI to return the user's answer.

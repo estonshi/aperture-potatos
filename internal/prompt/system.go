@@ -31,14 +31,17 @@ type SystemInput struct {
 }
 
 // System renders the fixed skeleton; the same input always yields the same bytes, which keeps prompt caches warm.
-func System(in SystemInput) []Part {
+func System(in SystemInput) []Part { return SystemFrom(nil, in) }
+
+// SystemFrom renders the skeleton through src's overrides, which is the built-in rendering when src is nil.
+func SystemFrom(src Source, in SystemInput) []Part {
 	out := []Part{
-		{Slot: SlotCore, Name: SlotCore, Text: File("system.core")},
-		{Slot: SlotIdentity, Name: SlotIdentity, Text: Filef("identity", map[string]string{"nickname": in.Nickname, "description": in.Description})},
+		{Slot: SlotCore, Name: SlotCore, Text: FileFrom(src, "system.core")},
+		{Slot: SlotIdentity, Name: SlotIdentity, Text: FilefFrom(src, "identity", map[string]string{"nickname": in.Nickname, "description": in.Description})},
 	}
 	out = appendSlot(out, in.Sections, SlotCapabilities)
 	if in.Instructions != "" {
-		out = append(out, Part{Slot: SlotUser, Name: SlotUser, Text: Filef("user", map[string]string{"instructions": in.Instructions})})
+		out = append(out, Part{Slot: SlotUser, Name: SlotUser, Text: FilefFrom(src, "user", map[string]string{"instructions": in.Instructions})})
 	}
 	out = appendSlot(out, in.Sections, SlotCatalog)
 	return appendSlot(out, in.Sections, SlotEnvironment)

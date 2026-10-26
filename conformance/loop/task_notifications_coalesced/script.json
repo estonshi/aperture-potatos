@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "Two host-started jobs succeed while the model waits on a slow tool. At the safe point after the tool line both notifications arrive in one user message, one tag each, and the message references both tasks.",
   "agent": {
     "nickname": "Tater",

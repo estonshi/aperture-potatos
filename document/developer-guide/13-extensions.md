@@ -43,7 +43,8 @@ repo := kernel.ExtensionFunc("repo", func(r kernel.Registrar) error {
 | `ContextProvider(p)` | 注册每轮动态内容，详见 [11.4](11-prompt.md#114-每轮动态内容)。 |
 | `Compactor(c)` | 注册压缩策略，每个作用域只能有一个，详见 [15.6](15-context.md#156-自定义压缩策略)。 |
 | `TaskKind(k)` | 注册任务类型，详见 [12](12-tasks.md)。 |
-| `Hide(kind, name)` | 在本作用域中遮蔽继承来的注册。`kind` 可取 `KindTool`、`KindCommand`、`KindPromptSection`、`KindContextProvider`、`KindCompactor`、`KindTaskKind` 或 `KindHostedTool`。 |
+| `ApprovalRule(r)` | 注册审批规则，从下一次 gate 起生效，详见 [8.1](08-approval.md#81-规则)。 |
+| `Hide(kind, name)` | 在本作用域中遮蔽继承来的注册。`kind` 可取 `KindTool`、`KindCommand`、`KindPromptSection`、`KindContextProvider`、`KindHostedTool`。`KindCompactor` 和 `KindTaskKind` 用同名注册来遮蔽，`Hide` 对它们返回错误；`KindApprovalRule` 也不能隐藏，因为隐藏外层的 `deny` 会让这个 session 绕过 agent 的策略。 |
 | `Scope()`、`Agent()`、`Session()` | 分别返回当前作用域、所属 agent 和所属 session。在 agent 级时，`Session()` 返回 nil。 |
 
 hook 通过 `kernel.On(r, ...)` 或 `kernel.OnAsync(r, ...)` 注册，详见 [9.1](09-hooks.md#91-注册)。
@@ -71,7 +72,7 @@ reg, err := sess.Registrar().Tool(t)
 reg.Remove()
 ```
 
-注册的变化从下一轮开始生效。对于声明了 `ThinkingPrefixBound` 的模型，变化从下一个 epoch 开始生效。每次变化都会发出 `registry.changed` 事件，事件包含 `Scope`、`Kind`、`Name`、`Op` 和 `Effective` 字段，其中 `Effective` 的取值为 `turn` 或 `epoch`。在一轮之内，已经冻结的工具定义不会改变。如果工具的定义本身发生了变化，即 `Spec()` 返回了不同的内容，请调用 `kernel.ToolChanged(r, name)` 发出通知。
+工具和服务端工具的变化从下一轮开始生效；对于声明了 `ThinkingPrefixBound` 的模型，从下一个 epoch 开始生效。系统提示词分段从下一个 epoch 开始生效，审批规则从下一次 gate 开始生效，命令、动态内容、压缩策略和任务类型立即生效。每次变化都会发出 `registry.changed` 事件，事件包含 `Scope`、`Kind`、`Name`、`Op` 和 `Effective` 字段，其中 `Effective` 的取值为 `now`、`turn` 或 `epoch`。在一轮之内，已经冻结的工具定义不会改变。如果工具的定义本身发生了变化，即 `Spec()` 返回了不同的内容，请调用 `kernel.ToolChanged(r, name)` 发出通知。
 
 ## 13.4 使用 std 安装默认扩展
 
@@ -142,6 +143,8 @@ child, err := ag.Derive(kernel.DeriveOptions{
 | `Limits` | 派生 agent 自己的上限，取零值的字段使用父 agent 的设置。 |
 
 派生的 agent 以只读层的方式共享父 agent 的注册，父 agent 之后发生的变化它也能看到。subagent 扩展就是用这种方式为每种 subagent 创建 agent 的。
+
+`ToolFilter` 不是派生时的快照：它每次对父 agent 的实时注册视图求值，父 agent 之后新增的工具也会被它过滤。它属于派生 agent 级，构造后不能更改；判断依据是 `ToolSpec`（托管工具只有名字），也不能只按名字隐藏某一次注册。如果需要在运行期按名字遮蔽某个工具，用 session 的 `sess.Registrar().Hide(kernel.KindTool, name)`：它作用在 scope 级，可以 `Remove()` 撤销，会发出 `registry.changed`，并且只遮蔽继承来的注册。
 
 ## 13.7 建议做法
 

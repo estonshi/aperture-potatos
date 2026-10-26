@@ -93,7 +93,7 @@ func newConn(in *install, s Server) *conn {
 	if s.Prompts {
 		opts.PromptListChangedHandler = func(context.Context, *sdk.PromptListChangedRequest) { c.poke() } // the SDK subscribes only when a handler is set
 	}
-	c.client = sdk.NewClient(&sdk.Implementation{Name: "potatos-mcp", Version: "0.1.0"}, opts)
+	c.client = sdk.NewClient(&sdk.Implementation{Name: "potatos-mcp", Version: "0.2.0"}, opts)
 	switch {
 	case s.OAuthHandler != nil:
 		c.oauth = s.OAuthHandler

@@ -60,9 +60,9 @@ MCP 客户端 `ext/mcp` 也包含在这个 module 中，不需要另外安装。
 
 potatOS 的事件、会话文件格式、提示词文本和默认值由仓库 `spec/` 目录下与语言无关的规范定义，其他语言的实现遵循同一份规范。规范按 SemVer 编号，当前版本写在 `spec/VERSION` 中，变更记录见 `spec/CHANGELOG.md`。
 
-本 Go 实现支持 spec 0.1，即 0.1.0 及之后的 0.1.x 版本：
+本 Go 实现支持 spec 0.2，由 `v0.2.y` 各 SDK 版本提供。spec 只发 `MAJOR.MINOR`，不发 PATCH；SDK 是 `vMAJOR.MINOR.PATCH`，`v0.2.y` 都满足 spec 0.2。
 
-- 新建的会话在 `session.started` 事件的 `spec_version` 字段和会话文件第一行中记录 `0.1.0`，写出的数据只包含 spec 0.1.0 定义的字段。
+- 新建的会话在 `session.started` 事件的 `spec_version` 字段和会话文件第一行中记录 `0.2`，写出的数据只包含 spec 0.2 定义的字段。
 - 恢复会话时按行格式版本 `v` 判断能否读取，与第一行记录的 spec 版本无关。`v` 为 1 的会话文件都可以读取，包括其他语言实现写出的；`v` 更高时返回 `store.ErrIncompatibleStore`。
 - 读取较新版本写出的数据时，不认识的字段会被忽略，不认识的内容块保留为 `*message.OpaqueBlock`，不认识的事件类型解码为 `*event.Unknown`。
 

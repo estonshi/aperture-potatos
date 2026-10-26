@@ -2,6 +2,8 @@ package kernel_test
 
 import (
 	"context"
+	"errors"
+	"slices"
 	"strings"
 	"testing"
 	"testing/synctest"
@@ -12,6 +14,58 @@ import (
 	"github.com/estonshi/aperture-potatos/provider"
 	"github.com/estonshi/aperture-potatos/provider/providertest"
 )
+
+// TestNamedApproversRunInPriorityOrder: named reviewers form one chain, ordered by Priority, and one scope refuses the same name twice.
+func TestNamedApproversRunInPriorityOrder(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		var order []string
+		sp := providertest.NewScriptProvider(provider.APIAnthropicMessages, toolReply(call{"toolu_1", "echo", `{"x":1}`}), textReply("done"))
+		ag, err := kernel.New(
+			kernel.WithModel(provider.ModelRef{Provider: sp, Model: "m"}),
+			kernel.WithTool(&echoTool{name: "echo"}),
+			kernel.WithApprovalRules(kernel.ApprovalRule{ID: "review-echo", Tool: "echo", Action: kernel.RuleAsk}),
+			kernel.WithApproverNamed("policy", func(context.Context, kernel.ApprovalRequest) (kernel.ApprovalDecision, error) {
+				order = append(order, "policy")
+				return kernel.ApprovalDecision{Verdict: kernel.VerdictApprove}, nil
+			}, kernel.Priority(-1)),
+			kernel.WithApproverNamed("human", func(context.Context, kernel.ApprovalRequest) (kernel.ApprovalDecision, error) {
+				order = append(order, "human")
+				return kernel.ApprovalDecision{Verdict: kernel.VerdictApprove}, nil
+			}),
+		)
+		if err != nil {
+			t.Fatal(err)
+		}
+		sess, err := ag.NewSession(t.Context())
+		if err != nil {
+			t.Fatal(err)
+		}
+		rc, err := sess.Send(kernel.Text("go"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := rc.Wait(t.Context()); err != nil {
+			t.Fatal(err)
+		}
+		if want := []string{"policy", "human"}; !slices.Equal(order, want) {
+			t.Fatalf("order %v, want %v", order, want)
+		}
+		if err := ag.Close(context.Background()); err != nil {
+			t.Fatal(err)
+		}
+
+		_, err = kernel.New(kernel.WithModel(provider.ModelRef{Provider: sp, Model: "m"}),
+			kernel.WithApproverNamed("same", func(context.Context, kernel.ApprovalRequest) (kernel.ApprovalDecision, error) {
+				return kernel.ApprovalDecision{Verdict: kernel.VerdictApprove}, nil
+			}),
+			kernel.WithApproverNamed("same", func(context.Context, kernel.ApprovalRequest) (kernel.ApprovalDecision, error) {
+				return kernel.ApprovalDecision{Verdict: kernel.VerdictApprove}, nil
+			}))
+		if !errors.Is(err, kernel.ErrDuplicate) {
+			t.Fatalf("same name twice: %v", err)
+		}
+	})
+}
 
 // TestSessionRulesAndMatchFunc: a session's own rules add to the agent's, and a Go matcher picks the tools its hook sees.
 func TestSessionRulesAndMatchFunc(t *testing.T) {

@@ -77,7 +77,7 @@ func (p *Provider) render(req *provider.Request) (*rendered, error) {
 	if req.Replay == provider.ReplayFallback && !req.Caps.ThinkingPrefixBound {
 		msgs = project.StripReasoning(msgs, true)
 	}
-	msgs, healed := project.HealDangling(msgs, prompt.Text("dangling_tool_call"))
+	msgs, healed := project.HealDangling(msgs, prompt.TextFrom(req.Texts, "dangling_tool_call"))
 	if len(healed) > 0 {
 		r.notices = append(r.notices, provider.Notice{Kind: "dangling_tool_call_healed", Detail: enc(map[string]any{"call_ids": healed})})
 	}
@@ -105,7 +105,7 @@ func (p *Provider) render(req *provider.Request) (*rendered, error) {
 	}
 	body["max_tokens"] = maxTokens
 	deferred := caps.ToolSearchSent(req)
-	tools := append(renderTools(req.Tools, deferred), removedTools(msgs, req.Tools, deferred)...)
+	tools := append(renderTools(req.Tools, deferred), removedTools(msgs, req.Tools, deferred, req.Texts)...)
 	if tools = append(tools, renderHosted(req, &r.notices)...); len(tools) > 0 {
 		body["tools"] = tools
 		r.notices = append(r.notices, caps.StrictDropped(req.Tools)...)

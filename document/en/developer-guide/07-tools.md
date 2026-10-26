@@ -132,6 +132,8 @@ A tool's definition and visibility are not fixed. The SDK supports the following
 
 **Hiding a tool in one session only.** After you call `sess.Registrar().Hide(kernel.KindTool, "book_hotel")`, that agent-level tool is no longer visible in the session.
 
+**Reading the tools that are visible now.** `sess.Tools()` returns the function tool definitions visible in the session, sorted by name. A session-level registration shadows an agent-level tool of the same name, and a tool hidden with `Hide` is left out; a tool whose `Spec()` panics is skipped and logged. The result is a copy, so changing it does not affect the registry, which makes it suitable for telling a host which tools exist during a handshake. Provider-run tools such as `web_search` are not included; read them with `sess.HostedTools()`.
+
 ## 7.8 Deferred loading and tool search
 
 When you have many tools, putting every tool definition into the context uses a lot of tokens. Instead, you can keep some tools out of the context by default and load them only when the model finds them through search. Enabling this takes two steps:

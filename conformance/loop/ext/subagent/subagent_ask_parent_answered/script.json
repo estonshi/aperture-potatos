@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "The subagent asks its parent with ask_parent: the foreground call returns the question and the task goes on in the background, waiting for input. The answer the host sends reaches the waiting ask_parent as its result, the child goes on in the same turn, and the parent is notified of the end.",
   "agent": {
     "nickname": "Tater",

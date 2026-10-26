@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/estonshi/aperture-potatos/message"
 	"github.com/estonshi/aperture-potatos/spec"
@@ -56,17 +57,22 @@ func EscapeRuntimeTags(s string) string {
 	return runtimeTags.ReplaceAllString(s, "&lt;$1")
 }
 
-// runtimeTags is built from spec/data/runtime_tags.json, so every binding escapes exactly the same tags.
-var runtimeTags = func() *regexp.Regexp {
+// runtimeTagNames reads spec/data/runtime_tags.json, so every binding escapes exactly the same tags.
+var runtimeTagNames = sync.OnceValue(func() []string {
 	var doc struct {
 		Tags []string `json:"tags"`
 	}
 	if err := json.Unmarshal([]byte(spec.MustText("data/runtime_tags.json")), &doc); err != nil {
 		panic(err)
 	}
-	names := make([]string, len(doc.Tags))
-	for i, t := range doc.Tags {
-		names[i] = regexp.QuoteMeta(t)
+	return doc.Tags
+})
+
+// runtimeTags is built from the same list.
+var runtimeTags = func() *regexp.Regexp {
+	names := make([]string, 0, len(runtimeTagNames()))
+	for _, t := range runtimeTagNames() {
+		names = append(names, regexp.QuoteMeta(t))
 	}
 	return regexp.MustCompile(`(?i)<(\s*/?\s*(?:` + strings.Join(names, "|") + `))`)
 }()

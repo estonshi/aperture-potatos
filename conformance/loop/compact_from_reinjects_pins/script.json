@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "A pin declared in the part a from-compaction summarizes is re-injected in the summary line; a pin the kept part still holds is not repeated.",
   "agent": {
     "nickname": "Tater",

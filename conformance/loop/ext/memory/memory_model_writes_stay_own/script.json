@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "Without shared_writes the model's memory_save with an empty user tag lands under the session's user, and memory_forget of a memory every user shares is refused with shared_read_only.",
   "agent": {
     "nickname": "Tater",

@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "A clear opens a new epoch while a job runs; the job goes on and its notification arrives in the new epoch's context.",
   "agent": {
     "nickname": "Tater",

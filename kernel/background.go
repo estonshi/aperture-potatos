@@ -65,7 +65,7 @@ func (x *toolExec) Run(ctx context.Context, rt TaskRuntime) (TaskResult, error) 
 	case !ok:
 		return TaskResult{}, fmt.Errorf("no tool named %s is registered", x.in.Tool)
 	case s.allowed != nil && !s.allowed[x.in.Tool]:
-		return TaskResult{}, errors.New(prompt.Textf("tool_not_allowed", map[string]string{"name": x.in.Tool}))
+		return TaskResult{}, errors.New(s.textf("tool_not_allowed", map[string]string{"name": x.in.Tool}))
 	}
 	call := message.ToolCallBlock{ID: s.agent.cfg.ids.NewID("tcall"), Name: x.in.Tool, Input: x.in.Input}
 	var approved bool
@@ -138,7 +138,7 @@ func (s *Session) gateRun(ctx context.Context, rt *taskRuntime, call message.Too
 	case screenRun:
 		return sc.call, res, true
 	case screenInterrupted:
-		return call, toolexec.NotStarted(call), false // the attempt was asked to stop, so it ends canceled whatever this says
+		return call, toolexec.NotStarted(call, s.agent.cfg.texts), false // the attempt was asked to stop, so it ends canceled whatever this says
 	case screenInvalid:
 		return call, sc.result, false
 	case screenSettled:
@@ -200,7 +200,7 @@ func (r *toolRunner) divert(ctx context.Context, results []message.ToolResultBlo
 		var ie *InputError
 		switch {
 		case errors.As(err, &ie):
-			results[index[k]] = kernelResult(c, message.OutcomeInvalidInput, prompt.Textf("invalid_input_detail", map[string]string{"detail": ie.Detail}))
+			results[index[k]] = kernelResult(c, message.OutcomeInvalidInput, r.s.textf("invalid_input_detail", map[string]string{"detail": ie.Detail}))
 		case !bg:
 			keep, at = append(keep, c), append(at, index[k])
 		default:
@@ -222,7 +222,7 @@ func (r *toolRunner) startBackground(ctx context.Context, c message.ToolCallBloc
 	scope := &hookScope{turnID: r.turnID, step: r.step, attempt: r.attempt, callID: c.ID, sink: sink}
 	cctx := withMarker(withHookScope(ctx, scope), marker{chain: s.chain, kind: "tool", call: c.ID})
 	info, _, err := s.tasks.start(cctx, TaskSpec{Kind: ToolExecKind, Title: c.Name, Input: toolExecSpec(c.Name, input)}, true)
-	res := startedResult(info, false)
+	res := startedResult(s.agent.cfg.texts, info, false)
 	if err != nil {
 		res = s.TaskErrorResult(err)
 	}
@@ -245,7 +245,7 @@ func (s *Session) restartView(kind string, input json.RawMessage) (string, json.
 }
 
 // restartInput is a restart's new spec input; a tool_exec restart takes the wrapped tool's own input and cannot change the tool.
-func restartInput(spec TaskSpec, input json.RawMessage) (json.RawMessage, error) {
+func restartInput(texts prompt.Source, spec TaskSpec, input json.RawMessage) (json.RawMessage, error) {
 	if spec.Kind != ToolExecKind {
 		return input, nil
 	}
@@ -255,7 +255,7 @@ func restartInput(spec TaskSpec, input json.RawMessage) (json.RawMessage, error)
 	}
 	norm, err := normalizeInput(input)
 	if err != nil {
-		return nil, &TaskDeniedError{Text: prompt.Textf("invalid_input_detail", map[string]string{"detail": err.(*InputError).Detail})}
+		return nil, &TaskDeniedError{Text: prompt.TextfFrom(texts, "invalid_input_detail", map[string]string{"detail": err.(*InputError).Detail})}
 	}
 	_, rest, _ := takeBackground(norm)
 	return toolExecSpec(cur.Tool, rest), nil
@@ -339,7 +339,7 @@ func (s *Session) adoptCall(ctx context.Context, mc *movableCall) (TaskInfo, err
 	case <-x.ready: // the task took the call's progress over before the call settles, so none reaches the main loop after its tool.completed
 	case <-s.ctx.Done():
 	}
-	mc.mv.Commit(mc.r.convert(mc.tctx, mc.call, startedResult(info, true), nil), max(mc.ft.spec.Timeout, 0))
+	mc.mv.Commit(mc.r.convert(mc.tctx, mc.call, startedResult(mc.r.s.agent.cfg.texts, info, true), nil), max(mc.ft.spec.Timeout, 0))
 	return info, nil
 }
 

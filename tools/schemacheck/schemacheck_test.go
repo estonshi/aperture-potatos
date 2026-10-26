@@ -208,7 +208,7 @@ func TestGoWrittenLinesValidate(t *testing.T) {
 	usage := message.Usage{InputTokens: 10, OutputTokens: 5, ReasoningTokens: 2, Estimated: true}
 	lines := []message.Message{
 		{Role: message.RoleSystem, Origin: message.Origin{Kind: message.OriginSystem}, Content: message.Content{&message.TextBlock{Text: "<identity>…</identity>"}},
-			Boundary: &message.Boundary{Reason: "new", Session: &message.SessionMeta{Agent: "Tater", SpecVersion: "0.1.0", Labels: map[string]string{"env": "test"}}},
+			Boundary: &message.Boundary{Reason: "new", Session: &message.SessionMeta{Agent: "Tater", SpecVersion: "0.2", Labels: map[string]string{"env": "test"}}},
 			Tools:    []message.ToolDef{{Name: "get_weather", Description: "d", InputSchema: json.RawMessage(`{"type":"object"}`)}}},
 		message.UserText("hi"),
 		{Role: message.RoleUser, Origin: message.Origin{Kind: message.OriginEpochHead}, Content: message.Content{

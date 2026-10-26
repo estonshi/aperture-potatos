@@ -4,7 +4,7 @@
 
 本章说明模型看到的提示词由哪些部分组成，包括你的指令写在哪里、扩展的说明放在哪里，以及如何在不破坏缓存的前提下把每轮都会变化的信息送给模型。读完本章，你可以为 agent 编写指令、为扩展添加提示词分段，并检查最终渲染出的系统提示词。
 
-本章内容：[11.1 系统提示词的结构](#111-系统提示词的结构) · [11.2 编写你的指令](#112-编写你的指令) · [11.3 扩展分段](#113-扩展分段) · [11.4 每轮动态内容](#114-每轮动态内容) · [11.5 查看渲染结果](#115-查看渲染结果) · [11.6 面向模型的文字](#116-面向模型的文字) · [11.7 建议做法](#117-建议做法)
+本章内容：[11.1 系统提示词的结构](#111-系统提示词的结构) · [11.2 编写你的指令](#112-编写你的指令) · [11.3 扩展分段](#113-扩展分段) · [11.4 每轮动态内容](#114-每轮动态内容) · [11.5 查看渲染结果](#115-查看渲染结果) · [11.6 面向模型的文字](#116-面向模型的文字) · [11.7 覆盖固定文本](#117-覆盖固定文本) · [11.8 建议做法](#118-建议做法)
 
 ## 11.1 系统提示词的结构
 
@@ -110,7 +110,35 @@ kernel.WithContextProvider(kernel.ContextProvider{
 
 如果你想在提示词中引用运行时的约定，例如告诉模型提醒的格式，则不需要重复说明，因为 core 段已经写明了这些约定。
 
-## 11.7 建议做法
+## 11.7 覆盖固定文本
+
+运行时发给模型的固定文本都有默认英文版本。宿主需要另一种语言或措辞时，可以用 `kernel.WithTexts` 在 agent 级覆盖：
+
+```go
+ag, err := kernel.New(
+	kernel.WithModel(model),
+	kernel.WithTexts(map[string]string{
+		"unknown_tool": "没有名为 {{name}} 的工具。",
+		"identity":     "<identity>\n你叫 {{nickname}}。\n</identity>",
+		"system.core":  coreText, // 整个 core 段
+	}),
+)
+```
+
+键有两类：
+
+- `spec/prompts/reminders.md` 中每个二级标题就是一个 key，例如 `unknown_tool`、`denied_by_rule`、`approval_stopped`。正文使用同一套模板语法，`{{name}}` 这类变量照常展开。
+- 提示词文件名，例如 `identity`、`user`、`system.core`、`agent_message`、`task_started`、`task_notification`。
+
+规则与限制：
+
+- 只覆盖给出的键，其余沿用内置文本；`New` 会拒绝拼错的键，返回 `ErrInvalidName`。
+- `system.core` 可以整段替换，但必须仍然提到 `spec/data/runtime_tags.json` 里的每个标签，并以 `</runtime-conventions>` 闭合，否则 `New` 失败。这样模型不会失去“提醒、任务通知和其他 agent 来信各代表什么”的说明。
+- 覆盖是 agent 级的，派生 agent 继承，会话内不能改。已经渲染的 epoch 保持原文本，新 epoch 才生效。
+- provider 适配器写出的固定文本（`dangling_tool_call`、`tool_removed`、`document_link`、`tool_result_media`）通过 `provider.Request.Texts` 传入，kernel 会自动带上同一份覆盖表。自己实现 provider 时可以不设置，此时使用内置文本。
+- 其余硬编码文案通过结构化字段翻译：内核自己发出的 `notice` 带 `Kind` 和 `Detail`，宿主可以按 `Kind` 决定显示什么，不必解析 `Text`。详见 [6](06-events.md)。
+
+## 11.8 建议做法
 
 - 静态内容放进系统提示词，动态内容通过 `ContextProvider` 送达。判断标准是这段文字在一天之内是否会变化，如果会变化，就不要放进系统提示词。
 - 多租户场景建议组合使用 `WithLabels` 和 `WithInstructionsFunc`。这样一个 Agent 就能服务所有租户，指令按标签生成。

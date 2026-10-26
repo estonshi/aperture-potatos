@@ -71,6 +71,60 @@ func TestRuleDecide(t *testing.T) {
 	}
 }
 
+// TestRulePredicate: the native predicate runs only after tool and when match, the three are ANDed, and a panic resolves toward the stricter action.
+func TestRulePredicate(t *testing.T) {
+	boom := func(ToolCallView) bool { panic("boom") }
+	calls := 0
+	rules, err := compileRules([]ApprovalRule{
+		{ID: "deny-boom", Tool: "write_file", When: map[string]Condition{"path": {Prefix: "/etc"}}, Action: RuleDeny, Match: boom},
+		{ID: "ask-boom", Tool: "write_file", When: map[string]Condition{"path": {Prefix: "/etc"}}, Action: RuleAsk, Match: boom},
+		{ID: "allow-boom", Tool: "write_file", When: map[string]Condition{"path": {Prefix: "/etc"}}, Action: RuleAllow, Match: boom},
+		{ID: "runs", Tool: "write_file", When: map[string]Condition{"path": {Prefix: "/etc"}}, Action: RuleAsk,
+			Match: func(ToolCallView) bool { calls++; return true }},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	v := decide(rules, ToolCallView{Name: "write_file", Input: json.RawMessage(`{"path":"/etc/passwd"}`)})
+	if v.action != RuleDeny || v.deny == nil || v.deny.ID != "deny-boom" {
+		t.Fatalf("got %q (deny %v)", v.action, v.deny)
+	}
+	if len(v.failures) != 3 || v.failures[0].id != "deny-boom" || v.failures[2].action != RuleAllow {
+		t.Fatalf("failures %+v", v.failures)
+	}
+	if calls != 1 {
+		t.Fatalf("predicate calls %d", calls)
+	}
+	if v := decide(rules, ToolCallView{Name: "write_file", Input: json.RawMessage(`{"path":"/tmp/x"}`)}); v.action != "" || calls != 1 {
+		t.Fatalf("a miss ran the predicate: %q, calls %d", v.action, calls)
+	}
+	if v := decide(rules, ToolCallView{Name: "read_file", Input: json.RawMessage(`{"path":"/etc/passwd"}`)}); v.action != "" || calls != 1 {
+		t.Fatalf("another tool ran the predicate: %q, calls %d", v.action, calls)
+	}
+}
+
+// TestApprovalRuleSerialization: a rule carrying a native predicate cannot be written, and a rule file cannot name one.
+func TestApprovalRuleSerialization(t *testing.T) {
+	withPredicate := ApprovalRule{ID: "x", Tool: "*", Action: RuleDeny, Match: func(ToolCallView) bool { return true }}
+	if _, err := json.Marshal(withPredicate); err == nil || !strings.Contains(err.Error(), "native predicate") {
+		t.Fatalf("marshal with predicate: %v", err)
+	}
+	plain := ApprovalRule{ID: "x", Tool: "*", Action: RuleDeny}
+	b, err := json.Marshal(plain)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(b), "match") {
+		t.Fatalf("marshal wrote a match field: %s", b)
+	}
+	if rs, err := ParseApprovalRules(append(append([]byte{'['}, b...), ']')); err != nil || len(rs) != 1 || rs[0].Match != nil {
+		t.Fatalf("round trip: %v %+v", err, rs)
+	}
+	if _, err := ParseApprovalRules([]byte(`[{"id":"x","tool":"*","action":"deny","match":"always"}]`)); err == nil || !strings.Contains(err.Error(), "native predicate") {
+		t.Fatalf("parse with match: %v", err)
+	}
+}
+
 // TestPathPrefix: path prefixes match whole segments, and a relative path is never under an absolute prefix, except that one climbing out with .. is denied.
 func TestPathPrefix(t *testing.T) {
 	rules := mustRules(t, `[

@@ -132,6 +132,8 @@ info, err := sess.BackgroundCall(ctx, callID) // callID 取自 tool.started 事�
 
 **只对某个 session 隐藏工具。** 调用 `sess.Registrar().Hide(kernel.KindTool, "book_hotel")` 后，agent 级注册的这个工具在该 session 中将不可见。
 
+**读取当前可见的工具。** `sess.Tools()` 返回当前 session 可见的函数工具定义，按名称排序。session 级注册会遮蔽 agent 级的同名工具，被 `Hide` 的工具不会出现；`Spec()` 发生 panic 的工具会被跳过并记日志。返回的是副本，修改它不会影响注册表，适合在握手时告诉宿主有哪些工具。provider 托管的工具（例如 `web_search`）不在其中，用 `sess.HostedTools()` 读取。
+
 ## 7.8 延迟加载与工具检索
 
 当工具数量很多时，把所有工具定义都放进上下文会占用大量 token。这时可以让一部分工具默认不进入上下文，只有在模型检索到它们时才加载。启用方法分两步：

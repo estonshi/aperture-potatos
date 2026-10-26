@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "pre_tool_use answers each call of one batch differently: an explicit deny is the call's error result, a synthetic result stands in for the tool, which never runs, and an ask sends the call to the reviewer, who approves it; the model then answers from the three results.",
   "agent": {
     "nickname": "Tater",

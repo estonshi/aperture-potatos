@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "BackgroundCall refuses a call of a tool not declared Background, an unknown call, and a Background call that has already returned; each call keeps its own result.",
   "agent": {
     "nickname": "Tater",

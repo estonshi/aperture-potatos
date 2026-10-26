@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "Automatic compaction fails at the start of two turns in a row; with max_consecutive_failures 2 the session stops compacting on its own and reports thrash, so the next turn runs without trying.",
   "agent": {
     "nickname": "Tater",

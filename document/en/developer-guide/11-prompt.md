@@ -4,7 +4,7 @@
 
 This chapter explains what makes up the prompt the model sees: where your instructions go, where extensions put their descriptions, and how to send the model information that changes every turn without breaking the cache. After reading it, you can write instructions for your agent, add prompt sections from an extension, and inspect the system prompt that is finally rendered.
 
-In this chapter: [11.1 Structure of the system prompt](#111-structure-of-the-system-prompt) · [11.2 Writing your instructions](#112-writing-your-instructions) · [11.3 Extension sections](#113-extension-sections) · [11.4 Per-turn dynamic content](#114-per-turn-dynamic-content) · [11.5 Viewing the rendered prompt](#115-viewing-the-rendered-prompt) · [11.6 Model-facing text](#116-model-facing-text) · [11.7 Best practices](#117-best-practices)
+In this chapter: [11.1 Structure of the system prompt](#111-structure-of-the-system-prompt) · [11.2 Writing your instructions](#112-writing-your-instructions) · [11.3 Extension sections](#113-extension-sections) · [11.4 Per-turn dynamic content](#114-per-turn-dynamic-content) · [11.5 Viewing the rendered prompt](#115-viewing-the-rendered-prompt) · [11.6 Model-facing text](#116-model-facing-text) · [11.7 Overriding the fixed texts](#117-overriding-the-fixed-texts) · [11.8 Best practices](#118-best-practices)
 
 ## 11.1 Structure of the system prompt
 
@@ -110,7 +110,35 @@ The model also sees the tool descriptions, command templates and section text th
 
 If you want the prompt to refer to the runtime's conventions, for example to tell the model the format of reminders, you do not need to explain them again, because the core section already states them.
 
-## 11.7 Best practices
+## 11.7 Overriding the fixed texts
+
+Every fixed text the runtime sends to the model has an English default. A host that needs another language or wording can override them at agent scope with `kernel.WithTexts`:
+
+```go
+ag, err := kernel.New(
+	kernel.WithModel(model),
+	kernel.WithTexts(map[string]string{
+		"unknown_tool": "There is no tool named {{name}}.",
+		"identity":     "<identity>\nYour name is {{nickname}}.\n</identity>",
+		"system.core":  coreText, // the whole core section
+	}),
+)
+```
+
+The keys come in two kinds:
+
+- Every level-two heading of `spec/prompts/reminders.md` is a key, such as `unknown_tool`, `denied_by_rule` and `approval_stopped`. The body uses the same template syntax, so variables such as `{{name}}` expand as usual.
+- Prompt file names, such as `identity`, `user`, `system.core`, `agent_message`, `task_started` and `task_notification`.
+
+Rules and limits:
+
+- Only the keys you give change; everything else keeps the built-in text, and `New` rejects a misspelled key with `ErrInvalidName`.
+- `system.core` may be replaced whole, but it must still mention every tag in `spec/data/runtime_tags.json` and close `</runtime-conventions>`, or `New` fails. This way the model never loses the explanation of what reminders, task notifications and messages from other agents mean.
+- The override is agent scope, inherited by derived agents, and cannot change inside a session. An epoch already rendered keeps its text; a new epoch picks the change up.
+- The fixed texts a provider adapter writes (`dangling_tool_call`, `tool_removed`, `document_link`, `tool_result_media`) arrive through `provider.Request.Texts`, which the kernel fills from the same table. A provider you write yourself may leave it unset and get the built-in texts.
+- Other hardcoded wording is translated through structured fields: a `notice` the kernel writes itself carries `Kind` and `Detail`, so a host can decide what to show from `Kind` instead of parsing `Text`. See [6](06-events.md).
+
+## 11.8 Best practices
 
 - Put static content in the system prompt and deliver dynamic content through a `ContextProvider`. A good test is whether the text could change within a day. If it could, keep it out of the system prompt.
 - For multi-tenant setups, combine `WithLabels` with `WithInstructionsFunc`. One Agent can then serve every tenant, with instructions generated from the labels.

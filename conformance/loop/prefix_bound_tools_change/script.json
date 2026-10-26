@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "On a prefix-bound model the tool definitions stay frozen for the epoch: adding and removing tools changes no request byte, the registry announces effective epoch, and a call to a removed tool gets unknown_tool.",
   "agent": {
     "nickname": "Tater",

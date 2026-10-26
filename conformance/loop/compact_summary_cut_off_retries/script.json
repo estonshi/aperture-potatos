@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "A summary reply cut off by the output cap is asked for once more, with twice the cap and summary_too_long appended to the instructions; the retry's summary goes into the new epoch head.",
   "agent": {
     "nickname": "Tater",

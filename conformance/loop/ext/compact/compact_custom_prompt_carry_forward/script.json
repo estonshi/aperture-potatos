@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "A custom summary template replaces the default; once the epoch starts from an earlier summary, the fixed carry-forward sentence follows the template, so the earlier summary is not lost.",
   "agent": {
     "nickname": "Tater",

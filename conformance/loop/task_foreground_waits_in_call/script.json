@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "A foreground start waits inside the tool call: the job's content is the call's result, and no notification follows.",
   "agent": {
     "nickname": "Tater",

@@ -89,6 +89,25 @@ func (r *registry) addHosted(t message.HostedTool) (*Registration, error) {
 	}}, nil
 }
 
+// HostedTools lists the visible provider-run tools, session scope shadowing agent scope, sorted by name.
+func (s *Session) HostedTools() []message.HostedTool {
+	byName := map[string]message.HostedTool{}
+	sess := s.reg.state()
+	for n, h := range s.outer().hosted {
+		if !sess.hides(KindHostedTool, n) {
+			byName[n] = h.tool
+		}
+	}
+	for n, h := range sess.hosted {
+		byName[n] = h.tool
+	}
+	out := make([]message.HostedTool, 0, len(byName))
+	for _, n := range slices.Sorted(maps.Keys(byName)) {
+		out = append(out, byName[n])
+	}
+	return out
+}
+
 // freezeHosted reads the effective hosted tools in name order, leaving out any whose name a function tool of the frozen set already takes.
 func (s *Session) freezeHosted(defs []message.ToolDef) []message.HostedTool {
 	byName := map[string]message.HostedTool{}

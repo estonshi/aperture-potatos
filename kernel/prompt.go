@@ -139,7 +139,23 @@ func (s *Session) renderSystem(ctx context.Context, tools map[string]frozenTool,
 			sections = append(sections, prompt.Part{Slot: slotNames[ps.Slot], Name: ps.Name, Text: text})
 		}
 	}
-	return prompt.System(prompt.SystemInput{Nickname: name, Description: cfg.description, Instructions: instructions, Sections: sections}), nil
+	return prompt.SystemFrom(cfg.texts, prompt.SystemInput{Nickname: name, Description: cfg.description, Instructions: instructions, Sections: sections}), nil
+}
+
+// text returns a fixed runtime text, the host's override first.
+func (s *Session) text(key string) string { return prompt.TextFrom(s.agent.cfg.texts, key) }
+
+// textf renders a fixed runtime text as a template, the host's override first.
+func (s *Session) textf(key string, vars map[string]string) string {
+	return prompt.TextfFrom(s.agent.cfg.texts, key, vars)
+}
+
+// file returns a prompt file, the host's override first.
+func (s *Session) file(name string) string { return prompt.FileFrom(s.agent.cfg.texts, name) }
+
+// filef renders a prompt file as a template, the host's override first.
+func (s *Session) filef(name string, vars map[string]string) string {
+	return prompt.FilefFrom(s.agent.cfg.texts, name, vars)
 }
 
 func toolSpecs(tools map[string]frozenTool) []ToolSpec {
@@ -155,7 +171,7 @@ func (s *Session) announceSection(c regChange) {
 	ps := *c.section
 	if c.op == "remove" {
 		s.post(func(*state) {
-			s.enqueue(s.reminderItem("registry", prompt.Textf("section_removed", map[string]string{"name": ps.Name}), false))
+			s.enqueue(s.reminderItem("registry", s.textf("section_removed", map[string]string{"name": ps.Name}), false))
 		})
 		return
 	}
@@ -166,7 +182,7 @@ func (s *Session) announceSection(c regChange) {
 			return
 		}
 		s.post(func(*state) {
-			s.enqueue(s.reminderItem("registry", prompt.Textf("section_updated", map[string]string{"name": ps.Name, "text": text}), false))
+			s.enqueue(s.reminderItem("registry", s.textf("section_updated", map[string]string{"name": ps.Name, "text": text}), false))
 		})
 	})
 }

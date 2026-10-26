@@ -61,6 +61,7 @@
 |---|---|
 | `Send(in, opts...) (*Receipt, error)` | 发送一条输入，立即返回回执。 |
 | `Run(ctx, in, opts...) iter.Seq2[event.Event, error]` | 发送一条输入，并迭代这一轮的事件直到本轮结束。 |
+| `RunCancelable(ctx, in, opts...) iter.Seq2[event.Event, error]` | 与 `Run` 相同，但提前结束迭代会停止这次输入启动的工作：已开始的 turn 被打断，还在排队的输入被撤回。 |
 | `Command(name, args) (*Receipt, error)` | 直接执行一条命令，不经过文本解析。 |
 | `WaitQuiet(ctx) (TurnResult, error)` | 一直等待，直到 session 中不再有任何会自行继续的工作。也就是 turn 已结束、排队的命令已执行完、任务都已结束，并且任务通知也已发出。 |
 
@@ -94,6 +95,9 @@
 | `Messages() []message.Message` | 返回当前上下文中的全部历史行。返回的是共享切片，只能读取。 |
 | `Context() ContextReport` | 返回上下文的 token 明细，按来源分类。 |
 | `Commands() []CommandInfo` | 返回可用的命令。 |
+| `Tools() []ToolSpec` | 返回当前可见的函数工具定义，已经去掉被隐藏和派生过滤掉的工具。 |
+| `HostedTools() []message.HostedTool` | 返回当前可见的服务端工具。 |
+| `ApprovalRules() []ApprovalRuleInfo` | 按求值顺序返回生效的审批规则，每项带来源 scope 和是否可写入规则文件。 |
 | `Parent() *Session` | 对旁路对话返回其主会话，对任务子会话返回其所属会话。根 session 返回 nil。 |
 
 **上下文管理**（[15](15-context.md)）

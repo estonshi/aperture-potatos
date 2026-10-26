@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "Summarize from here: the system line and every line before the turn are copied unchanged, so the next request starts with exactly the prefix the earlier ones cached; the summary of the rest follows as an epoch-head line.",
   "agent": {
     "nickname": "Tater",

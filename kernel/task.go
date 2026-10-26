@@ -294,18 +294,18 @@ func (t *taskTool) Call(ctx context.Context, tc *ToolContext, input json.RawMess
 		return s.TaskErrorResult(err), nil
 	}
 	if bg {
-		return startedResult(info, false), nil
+		return startedResult(s.agent.cfg.texts, info, false), nil
 	}
 	return s.tasks.foreground(ctx, info, w)
 }
 
 // startedResult is the text of a task that runs on without the call: started in the background, or moved there by a timeout.
-func startedResult(info TaskInfo, moved bool) ToolResult {
+func startedResult(texts prompt.Source, info TaskInfo, moved bool) ToolResult {
 	vars := map[string]string{"task_id": info.ID}
 	if moved {
 		vars["moved"] = "yes"
 	}
-	res := TextResult(prompt.Filef("task_started", vars))
+	res := TextResult(prompt.FilefFrom(texts, "task_started", vars))
 	res.Structured = taskStructured(info)
 	return res
 }
@@ -315,7 +315,7 @@ func taskStructured(info TaskInfo) map[string]any {
 }
 
 // finishedResult is a foreground call's result: the task's content, marked as an error when it did not succeed.
-func finishedResult(info TaskInfo) ToolResult {
+func finishedResult(texts prompt.Source, info TaskInfo) ToolResult {
 	res := ToolResult{IsError: info.Status != TaskSucceeded, Structured: taskStructured(info)}
 	if r := info.Result; r != nil {
 		res.Content = r.Content
@@ -328,7 +328,7 @@ func finishedResult(info TaskInfo) ToolResult {
 		if text == "" {
 			text = string(info.Status)
 		}
-		res.Content = message.Content{&message.TextBlock{Text: prompt.Textf("task_ended", map[string]string{"task_id": info.ID, "status": string(info.Status), "error": text})}}
+		res.Content = message.Content{&message.TextBlock{Text: prompt.TextfFrom(texts, "task_ended", map[string]string{"task_id": info.ID, "status": string(info.Status), "error": text})}}
 	}
 	return res
 }
@@ -340,9 +340,9 @@ func (s *Session) TaskErrorResult(err error) ToolResult {
 	case errors.As(err, &de):
 		return ErrorResult("%s", de.Text)
 	case errors.Is(err, ErrTaskLimit):
-		return ErrorResult("%s", prompt.Textf("task_limit", map[string]string{"limit": strconv.Itoa(s.limits.MaxRunningTasks)}))
+		return ErrorResult("%s", s.textf("task_limit", map[string]string{"limit": strconv.Itoa(s.limits.MaxRunningTasks)}))
 	}
-	return ErrorResult("%s", prompt.Textf("task_start_failed", map[string]string{"error": err.Error()}))
+	return ErrorResult("%s", s.textf("task_start_failed", map[string]string{"error": err.Error()}))
 }
 
 // withBackground appends the background property last, and to required when strict, keeping the caller's key order.

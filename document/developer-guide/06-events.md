@@ -103,6 +103,7 @@ for ev, err := range sess.Events(ctx) { ... }
 | | `step.completed` | `StepCompleted` | `StopReason`、`Usage`、`TTFTMs`（首字耗时）、`DurationMs` |
 | 模型 | `model.retry` | `ModelRetry` | `Attempt`、`Error`、`DelayMs` |
 | | `model.notice` | `ModelNotice` | `Kind`、`Detail`，见 [4.4](04-models.md#44-模型能力) |
+| | `model.anomaly` | `ModelAnomaly` | 流式输出中发现的重复，字段为 `Kind`（repetition）、`Channel`、`Offset`、`Detail`（`Mode`、`UnitChars`、`Repetitions`、`Sample`），见本节末尾 |
 | | `provider.raw` | `ProviderRaw` | 接口的原始事件，需要开启 `kernel.WithRawProviderEvents()` |
 | 消息 | `message.started` | `MessageStarted` | `MessageID`、`Role` |
 | | `message.delta` | `MessageDelta` | `MessageID`、`BlockIndex`、`Channel`（text 或 refusal）、`Text` |
@@ -126,10 +127,12 @@ for ev, err := range sess.Events(ctx) { ... }
 | 命令 | `command.started`、`command.output`、`command.completed` | `Command*` | `CommandID`、`Name`、`Args`、`Text`、`Data`、`Error` |
 | 模型切换 | `provider.switched`、`provider.switch_rejected` | 见 [4.6](04-models.md#46-运行中切换模型) | |
 | 其他 | `registry.changed` | `RegistryChanged` | 在注册内容变化时发出，字段为 `Scope`、`Kind`、`Name`、`Op`、`Effective` |
-| | `notice` | `Notice` | 承载 hook 的 `SystemMessage`，字段为 `Source`、`Text` |
+| | `notice` | `Notice` | 承载 hook 的 `SystemMessage`，字段为 `Source`、`Text`；内核自己发出的通知还带 `Kind` 和 `Detail`，宿主可据此翻译 |
 | | `error` | `Error` | `Code`（例如 `store_failed`）、`Message`、`Fatal`、`Detail` |
 
 每种负载都是 `event` 包中的一个结构体，例如 `*event.MessageDelta`，需要通过类型断言获取。`event.Type*` 常量是这些类型名在 Go 中的写法，例如 `event.TypeMessageDelta`。
+
+`model.anomaly` 是 advisory 事件。检测器跟着流式增量跑，发现短周期复读（`Detail.Mode` 为 `suffix`）、整行复读（`line`）或整段复读（`block`）时发一条：`Offset` 是块内已输出的字符数，`Sample` 是截断到 256 字符的尾部样本，每个块每种模式至多一条。它不改变回复、不结束 turn，也不写进历史。要不要干预由你决定，例如收到后调用 `sess.InterruptTurn(turnID, "repetition")`，或等 `message.completed` 后拒绝整条回复。检测默认开启，阈值用 `kernel.WithOutputAnomalyDetection` 调整，`AnomalyConfig{Disabled: true}` 关闭。它只看文本和 reasoning，不检测工具参数，也识别不了换一种说法的语义重复。
 
 ## 6.6 UI 渲染规则
 

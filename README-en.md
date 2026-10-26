@@ -101,7 +101,8 @@ A longer example with approval and storage is in the [Quick start](document/en/d
 
 - [Developer guide](document/en/developer-guide/README.md): every feature, with examples and best practices, starting from the [Introduction](document/en/developer-guide/01-overview.md).
 - [Architecture walkthrough](document/en/architecture.html): how the SDK is put together inside.
-- [Specification](spec/README.md): the language-neutral specification of events, the session file format, model-facing texts and defaults, with conformance fixtures in [conformance](conformance/README.md). The Go implementation supports spec 0.1.x, as described in [Supported spec versions](document/en/developer-guide/01-overview.md#supported-spec-versions).
+- [Release notes](document/releases/v0.2.0.md) (in Chinese): what v0.2.0 adds, what changes and how to migrate.
+- [Specification](spec/README.md): the language-neutral specification of events, the session file format, model-facing texts and defaults, with conformance fixtures in [conformance](conformance/README.md). The Go implementation supports spec 0.2, shipped by the `v0.2.y` releases, as described in [Supported spec versions](document/en/developer-guide/01-overview.md#supported-spec-versions).
 
 ## Repository layout
 

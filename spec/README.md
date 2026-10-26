@@ -51,15 +51,14 @@ The binding's runner writes each case's outputs as [`conformance/runner-protocol
 
 ## Versioning
 
-The spec follows SemVer. Events carry no version of their own. Session file lines carry a line format version `v` (currently 1).
+The spec follows SemVer but is numbered `MAJOR.MINOR` only: there is no PATCH release. A wording fix or a data correction no binding can observe ships with the next SDK patch and does not change the spec version. Events carry no version of their own. Session file lines carry a line format version `v` (currently 1).
 
-Before 1.0, a MINOR version may also make the changes listed under MAJOR, so a binding supports one `0.MINOR` at a time and every `0.MINOR.PATCH` of it; from 1.0 the rules below hold as written.
+An SDK release declares the spec version it satisfies as `vMAJOR.MINOR.PATCH`, where `vMAJOR.MINOR.y` satisfies spec `MAJOR.MINOR`; a binding supports one `0.MINOR` at a time. Before 1.0, a MINOR version may also make the changes listed under MAJOR; from 1.0 the rules below hold as written.
 
 - **MINOR** (backward compatible): new event types, optional fields, enum values, hook points, built-in tools or commands, and error classification rules.
 - **MAJOR**: removing or renaming a field, event or enum value; making an optional field required; changing existing semantics or default behavior, such as merge rules or the reminder format.
-- **PATCH**: wording fixes, factual corrections in data files (for example an error table's match pattern or a stop reason's wire value), and new fixtures.
 
-Text the model sees (`prompts/`, the texts under `ext/`, tool definitions) is behavior: changing it is MINOR, since it changes what a model does without breaking a consumer, except for a typo fix, which is PATCH.
+Text the model sees (`prompts/`, the texts under `ext/`, tool definitions) is behavior: changing it is MINOR, since it changes what a model does without breaking a consumer, a typo fix included.
 
 Consumers MUST:
 
@@ -72,4 +71,4 @@ Consumers MUST:
 
 Producers MUST NOT write fields, enum values or types that are absent from the spec version they declare.
 
-Deprecated items are marked `deprecated: true` in the schema. They stay for at least one MINOR version and are removed in the next MAJOR. Each binding declares the range of spec versions it supports in its own documentation, as `MAJOR.MINOR.x` before 1.0 and `MAJOR.x` with a lowest MINOR after; its conformance runner skips the cases of any other version.
+Deprecated items are marked `deprecated: true` in the schema. They stay for at least one MINOR version and are removed in the next MAJOR. Each binding declares the range of spec versions it supports in its own documentation, as `MAJOR.MINOR` before 1.0 and `MAJOR.x` with a lowest MINOR after, together with the SDK releases that satisfy it; its conformance runner skips the cases of any other version.

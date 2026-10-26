@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "Pruning mid-turn clears only the results of earlier turns; the running turn's result stays whole, because the model is still working with it.",
   "agent": {
     "nickname": "Tater",

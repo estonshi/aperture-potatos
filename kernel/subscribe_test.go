@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 	"testing/synctest"
+	"time"
 
 	"github.com/estonshi/aperture-potatos/event"
 	"github.com/estonshi/aperture-potatos/kernel"
@@ -34,6 +35,93 @@ func TestRunYieldsTheConsumingTurn(t *testing.T) {
 		}
 		if types[0] != event.TypeTurnStarted || types[len(types)-1] != event.TypeTurnCompleted || turn != "turn_02" {
 			t.Fatalf("types %v turn %s", types, turn)
+		}
+		h.close()
+	})
+}
+
+// TestRunCancelableInterruptsTheTurn: breaking out of RunCancelable stops only the turn this input started, and the session stays usable.
+func TestRunCancelableInterruptsTheTurn(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		// The first turn waits on a slow tool, so it cannot finish before the interrupt lands; a reply alone would race it.
+		h := newHarness(t, [][]providertest.Step{
+			toolReply(call{id: "tc1", name: "slow", input: `{}`}),
+			textReply("second"),
+		}, kernel.WithTool(&echoTool{name: "slow", delay: time.Second}))
+		var turn string
+		for ev, err := range h.sess.RunCancelable(t.Context(), kernel.Text("first")) {
+			if err != nil {
+				t.Fatal(err)
+			}
+			if ev.Type == event.TypeTurnStarted {
+				turn = ev.TurnID
+				break
+			}
+		}
+		if turn == "" {
+			t.Fatal("no turn started")
+		}
+		synctest.Wait()
+		var requested bool
+		var completed *event.TurnCompleted
+		for _, ev := range h.rec.all() {
+			switch d := ev.Data.(type) {
+			case *event.TurnInterruptRequested:
+				requested = d.TurnID == turn && d.Reason == "run canceled"
+			case *event.TurnCompleted:
+				if d.TurnID == turn {
+					completed = d
+				}
+			}
+		}
+		if !requested || completed == nil || completed.Outcome != string(message.OutcomeInterrupted) {
+			t.Fatalf("requested %v, completed %+v", requested, completed)
+		}
+		rc, err := h.sess.Send(kernel.Text("second"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if res, err := rc.Wait(t.Context()); err != nil || res.Outcome != kernel.OutcomeCompleted {
+			t.Fatalf("next turn: %+v %v", res, err)
+		}
+		h.close()
+	})
+}
+
+// TestRunCancelableWithdrawsAQueuedInput: canceling before the input's turn starts removes it, so no turn runs for it.
+func TestRunCancelableWithdrawsAQueuedInput(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		h := newHarness(t, [][]providertest.Step{toolReply(call{"toolu_1", "slow", `{}`}), textReply("first done")},
+			kernel.WithTool(&echoTool{name: "slow", delay: time.Second}))
+		first, err := h.sess.Send(kernel.Text("first"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		synctest.Wait()
+		if h.sess.Snapshot().Phase != "running" {
+			t.Fatalf("phase %q", h.sess.Snapshot().Phase)
+		}
+		ctx, cancel := context.WithCancel(t.Context())
+		cancel()
+		for _, err := range h.sess.RunCancelable(ctx, kernel.Text("second")) {
+			if err == nil {
+				t.Fatal("expected the canceled context")
+			}
+		}
+		if n := h.sess.Snapshot().QueuedInputs; n != 0 {
+			t.Fatalf("%d inputs still queued", n)
+		}
+		if _, err := first.Wait(t.Context()); err != nil {
+			t.Fatal(err)
+		}
+		turns := 0
+		for _, ev := range h.rec.all() {
+			if ev.Type == event.TypeTurnStarted {
+				turns++
+			}
+		}
+		if turns != 1 {
+			t.Fatalf("%d turns ran", turns)
 		}
 		h.close()
 	})

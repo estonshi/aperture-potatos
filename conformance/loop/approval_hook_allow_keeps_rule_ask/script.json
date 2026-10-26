@@ -1,6 +1,6 @@
 {
-  "spec_version": "0.1",
-  "description": "A pre_tool_use hook allows the call, but an ask rule still sends it to the reviewer: an allow on one side never lifts the other side's ask.",
+  "spec_version": "0.2",
+  "description": "A pre_tool_use hook allows the call, but an ask rule registered at session scope still sends it to the reviewer: an allow on one side never lifts the other side's ask, and approval.requested names the rule's scope.",
   "agent": {
     "nickname": "Tater",
     "instructions": "Be brief.",
@@ -44,17 +44,6 @@
         },
         "action": "deny",
         "reason": "DROP statements are never allowed"
-      },
-      {
-        "id": "prod-writes",
-        "tool": "sql_exec",
-        "when": {
-          "database": {
-            "eq": "prod"
-          }
-        },
-        "action": "ask",
-        "reason": "writes to the production database"
       },
       {
         "id": "prod-read-only",
@@ -119,6 +108,21 @@
             }
           }
         ]
+      }
+    ]
+  },
+  "session": {
+    "approval_rules": [
+      {
+        "id": "prod-writes",
+        "tool": "sql_exec",
+        "when": {
+          "database": {
+            "eq": "prod"
+          }
+        },
+        "action": "ask",
+        "reason": "writes to the production database"
       }
     ]
   },

@@ -53,7 +53,9 @@ ag.NewSession(ctx, kernel.SessionApprovalRules(more...)) // 在 session 级追�
 
 求值时有两点需要注意。字段不存在时，只有 `{"exists": false}` 成立，其他运算符都不成立。如果字段值的类型与运算符不匹配，例如对数字使用 `glob`，条件同样不成立。
 
-在 Go 中，你还可以在 `kernel.ApprovalRule` 上设置 `Match func(ToolCallView) bool`，用任意逻辑判断是否命中。但这样的规则无法写入文件，也无法在不同语言之间共享。
+在 Go 中，你还可以在 `kernel.ApprovalRule` 上设置 `Match func(ToolCallView) bool`，用任意逻辑判断是否命中。它是 spec 建议的“绑定原生谓词”的 Go 形态：只在 `tool` 和 `when` 都命中之后调用，并与它们取 AND，因此谓词无法让一条声明式部分不命中的规则命中。谓词必须是确定性的、无副作用、可并发调用；发生 panic 时，`deny` 和 `ask` 视为命中，`allow` 视为不命中，并记录日志，所以失败只会让策略更严格。带谓词的规则不能写入规则文件：`json.Marshal` 会返回错误，`ParseApprovalRules` 也会拒绝规则文件里的 `match` 字段。
+
+**运行期增删规则。** `r.ApprovalRule(rule)` 返回 `*Registration`，规则从下一次 gate 起生效，调用 `Remove()` 撤销同理。agent 级注册会检查这个 agent 及其派生 agent 的所有在线 session，session 级注册会检查它继承的规则；同一个 id 在两层之间重复会返回 `ErrDuplicate`，不会用遮蔽来静默解决。`sess.ApprovalRules()` 按求值顺序列出生效的规则，每项带 `Scope` 和 `Portable`，适合展示或审计。
 
 > 注意：当规则匹配的是 SQL、shell 命令这类自由文本字段时，规则并不构成安全边界，因为同一个意图总能换一种写法表达。对于真正危险的工具，应使用 `ask` 交给人查看，或者干脆不注册它。
 
@@ -69,7 +71,7 @@ ag.NewSession(ctx, kernel.SessionApprovalRules(more...)) // 在 session 级追�
 
 ## 8.3 审查者
 
-审查者是一个函数，接收一次审查请求并返回结论。用 `kernel.WithApprover` 注册审查者：
+审查者是一个函数，接收一次审查请求并返回结论。用 `kernel.WithApprover` 注册审查者，它等价于 `kernel.WithApproverNamed("approver", fn)`：
 
 ```go
 kernel.WithApprover(func(ctx context.Context, req kernel.ApprovalRequest) (kernel.ApprovalDecision, error) {
@@ -83,7 +85,7 @@ kernel.WithApprover(func(ctx context.Context, req kernel.ApprovalRequest) (kerne
 |---|---|
 | `ApprovalID` | 这次审查的 id，与 `approval.requested` 事件中的 id 对应。 |
 | `Call` | 一个 `ToolCallView`，包含 `CallID`、`Name` 和 `Input`。`Input` 是规范化之后的输入，与工具收到的输入逐字节相同。 |
-| `Rules` | 命中的规则列表，每项包含 `ID`、`Action` 和 `Reason`。 |
+| `Rules` | 命中的规则列表，每项包含 `ID`、`Action`、`Reason` 和 `Scope`（`agent` 或 `session`，规则注册的作用域）。 |
 | `HookReasons` | `pre_tool_use` hook 给出 `ask` 时附带的理由。 |
 | `BatchID`、`BatchSize` | 同一批工具调用的 id 和调用个数，UI 可以据此把一批调用集中展示。 |
 | `Round` | 当前是第几轮审查。审查者改写输入后会重新审查，轮次随之加一。 |
@@ -98,13 +100,15 @@ kernel.WithApprover(func(ctx context.Context, req kernel.ApprovalRequest) (kerne
 | `VerdictDeny` | 拒绝调用，模型会收到 “Denied by reviewer: <Reason>”。 |
 | `VerdictDenyAndStop` | 拒绝调用，并在这一批调用执行完之后结束本轮。 |
 
+需要两个或多个审查者时，用 `kernel.WithApproverNamed(name, fn)` 分别命名，再用 `kernel.Priority` 决定先后。同一个 scope 内出现同名审查者会返回 `ErrDuplicate`，agent 级和 session 级可以使用相同的名字。
+
 ## 8.4 事件
 
 审查过程会发出以下两个事件：
 
 | 事件 | 字段 |
 |---|---|
-| `approval.requested` | `ApprovalID`、`CallID`、`Name`、`Input`、`Rules`、`BatchID`、`BatchSize` |
+| `approval.requested` | `ApprovalID`、`CallID`、`Name`、`Input`、`Rules`（每项含 `ID`、`Action`、`Reason`、`Scope`）、`BatchID`、`BatchSize` |
 | `approval.resolved` | `ApprovalID`、`CallID`、`Verdict`、`Reason`、`By`（表示由哪个审查者给出结论）、`InputUpdated`、`DurationMs` |
 
 `approval.requested` 事件在调用审查者之前就会发出。因此，UI 可以根据这个事件显示“等待审批”的状态，再由审查者去等待 UI 返回用户的回答。

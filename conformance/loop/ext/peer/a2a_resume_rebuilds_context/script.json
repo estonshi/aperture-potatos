@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "After a resume, the next message to the agent continues the conversation the rebuilt task table remembers.",
   "agent": {
     "nickname": "Tater",

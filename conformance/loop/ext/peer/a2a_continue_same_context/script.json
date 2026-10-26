@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "task_send to a finished exchange continues it: the peer reports the old task completed, so the instruction goes out as a new message in the same conversation.",
   "agent": {
     "nickname": "Tater",

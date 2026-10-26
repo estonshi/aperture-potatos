@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "A side chat asked while the main session waits on a tool carries the main session's whole context: the running turn's input and the call, which the side chat's request alone answers with a placeholder result that no file stores.",
   "agent": {
     "nickname": "Tater",

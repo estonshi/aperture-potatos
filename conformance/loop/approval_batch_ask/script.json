@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "Two calls of one batch need review; both requests go out together with one batch id, the batch waits for both verdicts, then the approved call and the allowed one run and the declined one is denied.",
   "agent": {
     "nickname": "Tater",

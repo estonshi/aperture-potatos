@@ -46,7 +46,6 @@ type Session struct {
 	receipts  receiptSet
 	jitter    func(time.Duration) time.Duration
 	noticed   sync.Map // model notices already announced, so an adjustment repeated on every request is announced once
-	rules     []compiledRule
 	state     stateStore
 	stored    storedLines   // the store's lines, cached on the first history search
 	clearGen  atomic.Uint64 // counts /clear, so an async hook that answers a cleared context is dropped
@@ -375,6 +374,32 @@ func (s *Session) Commands() []CommandInfo {
 		if c := byName[n]; !c.Hidden {
 			out = append(out, c.info())
 		}
+	}
+	return out
+}
+
+// Tools lists the visible function tools, session scope shadowing agent scope, sorted by name.
+func (s *Session) Tools() []ToolSpec {
+	byName := map[string]Tool{}
+	sess := s.reg.state()
+	for n, t := range s.outer().tools {
+		if !sess.hides(KindTool, n) {
+			byName[n] = t.tool
+		}
+	}
+	for n, t := range sess.tools {
+		byName[n] = t.tool
+	}
+	out := make([]ToolSpec, 0, len(byName))
+	for _, n := range slices.Sorted(maps.Keys(byName)) {
+		spec, ok := s.toolSpec(byName[n])
+		if !ok {
+			continue
+		}
+		spec.Name = n
+		spec.Tags = slices.Clone(spec.Tags)
+		spec.InputSchema = slices.Clone(spec.InputSchema)
+		out = append(out, spec)
 	}
 	return out
 }

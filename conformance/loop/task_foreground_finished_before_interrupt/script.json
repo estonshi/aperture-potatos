@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "A foreground job ends while a parallel call in its batch still runs, and then the turn is interrupted: the start call keeps the job's real result, the job stays succeeded, and no notification follows. A task_start hook holds the job's start for 1 ms of virtual time, so its task events follow the sibling call's tool.started, which a parallel group otherwise leaves unordered; the clock is interleaved because the hook and the sibling call still take timestamps in no fixed order.",
   "agent": {
     "nickname": "Tater",

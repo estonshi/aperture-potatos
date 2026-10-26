@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "Two manual compactions with the default template: the second summary request starts from the first one's epoch head, so the earlier summary is summarized again, and the template asks to carry it forward.",
   "agent": {
     "nickname": "Tater",

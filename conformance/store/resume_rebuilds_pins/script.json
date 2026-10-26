@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "Resume rebuilds the pin set from the epoch head's pin reminders and the pins of later tool results, so a compaction after it re-injects both.",
   "agent": {
     "nickname": "Tater",

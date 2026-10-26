@@ -25,6 +25,7 @@ type Options struct {
 	Timeout     func(call message.ToolCallBlock) time.Duration // per call; < 0 means none
 	OnAbandon   func(call message.ToolCallBlock)               // emits tool.abandoned and counts the straggler
 	Movable     func(call message.ToolCallBlock) bool          // the call runs on a context a Move can detach from the turn
+	Texts       prompt.Source                                  // the host's overrides of the fixed texts; nil for the built-ins
 }
 
 // Run returns exactly len(calls) results in call order on every path, interruption included; groups run one after another, so the order of side effects the model asked for holds.
@@ -33,7 +34,7 @@ func Run(ctx context.Context, r Runner, calls []message.ToolCallBlock, o Options
 	for _, g := range Partition(calls, r.Parallel) {
 		if ctx.Err() != nil {
 			for _, i := range g {
-				results[i] = NotStarted(calls[i])
+				results[i] = NotStarted(calls[i], o.Texts)
 			}
 			continue
 		}
@@ -85,7 +86,7 @@ func runGroup(ctx context.Context, r Runner, calls []message.ToolCallBlock, g []
 			case <-ctx.Done():
 				for j := k; j < len(g); j++ {
 					if slots[j].settled.CompareAndSwap(false, true) {
-						slots[j].res <- NotStarted(calls[g[j]])
+						slots[j].res <- NotStarted(calls[g[j]], o.Texts)
 					}
 				}
 				return
@@ -109,9 +110,9 @@ func runGroup(ctx context.Context, r Runner, calls []message.ToolCallBlock, g []
 			o.OnAbandon(calls[i])
 		}
 		if ctx.Err() == nil {
-			results[i] = TimedOut(calls[i], o.Timeout(calls[i]))
+			results[i] = TimedOut(calls[i], o.Timeout(calls[i]), o.Texts)
 		} else {
-			results[i] = Abandoned(calls[i])
+			results[i] = Abandoned(calls[i], o.Texts)
 		}
 	}
 }
@@ -148,23 +149,23 @@ func result(call message.ToolCallBlock, outcome message.Outcome, text string) me
 	return message.ToolResultBlock{CallID: call.ID, Name: call.Name, IsError: true, Outcome: outcome, Content: message.Content{&message.TextBlock{Text: text}}}
 }
 
-// NotStarted is the result of a call the batch never reached because the turn was interrupted.
-func NotStarted(call message.ToolCallBlock) message.ToolResultBlock {
-	return result(call, message.OutcomeInterrupted, prompt.Text("tool_not_started"))
+// NotStarted is the result of a call the batch never reached because the turn was interrupted; texts may be nil for the built-in text.
+func NotStarted(call message.ToolCallBlock, texts prompt.Source) message.ToolResultBlock {
+	return result(call, message.OutcomeInterrupted, prompt.TextFrom(texts, "tool_not_started"))
 }
 
 // Abandoned is the result of a call that was still running when the grace period after an interrupt ran out.
-func Abandoned(call message.ToolCallBlock) message.ToolResultBlock {
-	return result(call, message.OutcomeInterrupted, prompt.Text("tool_abandoned"))
+func Abandoned(call message.ToolCallBlock, texts prompt.Source) message.ToolResultBlock {
+	return result(call, message.OutcomeInterrupted, prompt.TextFrom(texts, "tool_abandoned"))
 }
 
 // Interrupted is the result of a call that returned an error after the turn was interrupted.
-func Interrupted(call message.ToolCallBlock) message.ToolResultBlock {
-	return result(call, message.OutcomeInterrupted, prompt.Text("tool_interrupted"))
+func Interrupted(call message.ToolCallBlock, texts prompt.Source) message.ToolResultBlock {
+	return result(call, message.OutcomeInterrupted, prompt.TextFrom(texts, "tool_interrupted"))
 }
 
 // TimedOut is the result of a call that outlived its timeout.
-func TimedOut(call message.ToolCallBlock, limit time.Duration) message.ToolResultBlock {
+func TimedOut(call message.ToolCallBlock, limit time.Duration, texts prompt.Source) message.ToolResultBlock {
 	secs := strconv.FormatFloat(limit.Seconds(), 'f', -1, 64)
-	return result(call, message.OutcomeError, prompt.Textf("tool_timed_out", map[string]string{"seconds": secs}))
+	return result(call, message.OutcomeError, prompt.TextfFrom(texts, "tool_timed_out", map[string]string{"seconds": secs}))
 }

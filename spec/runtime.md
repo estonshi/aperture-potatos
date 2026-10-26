@@ -72,6 +72,12 @@ A restart never waits for the attempt it replaces. A waiting method called re-en
 
 **G6 Close.** When a session closes, the pump delivers what is still queued (the last event is `session.closed`), then reports done. With close-on-done, the caller's channel is closed however the subscription ends, unless the caller closed it already. Publishing on a closed bus is a no-op, so late publishes from abandoned workers never touch a closed channel.
 
+### 2.3 Advisory events
+
+`model.anomaly` reports a repetition a binding noticed while a block was still streaming: `message_id`, `block_index`, `channel` (`text`, `refusal` or `reasoning`), `kind` (`repetition`), `offset` (the characters the block had emitted) and `detail` (`mode` `suffix`, `line` or `block`, `unit_chars`, `repetitions`, and a `sample` of at most 256 trailing characters). It comes right after the delta that triggered it, and a binding emits at most one per block and mode.
+
+Detection is binding-defined: a binding MAY implement none of it. What a binding MUST NOT do is let a report change anything. The message, the turn's outcome and the history stay exactly as they would have been without it. A host may act on the event, for example by interrupting the turn or rejecting the reply when it completes; that is the host's decision, not the runtime's.
+
 ## 3 Messages and the session file
 
 A session persists one thing: every committed message, one JSON line each, append only. `schema/message.schema.json` is the line format, so any binding can read and resume a session another binding wrote.
@@ -556,7 +562,17 @@ A rule (`schema/approval_rule.schema.json`) matches a call when its `tool` is th
 
 A condition sets exactly one operator, and `normalize` qualifies `prefix` only. A missing field satisfies only `exists: false`; a value of the wrong type satisfies nothing. Rule ids are unique within a set; the agent's rules come before a session's. A set with an unknown operator, a condition with more or fewer than one operator, a misplaced `normalize`, an expression outside the subset, an empty or repeated id, or an unknown action is refused where it is configured.
 
+A rule may also carry a **binding-native predicate**: a callback the host attaches when it builds the rule, taking a `tool_call_view` and returning a boolean. It is not part of a rule file, and a rule file cannot express one.
+
+The predicate runs only after the rule's `tool` and every `when` condition match, and sees the same normalized `tool_call_view` the rules, hooks and the tool see. The rule matches if and only if both the declarative part and the predicate are true; a predicate can never make a rule match when its declarative part does not.
+
+A predicate must be deterministic, free of side effects and I/O, safe for concurrent use, and fast enough for the gate and the review workers. When it panics or otherwise fails, the rule is resolved toward the stricter outcome: `deny` and `ask` count as matching, `allow` counts as not matching, and the binding SHOULD record the failure. A failing predicate therefore never loosens policy.
+
+A rule that carries a predicate cannot be written to a rule file; a binding SHOULD return an error when asked to serialize one rather than silently dropping the predicate. A binding SHOULD offer a way for the host to attach a predicate; the shape of that API is the binding's, the semantics above are not.
+
 The rules' own conclusion: any matching deny rule denies, the first in rule order naming the reason; otherwise any matching allow rule allows, which exempts from ask but never from deny; otherwise any matching ask rule asks; otherwise there is none.
+
+Rules may be added and removed at runtime through the binding's registrar, and each change announces `registry.changed{kind:"approval_rule", effective:"now"}` with the scope it was made in. A change takes effect from the next gate, never inside a call whose set was already read: a gate reads the effective set once, and a reviewer's rewrite is judged by that same set. A set is ordered agent scope first, then session scope, and an id may appear only once across the scopes one session sees; adding a rule that repeats an id already in the set, or creating a session whose rules repeat an inherited id, is refused as a duplicate rather than resolved by shadowing. An inherited rule cannot be hidden or shadowed, and `Remove` revokes only a rule the registrar added at runtime; a session that could hide an outer `deny` would escape the agent's policy. A binding SHOULD offer a read of a session's effective rules, each with the scope it came from and whether it can be written to a rule file.
 
 ### 11.3 The gate's decision
 
@@ -569,14 +585,14 @@ For each normalized call:
 
 ### 11.4 Review
 
-Every call of a batch that needs review gets an approval id, and `approval.requested{approval_id, call_id, name, input, rules, batch_id, batch_size}` is published for each, in call order, before any reviewer runs. The reviews then run concurrently, and the batch waits for all of them. A review ends with exactly one `approval.resolved{approval_id, call_id, verdict, reason, by, input_updated, duration_ms}`; `by` names the reviewer that decided (the last one, when all approved), or `timeout`, `canceled` or `none`.
+Every call of a batch that needs review gets an approval id, and `approval.requested{approval_id, call_id, name, input, rules, batch_id, batch_size}` is published for each, in call order, before any reviewer runs, each rule carrying the scope it was registered in (`agent` or `session`). The reviews then run concurrently, and the batch waits for all of them. A review ends with exactly one `approval.resolved{approval_id, call_id, verdict, reason, by, input_updated, duration_ms}`; `by` names the reviewer that decided (the last one, when all approved), or `timeout`, `canceled` or `none`.
 
 A review walks the `approval` hooks matching the tool, read when the review starts, in hook order (§10.2). The request (`#/$defs/approval_input`) carries the rules that matched, the reasons of the hooks that asked, the batch, and the round.
 
 - A verdict other than `approve`, an empty or unknown one included, denies at once (`denied_by_reviewer`). A reviewer that fails, a timeout it sets for itself included (`by:"timeout"`), denies.
 - `approve` with an `updated_input` that differs from the current input rewrites it: the rules decide again on the new input, and a deny there denies the call (`denied_by_rule`). When an earlier reviewer of the round had approved, the round restarts from the first reviewer on the new input, with `approved_input` set to what they approved. A second round that is rewritten again denies (`input was rewritten after approval more than once`).
 - When every reviewer approves, the call runs with the final input, which `tool.started` carries.
-- With no matching reviewer the call is denied with the reason `no reviewer registered` (`by:"none"`). A session whose rules can ask and that has no reviewer at all warns with `notice{source:"approval"}` when it starts.
+- With no matching reviewer the call is denied with the reason `no reviewer registered` (`by:"none"`). A session whose rules can ask and that has no reviewer at all warns with `notice{source:"approval", kind:"no_reviewer", detail{rule}}` when it starts.
 - `deny_and_stop` denies the call and ends the batch's other reviews that still wait: they get `approval_stopped` (outcome `not_executed`, `by:"canceled"`). The calls that are allowed or approved still run, the batch is committed, and the turn ends `hook_stopped`.
 - An interrupt or a close ends every waiting review: the call gets `approval_interrupted` (outcome `interrupted`, `by:"canceled"`), and approvals given earlier in its chain no longer count.
 

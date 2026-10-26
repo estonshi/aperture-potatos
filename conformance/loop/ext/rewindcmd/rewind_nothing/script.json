@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "/rewind with no turn in the current epoch says there is nothing to rewind, and a count that is not a positive number gets the usage line.",
   "agent": {
     "nickname": "Tater",

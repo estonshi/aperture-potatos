@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "A Chat server that refuses replayed reasoning fields makes the step retry once without any of them.",
   "agent": {
     "nickname": "Tater",

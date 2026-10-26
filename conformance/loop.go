@@ -98,6 +98,69 @@ type LoopAgent struct {
 	Extensions                map[string]json.RawMessage `json:"extensions"` // name -> options, built by the extension test that drives the case
 }
 
+// loopApprovalRules reads a rule file whose rules may carry a match behavior, which becomes the runner's native predicate.
+func loopApprovalRules(data json.RawMessage) ([]kernel.ApprovalRule, error) {
+	var raws []map[string]json.RawMessage
+	if err := json.Unmarshal(data, &raws); err != nil {
+		return nil, fmt.Errorf("approval rules: %w", err)
+	}
+	matches := make([]json.RawMessage, len(raws))
+	for i, raw := range raws {
+		if m, ok := raw["match"]; ok {
+			matches[i] = m
+			delete(raw, "match")
+		}
+	}
+	stripped, err := json.Marshal(raws)
+	if err != nil {
+		return nil, err
+	}
+	rules, err := kernel.ParseApprovalRules(stripped)
+	if err != nil {
+		return nil, err
+	}
+	for i := range rules {
+		if matches[i] == nil {
+			continue
+		}
+		p, err := scriptPredicate(matches[i])
+		if err != nil {
+			return nil, fmt.Errorf("approval rule %q: %w", rules[i].ID, err)
+		}
+		rules[i].Match = p
+	}
+	return rules, nil
+}
+
+// scriptPredicate turns a case's match behavior into a predicate: always, never, contains (the normalized input holds value) or panic.
+func scriptPredicate(raw json.RawMessage) (func(kernel.ToolCallView) bool, error) {
+	var b struct {
+		Type  string `json:"type"`
+		Value string `json:"value"`
+	}
+	if len(raw) > 0 && raw[0] == '"' {
+		if err := json.Unmarshal(raw, &b.Type); err != nil {
+			return nil, err
+		}
+	} else if err := json.Unmarshal(raw, &b); err != nil {
+		return nil, err
+	}
+	switch b.Type {
+	case "always":
+		return func(kernel.ToolCallView) bool { return true }, nil
+	case "never":
+		return func(kernel.ToolCallView) bool { return false }, nil
+	case "contains":
+		if b.Value == "" {
+			return nil, errors.New(`match behavior "contains" needs a value`)
+		}
+		return func(v kernel.ToolCallView) bool { return bytes.Contains(v.Input, []byte(b.Value)) }, nil
+	case "panic":
+		return func(kernel.ToolCallView) bool { panic("scripted predicate") }, nil
+	}
+	return nil, fmt.Errorf("unknown match behavior %q", b.Type)
+}
+
 // LoopPolicy is ContextPolicy in JSON.
 type LoopPolicy struct {
 	MaxContextTokens       int     `json:"max_context_tokens"`
@@ -563,7 +626,7 @@ func runLoop(t *testing.T, dir string, exts ExtensionBuilder) (LoopResult, error
 		sopts = append(sopts, kernel.WithLabels(sc.Session.Labels))
 	}
 	if len(sc.Session.ApprovalRules) > 0 {
-		rules, err := kernel.ParseApprovalRules(sc.Session.ApprovalRules)
+		rules, err := loopApprovalRules(sc.Session.ApprovalRules)
 		if err != nil {
 			return LoopResult{}, err
 		}
@@ -1005,7 +1068,7 @@ func (r *loopRun) agentOptions(model provider.ModelRef, st store.SessionStore) (
 		opts = append(opts, kernel.WithCapabilities(c.API, c.ModelGlob, c.Caps))
 	}
 	if len(a.ApprovalRules) > 0 {
-		rules, err := kernel.ParseApprovalRules(a.ApprovalRules)
+		rules, err := loopApprovalRules(a.ApprovalRules)
 		if err != nil {
 			return nil, err
 		}

@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "A prompt hook blocks one input, which is dropped and ends its turn before anything is committed; the next input is rewritten before delivery.",
   "agent": {
     "nickname": "Tater",

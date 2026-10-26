@@ -308,6 +308,25 @@
       "if": {
         "properties": {
           "type": {
+            "const": "model.anomaly"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/model_anomaly"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
             "const": "model.notice"
           }
         },
@@ -1513,6 +1532,65 @@
         "delay_ms"
       ]
     },
+    "model_anomaly": {
+      "type": "object",
+      "description": "Payload of model.anomaly: a repetition seen while a block was still streaming. Advisory: the runtime changes nothing and ends nothing because of it.",
+      "properties": {
+        "message_id": {
+          "type": "string"
+        },
+        "block_index": {
+          "type": "integer"
+        },
+        "channel": {
+          "type": "string",
+          "enum": [
+            "text",
+            "refusal",
+            "reasoning"
+          ]
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "repetition"
+          ]
+        },
+        "offset": {
+          "type": "integer",
+          "description": "Characters the block had emitted when the repetition was seen."
+        },
+        "detail": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "suffix",
+                "line",
+                "block"
+              ]
+            },
+            "unit_chars": {
+              "type": "integer"
+            },
+            "repetitions": {
+              "type": "integer"
+            },
+            "sample": {
+              "type": "string",
+              "description": "The tail of the block, at most 256 characters."
+            }
+          }
+        }
+      },
+      "required": [
+        "message_id",
+        "block_index",
+        "kind",
+        "offset"
+      ]
+    },
     "model_notice": {
       "type": "object",
       "description": "Payload of model.notice.",
@@ -2610,7 +2688,8 @@
             "context_provider",
             "compactor",
             "task_kind",
-            "hosted_tool"
+            "hosted_tool",
+            "approval_rule"
           ]
         },
         "name": {
@@ -2647,6 +2726,14 @@
       "properties": {
         "source": {
           "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "description": "Stable code for a notice the runtime writes itself, such as no_reviewer, so a host can translate it instead of showing text."
+        },
+        "detail": {
+          "type": "object",
+          "description": "The fields kind's text names, so a host can translate it without parsing text."
         },
         "text": {
           "type": "string"
@@ -2820,6 +2907,14 @@
         },
         "reason": {
           "type": "string"
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "agent",
+            "session"
+          ],
+          "description": "The scope the rule was registered in."
         }
       },
       "required": [

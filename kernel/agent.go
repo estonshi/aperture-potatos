@@ -15,6 +15,7 @@ import (
 	"github.com/estonshi/aperture-potatos/event"
 	"github.com/estonshi/aperture-potatos/internal/bus"
 	"github.com/estonshi/aperture-potatos/internal/hookrun"
+	"github.com/estonshi/aperture-potatos/internal/prompt"
 	"github.com/estonshi/aperture-potatos/internal/workers"
 	"github.com/estonshi/aperture-potatos/message"
 	"github.com/estonshi/aperture-potatos/provider"
@@ -27,7 +28,6 @@ type Agent struct {
 	reg   *registry
 	exts  []string
 	caps  capCache
-	rules []compiledRule
 	state stateStore
 
 	base    *Agent     // the agent this one was derived from, whose registrations it layers its own over
@@ -37,6 +37,7 @@ type Agent struct {
 	mu       sync.Mutex
 	nickname string
 	open     map[string]*Session
+	children []*Agent // agents derived from this one, for rule checks on agent-scope changes
 	sinks    []*agentSink
 	closers  []func(context.Context) error
 	closed   bool
@@ -72,6 +73,8 @@ type config struct {
 	costSource       CostSource
 	context          ContextPolicy
 	tokenCounter     provider.TokenCounter
+	texts            prompt.Overrides
+	anomaly          AnomalyConfig
 }
 
 // Option configures an Agent in New.
@@ -127,6 +130,14 @@ func WithPanicOnInternalError(on bool) Option { return func(c *config) { c.panic
 // WithRawProviderEvents also publishes provider.raw events with the provider's wire events.
 func WithRawProviderEvents() Option { return func(c *config) { c.rawEvents = true } }
 
+// WithTexts overrides the fixed texts of the runtime and the built-in adapters for every session of the agent: keys are section keys of spec/prompts/reminders.md, or prompt file names such as "system.core". New rejects a key that names neither, and a system.core override that drops a runtime tag.
+func WithTexts(overrides map[string]string) Option {
+	return func(c *config) { c.texts = prompt.Overrides(maps.Clone(overrides)) }
+}
+
+// WithOutputAnomalyDetection changes the repetition detector behind model.anomaly, which is on by default; Disabled turns it off.
+func WithOutputAnomalyDetection(c AnomalyConfig) Option { return func(cfg *config) { cfg.anomaly = c } }
+
 // WithTool registers t at agent scope as part of the "app" extension, so New fails on a duplicate or invalid name.
 func WithTool(t Tool) Option {
 	return func(c *config) { c.app = append(c.app, func(r Registrar) error { _, err := r.Tool(t); return err }) }
@@ -153,6 +164,9 @@ func New(opts ...Option) (*Agent, error) {
 	case cfg.storePolicy != StoreWarn && cfg.storePolicy != StoreStrict:
 		return nil, fmt.Errorf("unknown store policy %q", cfg.storePolicy)
 	}
+	if err := prompt.Check(cfg.texts); err != nil {
+		return nil, fmt.Errorf("%w: texts: %v", ErrInvalidName, err)
+	}
 	if _, ok := modeRank[cfg.inputMode]; !ok {
 		return nil, ErrInvalidMode
 	}
@@ -168,12 +182,18 @@ func New(opts ...Option) (*Agent, error) {
 	}
 	cfg.limits = cfg.limits.resolved()
 	cfg.context = cfg.context.resolved()
+	cfg.anomaly = cfg.anomaly.resolved()
 	cfg.retry = resolvedRetry(cfg.retry)
 	rules, err := compileRules(cfg.rules)
 	if err != nil {
 		return nil, err
 	}
-	a := &Agent{cfg: cfg, reg: newRegistry(ScopeAgent), nickname: cfg.nickname, open: map[string]*Session{}, rules: rules}
+	a := &Agent{cfg: cfg, reg: newRegistry(ScopeAgent), nickname: cfg.nickname, open: map[string]*Session{}}
+	for _, rule := range rules {
+		if _, err := a.reg.addCompiledRule(rule, ScopeAgent); err != nil {
+			return nil, err
+		}
+	}
 	names, err := install(&registrar{scope: ScopeAgent, agent: a, reg: a.reg}, cfg.exts, appExtension(cfg.app))
 	if err != nil {
 		return nil, err
@@ -297,13 +317,21 @@ func (a *Agent) NewSession(ctx context.Context, opts ...SessionOption) (*Session
 		return nil, err
 	}
 	s := a.newSession(a.cfg.ids.NewID("ses"), mode, sc)
-	s.rules = slices.Concat(a.rules, own) // the agent's first, as review walks from the outermost scope in
+	for _, rule := range own {
+		if _, err := s.reg.addCompiledRule(rule, ScopeSession); err != nil {
+			return nil, err
+		}
+	}
 	return a.start(ctx, s, sc, s.init)
 }
 
 // start registers s, attaches its sinks and extensions, and returns once init has written or restored its epoch.
 func (a *Agent) start(ctx context.Context, s *Session, sc sessionConfig, init func()) (*Session, error) {
 	if err := a.register(s); err != nil {
+		return nil, err
+	}
+	if err := checkRuleIDs(s.effective().rules); err != nil {
+		a.unregister(s)
 		return nil, err
 	}
 	if sc.owner != nil {

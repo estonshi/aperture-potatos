@@ -103,6 +103,7 @@ The following table lists the events the kernel emits, by category. Some events 
 | | `step.completed` | `StepCompleted` | `StopReason`, `Usage`, `TTFTMs` (time to first token), `DurationMs` |
 | Model | `model.retry` | `ModelRetry` | `Attempt`, `Error`, `DelayMs` |
 | | `model.notice` | `ModelNotice` | `Kind`, `Detail`; see [4.4](04-models.md#44-model-capabilities) |
+| | `model.anomaly` | `ModelAnomaly` | A repetition seen while a block was streaming: `Kind` (repetition), `Channel`, `Offset`, `Detail` (`Mode`, `UnitChars`, `Repetitions`, `Sample`); see the end of this section |
 | | `provider.raw` | `ProviderRaw` | The API's raw events. Requires `kernel.WithRawProviderEvents()`. |
 | Messages | `message.started` | `MessageStarted` | `MessageID`, `Role` |
 | | `message.delta` | `MessageDelta` | `MessageID`, `BlockIndex`, `Channel` (text or refusal), `Text` |
@@ -126,10 +127,12 @@ The following table lists the events the kernel emits, by category. Some events 
 | Commands | `command.started`, `command.output`, `command.completed` | `Command*` | `CommandID`, `Name`, `Args`, `Text`, `Data`, `Error` |
 | Model switching | `provider.switched`, `provider.switch_rejected` | See [4.6](04-models.md#46-switching-models-at-runtime) | |
 | Other | `registry.changed` | `RegistryChanged` | Emitted when registrations change. Fields: `Scope`, `Kind`, `Name`, `Op`, `Effective` |
-| | `notice` | `Notice` | Carries a hook's `SystemMessage`. Fields: `Source`, `Text` |
+| | `notice` | `Notice` | Carries a hook's `SystemMessage`. Fields: `Source`, `Text`; a notice the kernel writes itself also carries `Kind` and `Detail`, so a host can translate it |
 | | `error` | `Error` | `Code` (for example `store_failed`), `Message`, `Fatal`, `Detail` |
 
 Each payload is a struct in the `event` package, such as `*event.MessageDelta`, and you get it with a type assertion. The `event.Type*` constants are the Go names of these event types, for example `event.TypeMessageDelta`.
+
+`model.anomaly` is advisory. The detector follows the streaming deltas and reports a short repeated unit (`Detail.Mode` is `suffix`), a line repeated in a row (`line`) or a repeated block (`block`): `Offset` is the characters the block had emitted, `Sample` is the tail cut to 256 characters, and each block reports each mode at most once. The event changes no reply, ends no turn and writes no history. Whether to act is your call: you can call `sess.InterruptTurn(turnID, "repetition")` on it, or reject the whole reply once `message.completed` arrives. Detection is on by default; tune it with `kernel.WithOutputAnomalyDetection`, and turn it off with `AnomalyConfig{Disabled: true}`. It watches text and reasoning only, not tool arguments, and it cannot see a repetition that says the same thing in other words.
 
 ## 6.6 UI rendering rules
 

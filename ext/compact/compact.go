@@ -221,7 +221,7 @@ func (s *strategy) prune(req kernel.CompactRequest) (kernel.CompactResult, bool)
 		}
 		m := out[p.line]
 		m.Content = slices.Clone(m.Content)
-		m.Content[p.block] = kernel.ClearedResult(*r)
+		m.Content[p.block] = kernel.ClearedResult(*r, req.Texts)
 		out[p.line] = m
 		cleared++
 	}
@@ -261,7 +261,7 @@ func fitCurrentTurn(req kernel.CompactRequest) []message.Message {
 		}
 		m := turn[p.line]
 		m.Content = slices.Clone(m.Content)
-		m.Content[p.block] = kernel.ClearedResult(*m.Content[p.block].(*message.ToolResultBlock))
+		m.Content[p.block] = kernel.ClearedResult(*m.Content[p.block].(*message.ToolResultBlock), req.Texts)
 		turn[p.line] = m
 	}
 	return out

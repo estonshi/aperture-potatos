@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "The API rejects a request as too long. The session compacts once for that step (trigger overflow, a pre_compact block is ignored) and sends the step again on the compacted history.",
   "agent": {
     "nickname": "Tater",

@@ -74,7 +74,7 @@ func (s *Session) SideCall(ctx context.Context, sr SideRequest) (message.Message
 		}
 	}
 	msgs := slices.Concat(hist, withPreamble(sr.Messages, sr.Preamble))
-	req := &provider.Request{Model: ms.info.Model, System: system, Messages: msgs, Tools: defs, HostedTools: hosted, Params: ms.ref.Params, Caps: ms.caps, CacheKey: cacheKey, CacheTail: len(hist), Replay: replay}
+	req := &provider.Request{Model: ms.info.Model, System: system, Messages: msgs, Tools: defs, HostedTools: hosted, Params: ms.ref.Params, Caps: ms.caps, CacheKey: cacheKey, CacheTail: len(hist), Replay: replay, Texts: s.agent.cfg.texts}
 	if view != nil {
 		req.SharedPrefix = view.shared
 	}
@@ -148,7 +148,7 @@ func (s *Session) sideAttempt(ctx context.Context, req *provider.Request, ms mod
 	sent.Params = s.requestHeaders(sent.Params, turnID, bucket, ms.info)
 	sent.CaptureHeaders = s.agent.cfg.captureHeaders
 	msgID := s.agent.cfg.ids.NewID("msg")
-	proj := newProjector(msgID, ms.info)
+	proj := newProjector(msgID, ms.info, s.agent.cfg.anomaly, s.agent.cfg.logger)
 	emit := func(p event.Payload) {
 		if sr.Emit {
 			ev := s.envelope(p, turnID, 0, 0)

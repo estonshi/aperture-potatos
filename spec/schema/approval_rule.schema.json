@@ -10,7 +10,7 @@
   "$defs": {
     "rule": {
       "type": "object",
-      "description": "One rule. Rules on free-text fields (SQL, shell) are not a security boundary: the same intent always has another spelling.",
+      "description": "One rule. Rules on free-text fields (SQL, shell) are not a security boundary: the same intent always has another spelling. A binding-native predicate (runtime.md 11.2) has no rule-file form; a file that names \"match\" is refused.",
       "properties": {
         "id": {
           "type": "string",

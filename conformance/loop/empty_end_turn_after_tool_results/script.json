@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "An empty end_turn right after tool results is discarded and answered once with a continue nudge.",
   "agent": {
     "nickname": "Tater",

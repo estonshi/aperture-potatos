@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "A foreground subagent runs in a child session of a derived agent: its own system with the definition's user section, the parent's tools without subagent itself, ask_parent, and the prompt as another agent's message. The call waits until the child is quiet and returns its last answer wrapped in subagent_result; the child's events arrive under the task hop.",
   "agent": {
     "nickname": "Tater",

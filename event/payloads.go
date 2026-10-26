@@ -23,6 +23,7 @@ const (
 	TypeStepCompleted            Type = "step.completed"
 	TypeModelRetry               Type = "model.retry"
 	TypeModelNotice              Type = "model.notice"
+	TypeModelAnomaly             Type = "model.anomaly"
 	TypeMessageStarted           Type = "message.started"
 	TypeMessageDelta             Type = "message.delta"
 	TypeMessageBlock             Type = "message.block"
@@ -175,6 +176,24 @@ type ModelRetry struct {
 type ModelNotice struct {
 	Kind   string          `json:"kind"`
 	Detail json.RawMessage `json:"detail,omitempty"`
+}
+
+// ModelAnomaly is the payload of model.anomaly: a repetition the runtime noticed while the block was still streaming. It is advisory; the kernel changes nothing because of it.
+type ModelAnomaly struct {
+	MessageID  string              `json:"message_id"`
+	BlockIndex int                 `json:"block_index"`
+	Channel    string              `json:"channel,omitempty"` // text | refusal | reasoning
+	Kind       string              `json:"kind"`              // repetition
+	Offset     int                 `json:"offset"`            // characters the block had emitted when the repetition was seen
+	Detail     *ModelAnomalyDetail `json:"detail,omitempty"`
+}
+
+// ModelAnomalyDetail says which repetition was seen and where.
+type ModelAnomalyDetail struct {
+	Mode        string `json:"mode,omitempty"` // suffix | line | block
+	UnitChars   int    `json:"unit_chars,omitempty"`
+	Repetitions int    `json:"repetitions,omitempty"`
+	Sample      string `json:"sample,omitempty"` // the tail of the block, at most 256 characters
 }
 
 // MessageStarted is the payload of message.started.
@@ -520,8 +539,10 @@ type RegistryChanged struct {
 
 // Notice is the payload of notice.
 type Notice struct {
-	Source string `json:"source"`
-	Text   string `json:"text"`
+	Source string         `json:"source"`
+	Kind   string         `json:"kind,omitempty"`   // stable code for the notices the kernel writes itself, so a host can translate instead of showing Text
+	Detail map[string]any `json:"detail,omitempty"` // what Kind's text says, field by field
+	Text   string         `json:"text"`
 }
 
 // Error is the payload of error.
@@ -578,6 +599,7 @@ type RuleRef struct {
 	ID     string `json:"id"`
 	Action string `json:"action"`
 	Reason string `json:"reason,omitempty"`
+	Scope  string `json:"scope,omitempty"` // the scope the rule was registered in: "agent" or "session"
 }
 
 // TaskDetail is the spec and state an attempt starts with.
@@ -627,6 +649,7 @@ func (*StepStarted) EventType() Type              { return TypeStepStarted }
 func (*StepCompleted) EventType() Type            { return TypeStepCompleted }
 func (*ModelRetry) EventType() Type               { return TypeModelRetry }
 func (*ModelNotice) EventType() Type              { return TypeModelNotice }
+func (*ModelAnomaly) EventType() Type             { return TypeModelAnomaly }
 func (*MessageStarted) EventType() Type           { return TypeMessageStarted }
 func (*MessageDelta) EventType() Type             { return TypeMessageDelta }
 func (*MessageBlock) EventType() Type             { return TypeMessageBlock }
@@ -695,6 +718,7 @@ var kernelPayloads = []Constructor{
 	{TypeStepCompleted, func() Payload { return new(StepCompleted) }},
 	{TypeModelRetry, func() Payload { return new(ModelRetry) }},
 	{TypeModelNotice, func() Payload { return new(ModelNotice) }},
+	{TypeModelAnomaly, func() Payload { return new(ModelAnomaly) }},
 	{TypeMessageStarted, func() Payload { return new(MessageStarted) }},
 	{TypeMessageDelta, func() Payload { return new(MessageDelta) }},
 	{TypeMessageBlock, func() Payload { return new(MessageBlock) }},

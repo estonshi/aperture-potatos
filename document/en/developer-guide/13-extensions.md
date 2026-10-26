@@ -43,7 +43,8 @@ The `Registrar` passed to `Install` provides the following methods:
 | `ContextProvider(p)` | Per-turn dynamic content. See [11.4](11-prompt.md#114-per-turn-dynamic-content). |
 | `Compactor(c)` | A compaction strategy. Each scope can have only one. See [15.6](15-context.md#156-custom-compaction-strategies). |
 | `TaskKind(k)` | A task kind. See [12](12-tasks.md). |
-| `Hide(kind, name)` | Shadows an inherited registration in this scope. `kind` can be `KindTool`, `KindCommand`, `KindPromptSection`, `KindContextProvider`, `KindCompactor`, `KindTaskKind` or `KindHostedTool`. |
+| `ApprovalRule(r)` | An approval rule, effective from the next gate. See [8.1](08-approval.md#81-rules). |
+| `Hide(kind, name)` | Shadows an inherited registration in this scope. `kind` can be `KindTool`, `KindCommand`, `KindPromptSection`, `KindContextProvider` or `KindHostedTool`. `KindCompactor` and `KindTaskKind` are shadowed by registering one of the same name, and `Hide` returns an error for them; `KindApprovalRule` cannot be hidden either, because hiding an outer scope's `deny` would let the session escape the agent's policy. |
 | `Scope()`, `Agent()`, `Session()` | Return the current scope, the owning agent and the owning session. At agent level, `Session()` returns nil. |
 
 Hooks are registered with `kernel.On(r, ...)` or `kernel.OnAsync(r, ...)`. See [9.1](09-hooks.md#91-registering-hooks).
@@ -71,7 +72,7 @@ reg, err := sess.Registrar().Tool(t)
 reg.Remove()
 ```
 
-A change to the registrations takes effect from the next turn. For models that declare `ThinkingPrefixBound`, it takes effect from the next epoch. Every change emits a `registry.changed` event with the fields `Scope`, `Kind`, `Name`, `Op` and `Effective`, where `Effective` is either `turn` or `epoch`. Within a turn, tool definitions that are already frozen do not change. If a tool's definition itself changes, meaning `Spec()` returns something different, call `kernel.ToolChanged(r, name)` to announce it.
+A change to a tool or hosted tool takes effect from the next turn; for models that declare `ThinkingPrefixBound`, it takes effect from the next epoch. A prompt section takes effect from the next epoch, an approval rule from the next gate, and a command, context provider, compactor or task kind at once. Every change emits a `registry.changed` event with the fields `Scope`, `Kind`, `Name`, `Op` and `Effective`, where `Effective` is `now`, `turn` or `epoch`. Within a turn, tool definitions that are already frozen do not change. If a tool's definition itself changes, meaning `Spec()` returns something different, call `kernel.ToolChanged(r, name)` to announce it.
 
 ## 13.4 Installing the default extensions with std
 
@@ -142,6 +143,8 @@ child, err := ag.Derive(kernel.DeriveOptions{
 | `Limits` | The derived agent's own limits. Fields left at their zero value use the parent agent's settings. |
 
 A derived agent shares the parent agent's registrations as a read-only layer, so it also sees changes the parent makes later. The subagent extension uses this mechanism to create an agent for each kind of subagent.
+
+`ToolFilter` is not a snapshot taken at derivation: it is evaluated against the parent agent's live registrations, so tools the parent adds later are filtered too. It belongs to the derived agent, cannot change after construction, and judges by `ToolSpec` (a hosted tool has only its name), so it cannot hide one registration by name. To shadow a tool by name at runtime, use the session's `sess.Registrar().Hide(kernel.KindTool, name)`: it works at one scope, can be undone with `Remove()`, emits `registry.changed`, and shadows only inherited registrations.
 
 ## 13.7 Best practices
 

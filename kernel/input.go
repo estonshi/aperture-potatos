@@ -500,7 +500,7 @@ type deliveryInfo struct {
 }
 
 // delivery builds the one user message a delivery point commits: provider reminders, queued reminders, hook context, then task notifications, then messages from other agents, then commands and human input, each group in arrival order.
-func delivery(items []*queueItem, pre, post []*message.ReminderBlock) (*message.Message, deliveryInfo) {
+func delivery(texts prompt.Source, items []*queueItem, pre, post []*message.ReminderBlock) (*message.Message, deliveryInfo) {
 	var info deliveryInfo
 	var reminders, notes, agents, humans message.Content
 	add := func(source, text string, cut bool) {
@@ -512,7 +512,7 @@ func delivery(items []*queueItem, pre, post []*message.ReminderBlock) (*message.
 		}
 	}
 	remind := func(source, text string) {
-		text, cut := truncateReminder(text)
+		text, cut := truncateReminder(texts, text)
 		add(source, text, cut)
 	}
 	for _, r := range pre {
@@ -524,9 +524,9 @@ func delivery(items []*queueItem, pre, post []*message.ReminderBlock) (*message.
 			info.meta = mergeMeta(info.meta, p.metadata)
 			switch p.origin.Kind {
 			case message.OriginReminder:
-				text, cut := truncateReminder(p.text)
+				text, cut := truncateReminder(texts, p.text)
 				if i == 0 && it.omitted > 0 {
-					text = prompt.Textf("merged_omitted", map[string]string{"count": strconv.Itoa(it.omitted)}) + "\n" + text
+					text = prompt.TextfFrom(texts, "merged_omitted", map[string]string{"count": strconv.Itoa(it.omitted)}) + "\n" + text
 				}
 				add(p.origin.Source, text, cut)
 				if p.unpin != "" {
@@ -536,7 +536,7 @@ func delivery(items []*queueItem, pre, post []*message.ReminderBlock) (*message.
 				notes = append(notes, noteBlock(p))
 				info.tasks = append(info.tasks, p.note.task)
 			case message.OriginAgent:
-				body := prompt.File("agent_message") + "\n" + prompt.EscapeRuntimeTags(p.text)
+				body := prompt.FileFrom(texts, "agent_message") + "\n" + prompt.EscapeRuntimeTags(p.text)
 				agents = append(agents, &message.TextBlock{Text: "<agent-message from=" + prompt.QuoteAttr(p.origin.Source) + ">\n" + body + "\n</agent-message>"})
 				agents = append(agents, escapeContent(p.content)...)
 			default:
@@ -572,7 +572,7 @@ func mergeMeta(into, from map[string]string) map[string]string {
 }
 
 // truncateReminder caps a reminder at the spec's character limit, counted in Unicode code points.
-func truncateReminder(s string) (string, bool) {
+func truncateReminder(texts prompt.Source, s string) (string, bool) {
 	limit := defaults().Input.ReminderMaxChars
 	n := utf8.RuneCountInString(s)
 	if n <= limit {
@@ -581,7 +581,7 @@ func truncateReminder(s string) (string, bool) {
 	cut := 0
 	for i := range s {
 		if cut == limit {
-			return s[:i] + "\n" + prompt.Textf("reminder_truncated", map[string]string{"count": strconv.Itoa(n - limit)}), true
+			return s[:i] + "\n" + prompt.TextfFrom(texts, "reminder_truncated", map[string]string{"count": strconv.Itoa(n - limit)}), true
 		}
 		cut++
 	}

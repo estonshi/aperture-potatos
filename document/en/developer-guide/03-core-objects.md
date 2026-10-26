@@ -61,6 +61,7 @@ The Session methods below are grouped by purpose, and each group names the chapt
 |---|---|
 | `Send(in, opts...) (*Receipt, error)` | Sends an input and returns a receipt immediately. |
 | `Run(ctx, in, opts...) iter.Seq2[event.Event, error]` | Sends an input and iterates over the turn's events until the turn ends. |
+| `RunCancelable(ctx, in, opts...) iter.Seq2[event.Event, error]` | Like `Run`, except that ending iteration early stops the work this input started: a started turn is interrupted, and an input still queued is withdrawn. |
 | `Command(name, args) (*Receipt, error)` | Runs a command directly, without parsing text. |
 | `WaitQuiet(ctx) (TurnResult, error)` | Waits until the session has no work left that would continue on its own: the turn has ended, the queued commands have run, all tasks have finished, and the task notifications have been sent. |
 
@@ -94,6 +95,9 @@ The Session methods below are grouped by purpose, and each group names the chapt
 | `Messages() []message.Message` | Returns every history line in the current context. The returned slice is shared, so treat it as read-only. |
 | `Context() ContextReport` | Returns a token breakdown of the context, grouped by source. |
 | `Commands() []CommandInfo` | Returns the available commands. |
+| `Tools() []ToolSpec` | Returns the visible function tool definitions, after hidden and filtered tools are removed. |
+| `HostedTools() []message.HostedTool` | Returns the visible provider-run tools. |
+| `ApprovalRules() []ApprovalRuleInfo` | Returns the effective approval rules in evaluation order, each with its scope and whether it can be written to a rule file. |
 | `Parent() *Session` | Returns the main session for a side chat, and the owning session for a task's child session. It returns nil for a root session. |
 
 **Context management** ([15](15-context.md))

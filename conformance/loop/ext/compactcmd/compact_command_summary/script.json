@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "/compact summarizes with its arguments as this call's instructions and reports the estimate before and after and the new epoch.",
   "agent": {
     "nickname": "Tater",

@@ -14,7 +14,6 @@ import (
 
 	"github.com/estonshi/aperture-potatos/event"
 	"github.com/estonshi/aperture-potatos/internal/bus"
-	"github.com/estonshi/aperture-potatos/internal/prompt"
 	"github.com/estonshi/aperture-potatos/provider"
 )
 
@@ -90,7 +89,7 @@ func (a *Agent) Derive(o DeriveOptions) (*Agent, error) {
 		cfg.limits = overLimits(*o.Limits, a.cfg.limits).resolved()
 	}
 	d := &Agent{cfg: cfg, reg: newRegistry(ScopeAgent), base: a, derived: derivation{filter: o.ToolFilter, inheritHooks: o.InheritHooks},
-		nickname: nickname, open: map[string]*Session{}, rules: a.rules}
+		nickname: nickname, open: map[string]*Session{}}
 	names, err := install(&registrar{scope: ScopeAgent, agent: d, reg: d.reg}, o.Use, nil)
 	if err != nil {
 		return nil, err
@@ -102,7 +101,21 @@ func (a *Agent) Derive(o DeriveOptions) (*Agent, error) {
 		}
 	}
 	d.reg.notify.Store(&notify)
+	a.mu.Lock()
+	a.children = append(a.children, d)
+	a.mu.Unlock()
 	return d, nil
+}
+
+// walk visits a and every agent derived from it, so an agent-scope change checks every session that will see it.
+func (a *Agent) walk(fn func(*Agent)) {
+	fn(a)
+	a.mu.Lock()
+	children := slices.Clone(a.children)
+	a.mu.Unlock()
+	for _, child := range children {
+		child.walk(fn)
+	}
 }
 
 // overLimits takes each non-zero field of l and the parent's value elsewhere.
@@ -164,6 +177,19 @@ func layered(base, own *regState, d derivation) *regState {
 		}
 	}
 	maps.Copy(st.tools, own.tools)
+	byID := make(map[string]*ruleReg, len(base.rules)+len(own.rules))
+	for _, r := range base.rules {
+		st.rules = append(st.rules, r)
+		byID[r.rule.ID] = r
+	}
+	for _, r := range own.rules {
+		if prev, ok := byID[r.rule.ID]; ok && prev == r {
+			continue // a ChildOf session sees its owner's agent layer twice
+		}
+		st.rules = append(st.rules, r)
+		st.ruleIDs[r.rule.ID] = r.id
+		byID[r.rule.ID] = r
+	}
 	for n, r := range base.hosted {
 		if !own.hides(KindHostedTool, n) && d.keepsName(n) {
 			st.hosted[n] = r
@@ -244,17 +270,6 @@ func withHead(head, rest []*hookEntry) []*hookEntry {
 	return slices.Concat(head, slices.DeleteFunc(rest, func(h *hookEntry) bool { return slices.Contains(head, h) }))
 }
 
-// unionRules keeps the outer rules first and adds the inner ones it lacks, since the rules of every layer apply.
-func unionRules(outer, inner []compiledRule) []compiledRule {
-	out := slices.Clone(outer)
-	for _, r := range inner {
-		if !slices.ContainsFunc(outer, func(o compiledRule) bool { return o.ID == r.ID }) {
-			out = append(out, r)
-		}
-	}
-	return out
-}
-
 // Model is the model the session's next turn uses, so a derived agent can start from where its parent is.
 func (s *Session) Model() provider.ModelRef {
 	ref := *s.agent.cfg.model
@@ -298,8 +313,10 @@ func (s *Session) adopt(o TaskRuntime) error {
 	}
 	s.chain = append(slices.Clone(rt.s.chain), s.id)
 	s.owner = rt.kids
-	s.rules = unionRules(rt.s.rules, s.rules)
 	s.st.owned = rt.kids
+	if err := checkRuleIDs(s.effective().rules); err != nil {
+		return err
+	}
 	rt.kids.add(s)
 	return nil
 }
@@ -460,7 +477,7 @@ func (s *Session) ownerDenied(reason string) {
 		return
 	}
 	rt := c.rt.Load()
-	text := prompt.Textf("denied_by_reviewer", map[string]string{"reason": reason})
+	text := s.textf("denied_by_reviewer", map[string]string{"reason": reason})
 	c.owner.post(func(st *state) {
 		e := rt.current(st)
 		if e == nil || e.cur.stopReq || e.cur.denied != "" {

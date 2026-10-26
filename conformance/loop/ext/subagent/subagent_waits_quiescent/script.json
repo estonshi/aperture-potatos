@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "The subagent's own background run notifies its child session after the child's first turn ended, which starts another turn there; the foreground call waits until the child is quiet and returns that last turn's answer, not the intermediate one.",
   "agent": {
     "nickname": "Tater",

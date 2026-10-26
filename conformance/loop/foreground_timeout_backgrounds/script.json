@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "The start tool's timeout passes before the foreground job ends: the call returns that the job goes on in the background, the job is not stopped, and its later success is notified.",
   "agent": {
     "nickname": "Tater",

@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "One turn sends three requests: a 503 before any response (failed, with the request id from the error), a stream that breaks after it began (discarded) and a success (committed, with its message id). TurnCalls lists all three in order.",
   "agent": {
     "nickname": "Tater",

@@ -26,6 +26,8 @@ rcpt, err = sess.Command("compact", "保留预算相关的结论")
 
 在 `Run` 中途 break 或取消 ctx，只会停止迭代，不会停止这一轮。如果发送的是命令，`Run` 会持续产出该命令的事件，直到 `command.completed`。
 
+如果希望停止迭代时也停止这次输入启动的工作，用 `RunCancelable`：本输入对应的 turn 已经开始时，它只打断这一轮；输入还在排队时，它把输入撤回；命令不受影响，会继续执行。
+
 如果你想等待整个 session 都安静下来，可以使用 `sess.WaitQuiet(ctx)`。安静是指 turn 已经结束、排队的命令已经执行完、后台任务已经结束，并且任务通知也已经发出。`WaitQuiet` 返回最后一轮的 `TurnResult`。
 
 ## 5.2 输入的内容与发送选项

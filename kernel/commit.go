@@ -175,7 +175,7 @@ func publicBlock(b message.Block) message.Block {
 }
 
 // repairTail pairs every call of the last assistant line that has no result with a not_executed result, so history stays valid for the API on every exit path (I1).
-func (st *state) repairTail(outcome Outcome) *message.Message {
+func (st *state) repairTail(outcome Outcome, texts prompt.Source) *message.Message {
 	if len(st.history) == 0 {
 		return nil
 	}
@@ -184,7 +184,7 @@ func (st *state) repairTail(outcome Outcome) *message.Message {
 	if last.Role != message.RoleAssistant || len(calls) == 0 {
 		return nil
 	}
-	text := prompt.Textf("turn_ended_not_executed", map[string]string{"outcome": string(outcome)})
+	text := prompt.TextfFrom(texts, "turn_ended_not_executed", map[string]string{"outcome": string(outcome)})
 	tool := &message.Message{Role: message.RoleTool, Origin: message.Origin{Kind: message.OriginTool}}
 	for _, c := range calls {
 		tool.Content = append(tool.Content, notExecuted(c, text))

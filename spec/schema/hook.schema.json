@@ -506,6 +506,14 @@
         },
         "reason": {
           "type": "string"
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "agent",
+            "session"
+          ],
+          "description": "The scope the rule was registered in."
         }
       },
       "required": [

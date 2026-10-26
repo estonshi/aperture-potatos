@@ -23,8 +23,7 @@ func (a *Agent) Resume(ctx context.Context, id string, opts ...SessionOption) (*
 	if _, ok := modeRank[mode]; !ok {
 		return nil, ErrInvalidMode
 	}
-	own, err := compileRules(sc.rules)
-	if err != nil {
+	if _, err := compileRules(sc.rules); err != nil {
 		return nil, err
 	}
 	lines, err := a.cfg.store.Load(ctx, id)
@@ -39,7 +38,7 @@ func (a *Agent) Resume(ctx context.Context, id string, opts ...SessionOption) (*
 	} else if meta != nil && meta.ParentSessionID != "" && sc.owner == nil {
 		return nil, ErrChildSession
 	}
-	return a.resume(ctx, id, lines, sc, func(s *Session) { s.rules = slices.Concat(a.rules, own) })
+	return a.resume(ctx, id, lines, sc, nil)
 }
 
 // resume reopens stored lines as session id; prep adjusts the session before it starts.
@@ -58,12 +57,23 @@ func (a *Agent) resume(ctx context.Context, id string, lines []message.Message, 
 	}
 	sc.labels = labels
 	s := a.newSession(id, mode, sc)
+	for _, rule := range sc.rules {
+		compiled, err := compileRules([]ApprovalRule{rule})
+		if err != nil {
+			return nil, err
+		}
+		if _, err := s.reg.addCompiledRule(compiled[0], ScopeSession); err != nil {
+			return nil, err
+		}
+	}
 	s.source = "resume"
 	if meta := lines[0].Boundary.Session; meta != nil && meta.Agent != "" {
 		s.nickname.Store(&meta.Agent) // the stored system was rendered with this name
 	}
 	s.allowed = storedAllowed(lines) // before prep, so a side chat reopened with its own ForkTools replaces it
-	prep(s)
+	if prep != nil {
+		prep(s)
+	}
 	s, err = a.start(ctx, s, sc, func() { s.resumeInit(lines) })
 	if err == nil && save {
 		if err = s.saveLabels(ctx); err != nil {
@@ -113,7 +123,7 @@ func (s *Session) restore(ctx context.Context, lines []message.Message) error {
 				}
 			}
 		}
-		if lost := st.lostTail(); lost != nil {
+		if lost := st.lostTail(s.agent.cfg.texts); lost != nil {
 			s.appendLine(st, lost, "")
 			s.publishCommitted(st, lost, nil)
 		}
@@ -157,7 +167,7 @@ func storedSystem(line message.Message) []provider.SystemBlock {
 }
 
 // lostTail pairs the calls the file left without results with lost results; they are never re-run (I2).
-func (st *state) lostTail() *message.Message {
+func (st *state) lostTail(texts prompt.Source) *message.Message {
 	if len(st.history) == 0 {
 		return nil
 	}
@@ -166,7 +176,7 @@ func (st *state) lostTail() *message.Message {
 	if last.Role != message.RoleAssistant || len(calls) == 0 {
 		return nil
 	}
-	text := prompt.Text("resume_lost")
+	text := prompt.TextFrom(texts, "resume_lost")
 	tool := &message.Message{Role: message.RoleTool, Origin: message.Origin{Kind: message.OriginTool}}
 	for _, c := range calls {
 		tool.Content = append(tool.Content, &message.ToolResultBlock{CallID: c.ID, Name: c.Name, IsError: true, Outcome: message.OutcomeLost, Content: message.Content{&message.TextBlock{Text: text}}})

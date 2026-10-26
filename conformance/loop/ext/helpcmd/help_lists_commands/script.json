@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "/help lists the visible commands with their hints and runs without a model call.",
   "agent": {
     "nickname": "Tater",

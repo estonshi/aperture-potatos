@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "Stopping a foreground subagent while its child is mid-request: the subagent's run interrupts the child's turn, waits for it to exit and closes the child, and every event the child produced, down to its session.closed, reaches the parent before task.finished and the call's canceled result.",
   "agent": {
     "nickname": "Tater",

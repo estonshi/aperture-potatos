@@ -12,6 +12,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 // RuleAction is what a matching rule asks for; any deny wins, then an allow exempts the call from every ask.
@@ -25,12 +26,22 @@ const (
 
 // ApprovalRule matches calls by tool name and input fields; spec/schema/approval_rule.schema.json is its file form.
 type ApprovalRule struct {
-	ID     string                       `json:"id"`
-	Tool   string                       `json:"tool"` // exact name or whole-string glob
-	When   map[string]Condition         `json:"when,omitempty"`
-	Action RuleAction                   `json:"action"`
-	Reason string                       `json:"reason,omitempty"`
-	Match  func(call ToolCallView) bool `json:"-"` // Go only, so a rule that sets it cannot be shared with other languages
+	ID     string               `json:"id"`
+	Tool   string               `json:"tool"` // exact name or whole-string glob
+	When   map[string]Condition `json:"when,omitempty"`
+	Action RuleAction           `json:"action"`
+	Reason string               `json:"reason,omitempty"`
+	// Match is the Go form of the spec-recommended binding-native predicate: it runs after Tool and When match, must be pure and concurrency-safe, and has no rule-file form.
+	Match func(call ToolCallView) bool `json:"-"`
+}
+
+// MarshalJSON refuses a rule that carries a native predicate: a rule file cannot express one, and dropping it would turn the rule into one that matches every call.
+func (r ApprovalRule) MarshalJSON() ([]byte, error) {
+	if r.Match != nil {
+		return nil, fmt.Errorf("approval rule %q carries a native predicate, which a rule file cannot express", r.ID)
+	}
+	type plain ApprovalRule
+	return json.Marshal(plain(r))
 }
 
 // Condition sets exactly one operator, Normalize only qualifying Prefix, so a rule file means the same thing in every language.
@@ -71,6 +82,7 @@ func ParseApprovalRules(data []byte) ([]ApprovalRule, error) {
 		When   map[string]map[string]json.RawMessage `json:"when"`
 		Action RuleAction                            `json:"action"`
 		Reason string                                `json:"reason"`
+		Match  json.RawMessage                       `json:"match"`
 	}
 	d := json.NewDecoder(bytes.NewReader(data))
 	if err := d.Decode(&raw); err != nil {
@@ -78,6 +90,9 @@ func ParseApprovalRules(data []byte) ([]ApprovalRule, error) {
 	}
 	rules := make([]ApprovalRule, len(raw))
 	for i, r := range raw {
+		if r.Match != nil {
+			return nil, fmt.Errorf("approval rule %q: a rule file cannot carry a native predicate in %q", r.ID, "match")
+		}
 		rules[i] = ApprovalRule{ID: r.ID, Tool: r.Tool, Action: r.Action, Reason: r.Reason}
 		for field, ops := range r.When {
 			var c Condition
@@ -126,6 +141,87 @@ func conditionField(c *Condition, op string) any {
 type compiledRule struct {
 	ApprovalRule
 	conds []compiledCond
+	scope Scope // where the rule was registered; ruleSet is its only writer, since compileRules cannot know it
+}
+
+// ruleReg is one registered rule; scope says where it was added, for duplicate reports and for approval.requested.
+type ruleReg struct {
+	id    uint64
+	scope Scope
+	rule  compiledRule
+}
+
+// ruleMu serializes rule registration with the checks and session starts it races, since agent and session scope keep separate locks.
+var ruleMu sync.Mutex
+
+// conflictIn reports rule id already being in rules, naming both scopes.
+func conflictIn(rules []*ruleReg, id string, scope Scope) error {
+	for _, r := range rules {
+		if r.rule.ID == id {
+			return fmt.Errorf("%w: approval rule id %q is used in both %s and %s scope", ErrDuplicate, id, r.scope, scope)
+		}
+	}
+	return nil
+}
+
+// checkRuleIDs reports the first id a merged set repeats, which no configuration layer may introduce.
+func checkRuleIDs(rules []*ruleReg) error {
+	seen := map[string]Scope{}
+	for _, r := range rules {
+		if prev, ok := seen[r.rule.ID]; ok {
+			return fmt.Errorf("%w: approval rule id %q is used in both %s and %s scope", ErrDuplicate, r.rule.ID, prev, r.scope)
+		}
+		seen[r.rule.ID] = r.scope
+	}
+	return nil
+}
+
+// ruleSet is the effective rules of one gate, outermost first, read once so a call never sees half a change.
+func (s *Session) ruleSet() []compiledRule {
+	st := s.effective()
+	out := make([]compiledRule, len(st.rules))
+	for i, r := range st.rules {
+		out[i] = r.rule
+		out[i].scope = r.scope // the only place the scope is stamped on a compiled rule
+	}
+	return out
+}
+
+// ApprovalRuleInfo is one effective rule as a host can audit it; the native predicate has no exported form, so Portable says whether the rule can be written to a rule file.
+type ApprovalRuleInfo struct {
+	ID       string               `json:"id"`
+	Tool     string               `json:"tool"`
+	When     map[string]Condition `json:"when,omitempty"`
+	Action   RuleAction           `json:"action"`
+	Reason   string               `json:"reason,omitempty"`
+	Scope    string               `json:"scope"`
+	Portable bool                 `json:"portable"`
+}
+
+// ApprovalRules lists the effective rules in evaluation order, agent scope before session scope.
+func (s *Session) ApprovalRules() []ApprovalRuleInfo {
+	st := s.effective()
+	out := make([]ApprovalRuleInfo, 0, len(st.rules))
+	for _, r := range st.rules {
+		out = append(out, ApprovalRuleInfo{
+			ID: r.rule.ID, Tool: r.rule.Tool, When: cloneConditions(r.rule.When), Action: r.rule.Action,
+			Reason: r.rule.Reason, Scope: r.scope.String(), Portable: r.rule.Match == nil,
+		})
+	}
+	return out
+}
+
+func cloneConditions(when map[string]Condition) map[string]Condition {
+	if when == nil {
+		return nil
+	}
+	out := make(map[string]Condition, len(when))
+	for k, c := range when {
+		c.Eq = slices.Clone(c.Eq)
+		c.In = slices.Clone(c.In)
+		out[k] = c
+	}
+	return out
 }
 
 type compiledCond struct {
@@ -228,11 +324,19 @@ func decodeValue(b []byte) (any, error) {
 	return v, nil
 }
 
-// ruleVerdict is what a rule set says about one call: its own conclusion and every rule that matched.
+// ruleFailure is a native predicate that panicked; decide already resolved the rule toward its stricter outcome.
+type ruleFailure struct {
+	id     string
+	action RuleAction
+	panic  any
+}
+
+// ruleVerdict is what a rule set says about one call: its own conclusion, every rule that matched, and the predicates that failed.
 type ruleVerdict struct {
-	action  RuleAction // "" when no rule matched
-	matched []compiledRule
-	deny    *compiledRule // the first matching deny, in rule order
+	action   RuleAction // "" when no rule matched
+	matched  []compiledRule
+	deny     *compiledRule // the first matching deny, in rule order
+	failures []ruleFailure
 }
 
 // decide applies the rule order: any deny wins, then an allow exempts from ask, then any ask.
@@ -245,7 +349,11 @@ func decide(rules []compiledRule, view ToolCallView) ruleVerdict {
 	var allow, ask bool
 	for i := range rules {
 		r := &rules[i]
-		if !r.matches(view, input) {
+		ok, failed := r.matches(view, input)
+		if failed != nil {
+			v.failures = append(v.failures, ruleFailure{id: r.ID, action: r.Action, panic: failed})
+		}
+		if !ok {
 			continue
 		}
 		v.matched = append(v.matched, *r)
@@ -271,16 +379,37 @@ func decide(rules []compiledRule, view ToolCallView) ruleVerdict {
 	return v
 }
 
-func (r *compiledRule) matches(view ToolCallView, input any) bool {
+// matches runs the declarative part first and the native predicate last; failed is non-nil when the predicate panicked.
+func (r *compiledRule) matches(view ToolCallView, input any) (matched bool, failed any) {
 	if r.Tool != "*" && r.Tool != view.Name && !matchGlob(r.Tool, view.Name) {
-		return false
+		return false, nil
 	}
 	for _, c := range r.conds {
 		if !c.holds(input) {
-			return false
+			return false, nil
 		}
 	}
-	return r.Match == nil || r.Match(view)
+	return r.safeMatch(view)
+}
+
+// safeMatch calls the native predicate; a panic counts as a match for deny and ask and as no match for allow, so a failure never loosens policy.
+func (r *compiledRule) safeMatch(view ToolCallView) (matched bool, failed any) {
+	if r.Match == nil {
+		return true, nil
+	}
+	defer func() {
+		if p := recover(); p != nil {
+			matched, failed = r.Action != RuleAllow, p
+		}
+	}()
+	return r.Match(view), nil
+}
+
+// logRuleFailures records predicates that panicked, which decide already resolved toward the stricter action.
+func (s *Session) logRuleFailures(failures []ruleFailure) {
+	for _, f := range failures {
+		s.agent.cfg.logger.Error("approval rule predicate panicked", "rule", f.id, "action", string(f.action), "panic", f.panic)
+	}
 }
 
 // holds evaluates the condition over every value its path reaches; no value means the field does not exist.

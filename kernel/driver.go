@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"iter"
+	"log/slog"
 	"runtime/debug"
 	"slices"
 	"strconv"
@@ -143,7 +144,7 @@ func (s *Session) runTurn(ctx context.Context, plan *turnPlan) (out turnOutcome)
 	if ctx.Err() != nil {
 		return t.endBeforeCommit(ctx, items)
 	}
-	msg, info := delivery(items, pre, t.sink.take())
+	msg, info := delivery(s.agent.cfg.texts, items, pre, t.sink.take())
 	t.meta = info.meta
 	if err := t.commitDelivery(ctx, msg, &info, items, false); err != nil {
 		return t.fail(err)
@@ -211,7 +212,7 @@ func (s *Session) runTurn(ctx context.Context, plan *turnPlan) (out turnOutcome)
 			if res.message.Empty() && t.afterTools && !t.nudged {
 				t.nudged = true
 				t.publish(&event.ModelNotice{Kind: "empty_reply_continue"})
-				if err := t.continueWith(ctx, continuation(prompt.Text("empty_reply_continue"))); err != nil {
+				if err := t.continueWith(ctx, continuation(s.text("empty_reply_continue"))); err != nil {
 					return t.fail(err)
 				}
 				continue
@@ -231,12 +232,12 @@ func (s *Session) runTurn(ctx context.Context, plan *turnPlan) (out turnOutcome)
 			if !s.agent.cfg.autoContinue || !t.takeTruncation() {
 				return t.end(OutcomeMaxTokens)
 			}
-			if err := t.continueWith(ctx, continuation(prompt.Text("truncated_text_continue"))); err != nil { // I9: never end on assistant
+			if err := t.continueWith(ctx, continuation(s.text("truncated_text_continue"))); err != nil { // I9: never end on assistant
 				return t.fail(err)
 			}
 			continue
 		case nextTruncatedCalls:
-			paired := toolLine(calls, prompt.Text("truncated_call_not_executed"))
+			paired := toolLine(calls, s.text("truncated_call_not_executed"))
 			t.noteUnfinished(paired)
 			if !t.takeTruncation() {
 				if err := t.commitLines(ctx, paired, false); err != nil {
@@ -386,7 +387,7 @@ func (t *turn) stopHooks(ctx context.Context, res *stepResult) *message.Message 
 		if o.out.Continue {
 			text := o.out.Reason
 			if text == "" {
-				text = prompt.Text("stop_continue")
+				text = s.text("stop_continue")
 			}
 			m.Content = append(m.Content, &message.ReminderBlock{Source: "hook:" + o.name, Text: text})
 		}
@@ -568,7 +569,7 @@ func (t *turn) commitLines(ctx context.Context, line *message.Message, due bool)
 	var user *message.Message
 	var info deliveryInfo
 	if len(items) > 0 || len(pre) > 0 || len(post) > 0 {
-		user, info = delivery(items, pre, post)
+		user, info = delivery(t.s.agent.cfg.texts, items, pre, post)
 	}
 	err := t.commit(ctx, func(st *state) {
 		if line.Role == message.RoleTool {
@@ -687,6 +688,7 @@ func (t *turn) buildRequest(ctx context.Context) (*provider.Request, *message.Me
 		EmitRaw:           cfg.rawEvents,
 		FirstEventTimeout: cfg.retry.FirstEventTimeout,
 		IdleTimeout:       cfg.retry.IdleTimeout,
+		Texts:             cfg.texts,
 	}
 	t.pauseTail = false
 	if taught.maxOutput > 0 {
@@ -875,7 +877,7 @@ func (t *turn) streamOnce(ctx context.Context, req *provider.Request, attempt in
 	begin := clock.Now()
 	t.call = &modelCall{model: t.model.info, bucket: "main", started: begin, main: t.view}
 	t.publish(&event.StepStarted{MessageID: t.msgID, API: string(t.model.info.API), Model: req.Model, Attempt: attempt})
-	proj := newProjector(t.msgID, t.model.info)
+	proj := newProjector(t.msgID, t.model.info, s.agent.cfg.anomaly, s.agent.cfg.logger)
 	proj.family = req.Caps.Family
 	res := &stepResult{}
 	actx, cancel := context.WithCancel(ctx)
@@ -977,13 +979,15 @@ func readAhead(ctx context.Context, wk *workers.Set, name string, seq iter.Seq2[
 
 // projector turns stream events into public events and keeps what an interrupted attempt may still commit.
 type projector struct {
-	msgID  string
-	model  provider.ModelInfo
-	family string // the request's declared family, which a partial records as the adapters record it on a whole message
-	start  provider.StreamEvent
-	began  bool
-	blocks map[int]*projBlock
-	order  []int
+	msgID   string
+	model   provider.ModelInfo
+	family  string // the request's declared family, which a partial records as the adapters record it on a whole message
+	start   provider.StreamEvent
+	began   bool
+	blocks  map[int]*projBlock
+	order   []int
+	anomaly AnomalyConfig
+	logger  *slog.Logger
 }
 
 type projBlock struct {
@@ -991,10 +995,11 @@ type projBlock struct {
 	kind   message.ReasoningKind
 	text   strings.Builder
 	closed message.Block
+	scan   *anomalyScan // the text and reasoning blocks' repetition detector
 }
 
-func newProjector(msgID string, model provider.ModelInfo) *projector {
-	return &projector{msgID: msgID, model: model, blocks: map[int]*projBlock{}}
+func newProjector(msgID string, model provider.ModelInfo, anomaly AnomalyConfig, logger *slog.Logger) *projector {
+	return &projector{msgID: msgID, model: model, blocks: map[int]*projBlock{}, anomaly: anomaly.resolved(), logger: logger}
 }
 
 func (p *projector) bulk(sev provider.StreamEvent) bool {
@@ -1044,28 +1049,41 @@ func (p *projector) project(sev provider.StreamEvent, raw bool) ([]event.Payload
 		if channel == "" {
 			channel = "text"
 		}
-		return []event.Payload{&event.MessageDelta{MessageID: p.msgID, BlockIndex: sev.Index, Channel: channel, Text: sev.Text}}, true
+		out := []event.Payload{&event.MessageDelta{MessageID: p.msgID, BlockIndex: sev.Index, Channel: channel, Text: sev.Text}}
+		if a := p.anomalyEvent(sev.Index, b, sev.Text, channel, false); a != nil {
+			out = append(out, a)
+		}
+		return out, true
 	case provider.SEReasoningDelta:
 		b := p.block(sev.Index)
 		b.text.WriteString(sev.Text)
-		return []event.Payload{&event.ReasoningDelta{MessageID: p.msgID, BlockIndex: sev.Index, Kind: sev.ReasoningKind, Text: sev.Text}}, true
+		out := []event.Payload{&event.ReasoningDelta{MessageID: p.msgID, BlockIndex: sev.Index, Kind: sev.ReasoningKind, Text: sev.Text}}
+		if a := p.anomalyEvent(sev.Index, b, sev.Text, "reasoning", false); a != nil {
+			out = append(out, a)
+		}
+		return out, true
 	case provider.SEToolArgsDelta:
 		return []event.Payload{&event.ToolCallDelta{MessageID: p.msgID, CallID: sev.ToolCallID, ArgsDelta: sev.Text}}, true
 	case provider.SEBlockStop:
-		p.block(sev.Index).closed = sev.Block
-		switch b := sev.Block.(type) {
+		b := p.block(sev.Index)
+		b.closed = sev.Block
+		var out []event.Payload
+		switch blk := sev.Block.(type) {
 		case *message.ReasoningBlock:
-			return []event.Payload{&event.ReasoningCompleted{MessageID: p.msgID, BlockIndex: sev.Index, Kind: b.Kind, Text: b.Text, Replayable: b.Native != nil}}, true
+			out = append(out, &event.ReasoningCompleted{MessageID: p.msgID, BlockIndex: sev.Index, Kind: blk.Kind, Text: blk.Text, Replayable: blk.Native != nil})
 		case *message.ToolCallBlock:
-			return []event.Payload{&event.ToolCallCompleted{MessageID: p.msgID, CallID: b.ID, Name: b.Name, Input: b.Input, InputError: b.InputError}}, true
+			out = append(out, &event.ToolCallCompleted{MessageID: p.msgID, CallID: blk.ID, Name: blk.Name, Input: blk.Input, InputError: blk.InputError})
 		case *message.OpaqueBlock:
-			return []event.Payload{&event.MessageBlock{MessageID: p.msgID, BlockIndex: sev.Index, BlockType: string(message.TypeOpaque), Opaque: &event.OpaqueInfo{Kind: b.Kind, Text: b.Text}}}, true
+			out = append(out, &event.MessageBlock{MessageID: p.msgID, BlockIndex: sev.Index, BlockType: string(message.TypeOpaque), Opaque: &event.OpaqueInfo{Kind: blk.Kind, Text: blk.Text}})
 		case *message.HostedCallBlock:
-			return []event.Payload{&event.MessageBlock{MessageID: p.msgID, BlockIndex: sev.Index, BlockType: string(message.TypeHostedCall), HostedCall: publicBlock(b).(*message.HostedCallBlock)}}, true
+			out = append(out, &event.MessageBlock{MessageID: p.msgID, BlockIndex: sev.Index, BlockType: string(message.TypeHostedCall), HostedCall: publicBlock(blk).(*message.HostedCallBlock)})
 		case *message.HostedResultBlock:
-			return []event.Payload{&event.MessageBlock{MessageID: p.msgID, BlockIndex: sev.Index, BlockType: string(message.TypeHostedResult), HostedResult: publicBlock(b).(*message.HostedResultBlock)}}, true
+			out = append(out, &event.MessageBlock{MessageID: p.msgID, BlockIndex: sev.Index, BlockType: string(message.TypeHostedResult), HostedResult: publicBlock(blk).(*message.HostedResultBlock)})
 		}
-		return nil, true
+		if a := p.anomalyEvent(sev.Index, b, "", channelOf(b), true); a != nil {
+			out = append(out, a)
+		}
+		return out, true
 	case provider.SENotice:
 		if sev.Notice != nil {
 			return []event.Payload{&event.ModelNotice{Kind: sev.Notice.Kind, Detail: sev.Notice.Detail}}, false
@@ -1076,6 +1094,43 @@ func (p *projector) project(sev provider.StreamEvent, raw bool) ([]event.Payload
 		}
 	}
 	return nil, false
+}
+
+// anomalyEvent feeds one delta to its block's detector and returns the advisory event it may publish; a detector that panics is turned off for the rest of the attempt.
+func (p *projector) anomalyEvent(i int, b *projBlock, text, channel string, final bool) (out *event.ModelAnomaly) {
+	if p.anomaly.Disabled {
+		return nil
+	}
+	if b.scan == nil {
+		b.scan = newAnomalyScan(p.anomaly)
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			p.logger.Error("model.anomaly detection failed", "panic", r)
+			b.scan.dead, out = true, nil
+		}
+	}()
+	var d *event.ModelAnomalyDetail
+	if final {
+		d = b.scan.final()
+	} else {
+		d = b.scan.write(text)
+	}
+	if d == nil {
+		return nil
+	}
+	return &event.ModelAnomaly{MessageID: p.msgID, BlockIndex: i, Channel: channel, Kind: "repetition", Offset: b.scan.chars, Detail: d}
+}
+
+// channelOf names the block's channel the way a delta does, for the check that runs when the block ends.
+func channelOf(b *projBlock) string {
+	switch b.typ {
+	case message.TypeRefusal:
+		return "refusal"
+	case message.TypeReasoning:
+		return "reasoning"
+	}
+	return "text"
 }
 
 // partial is the message an interrupted attempt leaves: closed blocks, plus text and raw reasoning cut where the stream stopped; thinking, calls and opaque blocks count only once closed.
@@ -1128,6 +1183,7 @@ func (t *turn) runTools(ctx context.Context, calls []message.ToolCallBlock) ([]m
 		Grace:       s.limits.ToolCancelGrace,
 		Timeout:     r.timeout,
 		Movable:     func(c message.ToolCallBlock) bool { return r.tools[c.Name].spec.Background },
+		Texts:       s.agent.cfg.texts,
 		OnAbandon: func(c message.ToolCallBlock) {
 			s.movable.Delete(c.ID) // a tool that never returns would hold its batch in the map for the session's lifetime
 			s.post(func(st *state) { st.usage.Abandons++ })
@@ -1172,17 +1228,17 @@ func (t *turn) gate(ctx context.Context, calls []message.ToolCallBlock) (results
 		}
 		switch {
 		case s.allowed != nil && !s.allowed[c.Name]: // ForkTools: refused before any hook, rule or review
-			results[i] = kernelResult(c, message.OutcomeDenied, prompt.Textf("tool_not_allowed", map[string]string{"name": c.Name}))
+			results[i] = kernelResult(c, message.OutcomeDenied, s.textf("tool_not_allowed", map[string]string{"name": c.Name}))
 			continue
 		case t.tools[c.Name].tool == nil:
-			results[i] = kernelResult(c, message.OutcomeUnknownTool, prompt.Textf("unknown_tool", map[string]string{"name": c.Name}))
+			results[i] = kernelResult(c, message.OutcomeUnknownTool, s.textf("unknown_tool", map[string]string{"name": c.Name}))
 			continue
 		case c.InputError == message.InputInvalidJSON || c.InputError == message.InputNotObject:
 			raw := c.RawInput
 			if raw == "" {
 				raw = string(c.Input)
 			}
-			results[i] = kernelResult(c, message.OutcomeInvalidInput, prompt.Textf("invalid_input", map[string]string{"raw": raw}))
+			results[i] = kernelResult(c, message.OutcomeInvalidInput, s.textf("invalid_input", map[string]string{"raw": raw}))
 			continue
 		}
 		sc := s.screen(ctx, t.hookCtx(ctx, c.ID), t.env(), c, t.tools[c.Name].spec)
@@ -1255,7 +1311,7 @@ type screened struct {
 func (s *Session) screen(ctx, hctx context.Context, env HookEnv, c message.ToolCallBlock, spec ToolSpec) screened {
 	in, err := normalizeInput(c.Input)
 	if err != nil {
-		return screened{kind: screenInvalid, result: kernelResult(c, message.OutcomeInvalidInput, prompt.Textf("invalid_input_detail", map[string]string{"detail": err.(*InputError).Detail}))}
+		return screened{kind: screenInvalid, result: kernelResult(c, message.OutcomeInvalidInput, s.textf("invalid_input_detail", map[string]string{"detail": err.(*InputError).Detail}))}
 	}
 	c.Input = in
 	c.Native = nil
@@ -1267,19 +1323,21 @@ func (s *Session) screen(ctx, hctx context.Context, env HookEnv, c message.ToolC
 		return screened{kind: screenSettled, result: message.ToolResultBlock{CallID: c.ID, Name: c.Name, IsError: sr.IsError, Outcome: message.OutcomeSynthetic, Content: escapeContent(sr.Content)}}
 	}
 	if f.out.Decision == Deny {
-		return screened{kind: screenSettled, result: kernelResult(c, message.OutcomeDenied, prompt.Textf("denied_by_hook", map[string]string{"reason": f.out.Reason}))}
+		return screened{kind: screenSettled, result: kernelResult(c, message.OutcomeDenied, s.textf("denied_by_hook", map[string]string{"reason": f.out.Reason}))}
 	}
 	final, err := normalizeInput(f.in.Call.Input)
 	if err != nil {
-		return screened{kind: screenSettled, result: kernelResult(c, message.OutcomeDenied, prompt.Textf("denied_by_hook", map[string]string{"reason": "policy hook failed (invalid input)"}))}
+		return screened{kind: screenSettled, result: kernelResult(c, message.OutcomeDenied, s.textf("denied_by_hook", map[string]string{"reason": "policy hook failed (invalid input)"}))}
 	}
 	c.Input = final
-	v := decide(s.rules, ToolCallView{CallID: c.ID, Name: c.Name, Input: final})
+	rules := s.ruleSet()
+	v := decide(rules, ToolCallView{CallID: c.ID, Name: c.Name, Input: final})
+	s.logRuleFailures(v.failures)
 	if v.deny != nil {
-		return screened{kind: screenSettled, result: kernelResult(c, message.OutcomeDenied, prompt.Textf("denied_by_rule", map[string]string{"id": v.deny.ID, "reason": v.deny.Reason}))}
+		return screened{kind: screenSettled, result: kernelResult(c, message.OutcomeDenied, s.textf("denied_by_rule", map[string]string{"id": v.deny.ID, "reason": v.deny.Reason}))}
 	}
 	if f.out.Decision == Ask || v.action == RuleAsk { // the strictest of hook and rules: neither side's allow lifts the other's ask
-		a := askCall{call: c, matched: v.matched}
+		a := askCall{call: c, rules: rules, matched: v.matched}
 		for _, o := range f.outs {
 			if o.out.Decision == Ask && o.out.Reason != "" {
 				a.hookReasons = append(a.hookReasons, o.out.Reason)
@@ -1404,11 +1462,11 @@ func (r *toolRunner) convert(ctx context.Context, call message.ToolCallBlock, re
 	switch {
 	case err == nil:
 	case errors.As(err, &ie):
-		return kernelResult(call, message.OutcomeInvalidInput, prompt.Textf("invalid_input_detail", map[string]string{"detail": ie.Detail}))
+		return kernelResult(call, message.OutcomeInvalidInput, r.s.textf("invalid_input_detail", map[string]string{"detail": ie.Detail}))
 	case r.turnCtx.Err() != nil:
-		return toolexec.Interrupted(call)
+		return toolexec.Interrupted(call, r.s.agent.cfg.texts)
 	case errors.Is(ctx.Err(), context.DeadlineExceeded):
-		return toolexec.TimedOut(call, r.timeout(call))
+		return toolexec.TimedOut(call, r.timeout(call), r.s.agent.cfg.texts)
 	default:
 		return message.ToolResultBlock{CallID: call.ID, Name: call.Name, IsError: true, Outcome: message.OutcomeError, Content: message.Content{&message.TextBlock{Text: prompt.EscapeRuntimeTags(err.Error())}}}
 	}
@@ -1422,7 +1480,7 @@ func (r *toolRunner) convert(ctx context.Context, call message.ToolCallBlock, re
 		}
 		out.Content = append(out.Content, b)
 	}
-	if capped, total := capText(out.Content, r.s.limits.MaxToolResultChars); total > 0 {
+	if capped, total := capText(r.s.agent.cfg.texts, out.Content, r.s.limits.MaxToolResultChars); total > 0 {
 		out.Content = capped
 		r.cut.Store(call.ID, total)
 	}
@@ -1453,7 +1511,7 @@ func (r *toolRunner) cutChars(callID string) int {
 }
 
 // capText keeps the head and the tail of a result's text past limit and says how much was left out, so one huge output can neither fill the context nor leave it impossible to compact; total is the text's length when it cut, else 0.
-func capText(c message.Content, limit int) (out message.Content, total int) {
+func capText(texts prompt.Source, c message.Content, limit int) (out message.Content, total int) {
 	for _, b := range c {
 		if tb, ok := b.(*message.TextBlock); ok {
 			total += utf8.RuneCountInString(tb.Text)
@@ -1464,7 +1522,7 @@ func capText(c message.Content, limit int) (out message.Content, total int) {
 	}
 	head := limit / 2
 	tailStart := total - (limit - head)
-	note := &message.TextBlock{Text: prompt.Textf("tool_result_truncated", map[string]string{"omitted": strconv.Itoa(total - limit), "total": strconv.Itoa(total)})}
+	note := &message.TextBlock{Text: prompt.TextfFrom(texts, "tool_result_truncated", map[string]string{"omitted": strconv.Itoa(total - limit), "total": strconv.Itoa(total)})}
 	pos, noted := 0, false
 	for _, b := range c {
 		tb, ok := b.(*message.TextBlock)
@@ -1501,7 +1559,7 @@ func (t *turn) finish(out turnOutcome) turnOutcome {
 			s.settle(st, c, outcome, t.plan.id, t.step, t.attempt)
 			t.usage = addUsage(t.usage, c.usage)
 		}
-		if repaired := st.repairTail(out.Kind); repaired != nil {
+		if repaired := st.repairTail(out.Kind, s.agent.cfg.texts); repaired != nil {
 			s.appendLine(st, repaired, t.plan.id)
 			s.publishCommitted(st, repaired, &lineEvents{step: t.step})
 			t.noteUnfinished(repaired)
@@ -1540,5 +1598,5 @@ func (t *turn) interruptedNote() *queueItem {
 	}
 	id := t.s.agent.cfg.ids.NewID("in")
 	origin := message.Origin{Kind: message.OriginReminder, Source: "interrupted"}
-	return &queueItem{id: id, origin: origin, mode: ModeNextLoop, tail: true, parts: []*itemPart{{id: id, origin: origin, text: prompt.Textf("interrupted_note", vars), receipt: t.s.newReceipt(id)}}}
+	return &queueItem{id: id, origin: origin, mode: ModeNextLoop, tail: true, parts: []*itemPart{{id: id, origin: origin, text: t.s.textf("interrupted_note", vars), receipt: t.s.newReceipt(id)}}}
 }

@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "The host moves a start tool's foreground call: the waiter detaches, the call returns task_started (moved), the task becomes background and its later success is notified.",
   "agent": {
     "nickname": "Tater",

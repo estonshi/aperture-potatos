@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "A queued next_loop input is withdrawn while a tool runs: it is dropped as withdrawn and never reaches the model, a second withdrawal fails, and the queue input still runs as its own turn.",
   "agent": {
     "nickname": "Tater",

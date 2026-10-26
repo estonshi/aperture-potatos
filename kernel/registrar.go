@@ -59,12 +59,13 @@ type Registrar interface {
 	ContextProvider(p ContextProvider) (*Registration, error)
 	Compactor(c Compactor) (*Registration, error)       // one per scope; a session's shadows the agent's
 	TaskKind(k TaskKind) (*Registration, error)         // a session's shadows the agent's kind of the same name
+	ApprovalRule(r ApprovalRule) (*Registration, error) // applies from the next gate; ids are unique across the scopes a session sees
 	Hide(kind Kind, name string) (*Registration, error) // shadows an inherited registration in this scope
 
 	registry() *registry // unexported: only the kernel implements Registrar
 }
 
-// Kind names a kind of registration as registry.changed reports it; Hide takes every kind but KindCompactor and KindTaskKind, which a session shadows by registering its own.
+// Kind names a kind of registration as registry.changed reports it. Hide takes only the kinds a session may shadow by name: tool, command, section, context_provider and hosted_tool. A compactor or task kind is shadowed by registering one of the same name instead, and an approval rule cannot be hidden at all, because hiding an outer scope's deny would let a session escape the agent's policy.
 type Kind string
 
 // The kinds of registration, one per typed Registrar method.
@@ -76,6 +77,7 @@ const (
 	KindCompactor       Kind = "compactor"
 	KindTaskKind        Kind = "task_kind"
 	KindHostedTool      Kind = "hosted_tool"
+	KindApprovalRule    Kind = "approval_rule"
 )
 
 // Registration is the uniform undo handle; Remove is idempotent and emits registry.changed.
@@ -142,6 +144,8 @@ type regState struct {
 	compactor *compactorReg
 	taskKinds map[string]*taskKindReg
 	hosted    map[string]*hostedReg
+	rules     []*ruleReg
+	ruleIDs   map[string]uint64
 }
 
 type taskKindReg struct {
@@ -180,7 +184,8 @@ type registry struct {
 func newRegistry(scope Scope) *registry {
 	r := &registry{scope: scope}
 	r.cur.Store(&regState{tools: map[string]*toolReg{}, commands: map[string]*cmdReg{}, aliases: map[string]string{},
-		hooks: map[uint64][]*hookEntry{}, sections: map[string]*sectionReg{}, providers: map[string]*providerReg{}, hidden: map[hideKey]uint64{}, taskKinds: map[string]*taskKindReg{}, hosted: map[string]*hostedReg{}})
+		hooks: map[uint64][]*hookEntry{}, sections: map[string]*sectionReg{}, providers: map[string]*providerReg{}, hidden: map[hideKey]uint64{}, taskKinds: map[string]*taskKindReg{}, hosted: map[string]*hostedReg{},
+		ruleIDs: map[string]uint64{}})
 	return r
 }
 
@@ -201,7 +206,8 @@ func (r *registry) update(fn func(st *regState) error) (uint64, error) {
 	defer r.mu.Unlock()
 	old := r.cur.Load()
 	st := &regState{tools: maps.Clone(old.tools), commands: maps.Clone(old.commands), aliases: maps.Clone(old.aliases),
-		hooks: maps.Clone(old.hooks), sections: maps.Clone(old.sections), providers: maps.Clone(old.providers), hidden: maps.Clone(old.hidden), compactor: old.compactor, taskKinds: maps.Clone(old.taskKinds), hosted: maps.Clone(old.hosted)}
+		hooks: maps.Clone(old.hooks), sections: maps.Clone(old.sections), providers: maps.Clone(old.providers), hidden: maps.Clone(old.hidden), compactor: old.compactor, taskKinds: maps.Clone(old.taskKinds), hosted: maps.Clone(old.hosted),
+		rules: slices.Clone(old.rules), ruleIDs: maps.Clone(old.ruleIDs)}
 	if err := fn(st); err != nil {
 		return 0, err
 	}
@@ -244,6 +250,35 @@ func (r *registry) addTool(t Tool) (*Registration, error) {
 			return nil
 		}); err == nil {
 			r.changed(KindTool, name, "remove")
+		}
+	}}, nil
+}
+
+// addCompiledRule adds one validated rule and returns its undo; same-scope duplicates are refused here, cross-scope ones by the registrar.
+func (r *registry) addCompiledRule(rule compiledRule, scope Scope) (*Registration, error) {
+	name := rule.ID
+	id, err := r.update(func(st *regState) error {
+		if _, ok := st.ruleIDs[name]; ok {
+			return fmt.Errorf("%w: approval rule %q", ErrDuplicate, name)
+		}
+		st.rules = append(slices.Clone(st.rules), &ruleReg{id: r.next + 1, scope: scope, rule: rule})
+		st.ruleIDs[name] = r.next + 1
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	r.changed(KindApprovalRule, name, "add")
+	return &Registration{remove: func() {
+		if _, err := r.update(func(st *regState) error {
+			if cur, ok := st.ruleIDs[name]; !ok || cur != id {
+				return errGone
+			}
+			delete(st.ruleIDs, name)
+			st.rules = slices.DeleteFunc(slices.Clone(st.rules), func(x *ruleReg) bool { return x.id == id })
+			return nil
+		}); err == nil {
+			r.changed(KindApprovalRule, name, "remove")
 		}
 	}}, nil
 }
@@ -330,6 +365,41 @@ func (r *registrar) PromptSection(ps PromptSection) (*Registration, error) {
 }
 func (r *registrar) Compactor(c Compactor) (*Registration, error) { return r.reg.addCompactor(c) }
 func (r *registrar) TaskKind(k TaskKind) (*Registration, error)   { return r.reg.addTaskKind(k) }
+
+func (r *registrar) ApprovalRule(rule ApprovalRule) (*Registration, error) {
+	compiled, err := compileRules([]ApprovalRule{rule})
+	if err != nil {
+		return nil, err
+	}
+	return r.addRule(compiled[0])
+}
+
+// addRule checks the rule against every set it will join, so a session never sees one id twice.
+func (r *registrar) addRule(rule compiledRule) (*Registration, error) {
+	ruleMu.Lock()
+	defer ruleMu.Unlock()
+	if r.scope == ScopeSession {
+		if err := conflictIn(r.session.outer().rules, rule.ID, r.scope); err != nil {
+			return nil, err
+		}
+		return r.reg.addCompiledRule(rule, r.scope)
+	}
+	var conflict error
+	r.agent.walk(func(a *Agent) {
+		if conflict != nil {
+			return
+		}
+		for _, s := range a.sessions() {
+			if conflict = conflictIn(s.effective().rules, rule.ID, r.scope); conflict != nil {
+				return
+			}
+		}
+	})
+	if conflict != nil {
+		return nil, conflict
+	}
+	return r.reg.addCompiledRule(rule, r.scope)
+}
 
 func (r *registrar) ContextProvider(p ContextProvider) (*Registration, error) {
 	return r.reg.addProvider(p)
@@ -490,7 +560,7 @@ func (r *registry) addTaskKind(k TaskKind) (*Registration, error) {
 	}}, nil
 }
 
-// hide shadows the named registration inherited from an outer scope; the scope's own registration of that name stays visible.
+// hide shadows the named registration inherited from an outer scope; the scope's own registration of that name stays visible. It refuses a compactor or task kind, which a session shadows by registering its own, and an approval rule, since hiding an outer scope's deny would let a session escape the agent's policy.
 func (r *registry) hide(kind Kind, name string) (*Registration, error) {
 	switch kind {
 	case KindTool, KindCommand, KindPromptSection, KindContextProvider, KindHostedTool:

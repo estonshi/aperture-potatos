@@ -1,0 +1,130 @@
+{
+  "spec_version": "0.2",
+  "description": "A rule's native predicate is ANDed with tool and when: a panic makes deny and ask match but allow not, a failing contains lets the call run, and a when miss never runs the predicate.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "probe",
+        "description": "Echo the input.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "tag": {
+              "type": "string"
+            },
+            "token": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "tag"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "echo"
+        }
+      }
+    ],
+    "approval_rules": [
+      {
+        "id": "deny-panic",
+        "tool": "probe",
+        "when": {
+          "tag": {
+            "eq": "deny"
+          }
+        },
+        "action": "deny",
+        "reason": "deny predicate panicked",
+        "match": {
+          "type": "panic"
+        }
+      },
+      {
+        "id": "ask-panic",
+        "tool": "probe",
+        "when": {
+          "tag": {
+            "eq": "ask"
+          }
+        },
+        "action": "ask",
+        "reason": "ask predicate panicked",
+        "match": {
+          "type": "panic"
+        }
+      },
+      {
+        "id": "allow-panic",
+        "tool": "probe",
+        "when": {
+          "tag": {
+            "eq": "allow"
+          }
+        },
+        "action": "allow",
+        "match": {
+          "type": "panic"
+        }
+      },
+      {
+        "id": "needs-token",
+        "tool": "probe",
+        "when": {
+          "tag": {
+            "eq": "and"
+          }
+        },
+        "action": "ask",
+        "reason": "needs a token",
+        "match": {
+          "type": "contains",
+          "value": "\"token\":\"yes\""
+        }
+      },
+      {
+        "id": "when-miss",
+        "tool": "probe",
+        "when": {
+          "tag": {
+            "eq": "skip"
+          }
+        },
+        "action": "deny",
+        "reason": "the predicate never runs",
+        "match": {
+          "type": "panic"
+        }
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-26T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Probe every branch."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

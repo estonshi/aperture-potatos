@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "An instruction to a finished job whose kind supports continuation starts attempt 2 in the background with the saved state and that instruction; it is notified like the first.",
   "agent": {
     "nickname": "Tater",

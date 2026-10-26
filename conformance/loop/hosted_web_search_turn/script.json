@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "clock": {
     "start": "2026-10-13T00:00:00.000Z",
     "step_ms": 1

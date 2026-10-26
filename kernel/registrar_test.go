@@ -210,6 +210,29 @@ func TestHide(t *testing.T) {
 		if _, err := r.Hide("hook", "x"); err == nil {
 			t.Fatal("hid an unknown kind")
 		}
+		for _, kind := range []kernel.Kind{kernel.KindApprovalRule, kernel.KindCompactor, kernel.KindTaskKind} {
+			if _, err := r.Hide(kind, "x"); err == nil || !strings.Contains(err.Error(), "cannot hide") {
+				t.Fatalf("Hide(%s): %v", kind, err)
+			}
+		}
+		h.close()
+	})
+}
+
+// TestHideRefusesApprovalRules: a session cannot hide an inherited rule, since hiding the agent's deny would let the session escape it.
+func TestHideRefusesApprovalRules(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		h := newHarness(t, [][]providertest.Step{
+			toolReply(call{"toolu_1", "echo", `{"x":1}`}), textReply("done"),
+		}, kernel.WithTool(&echoTool{name: "echo"}),
+			kernel.WithApprovalRules(kernel.ApprovalRule{ID: "no-echo", Tool: "echo", Action: kernel.RuleDeny, Reason: "no echo"}))
+		if _, err := h.sess.Registrar().Hide(kernel.KindApprovalRule, "no-echo"); err == nil {
+			t.Fatal("a session hid an agent rule")
+		}
+		ask(t, h.sess, "go")
+		if r := result(h.lines(), "toolu_1"); r.Outcome != message.OutcomeDenied {
+			t.Fatalf("the agent rule no longer applied: %+v", r)
+		}
 		h.close()
 	})
 }

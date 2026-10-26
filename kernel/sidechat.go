@@ -26,7 +26,7 @@ type mainView struct {
 }
 
 // view is the session's current context as a side chat carries it; committed lines are immutable, so the slice shares their backing array.
-func (st *state) view() *mainView {
+func (st *state) view(texts prompt.Source) *mainView {
 	v := &mainView{}
 	n := len(st.history)
 	if n == 0 {
@@ -37,7 +37,7 @@ func (st *state) view() *mainView {
 	v.model, v.system, v.tools, v.hosted = st.model.info, st.system, st.history[0].Tools, st.history[0].HostedTools
 	v.fallback = st.replayMode() == provider.ReplayFallback
 	if st.stableLen < n {
-		v.lines = append(v.lines, pendingLine(st.history[n-1].ToolCalls()))
+		v.lines = append(v.lines, pendingLine(texts, st.history[n-1].ToolCalls()))
 	}
 	v.tokens = st.meter.Scale(tokens.Lines(v.lines)) // the session's own calibration, without the system and tools the side chat sends itself
 	return v
@@ -45,14 +45,14 @@ func (st *state) view() *mainView {
 
 func (s *Session) view() (*mainView, error) {
 	var v *mainView
-	err := s.exec(func(st *state) { v = st.view() })
+	err := s.exec(func(st *state) { v = st.view(s.agent.cfg.texts) })
 	return v, err
 }
 
 // pendingLine answers the calls that have no result yet in the main session, for a side chat's requests only; it is never stored.
-func pendingLine(calls []message.ToolCallBlock) message.Message {
+func pendingLine(texts prompt.Source, calls []message.ToolCallBlock) message.Message {
 	m := message.Message{Role: message.RoleTool, Origin: message.Origin{Kind: message.OriginTool}}
-	text := prompt.Text("main_call_pending")
+	text := prompt.TextFrom(texts, "main_call_pending")
 	for _, c := range calls {
 		m.Content = append(m.Content, &message.ToolResultBlock{CallID: c.ID, Name: c.Name, Outcome: message.OutcomeNotExecuted, Content: message.Content{&message.TextBlock{Text: text}}})
 	}
@@ -114,7 +114,7 @@ func (s *Session) sideHead(notes []*message.ReminderBlock) []*message.ReminderBl
 	if s.parent == nil {
 		return notes
 	}
-	return append([]*message.ReminderBlock{{Source: "side_chat", Text: prompt.Text("side_chat_head")}}, notes...)
+	return append([]*message.ReminderBlock{{Source: "side_chat", Text: s.text("side_chat_head")}}, notes...)
 }
 
 // takeView gives a side chat's turn its main part and, when the main session moved since the side chat's latest reply, the reminder saying so.
@@ -129,7 +129,7 @@ func (t *turn) takeView() (note string, err error) {
 	t.view = v
 	_ = t.s.exec(func(st *state) {
 		if seq, replied := st.repliedAt(); replied && seq != v.seq { // an unknown seq, after a restart without a calls file, counts as a change
-			note = prompt.Textf("side_chat_main_changed", map[string]string{"first": v.firstNew(seq)})
+			note = t.s.textf("side_chat_main_changed", map[string]string{"first": v.firstNew(seq)})
 		}
 		st.mainTokens, st.mainLines = v.tokens, len(v.lines)
 		if st.turn != nil {

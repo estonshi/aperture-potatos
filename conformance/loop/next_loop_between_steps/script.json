@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "A next_loop input sent while a tool runs reaches the same turn at the next safe point, right after the tool line.",
   "agent": {
     "nickname": "Tater",

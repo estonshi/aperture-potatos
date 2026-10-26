@@ -48,7 +48,7 @@ func (p *Provider) render(req *provider.Request) (*rendered, error) {
 	if req.Replay == provider.ReplayFallback {
 		msgs = dropReasoning(msgs)
 	}
-	msgs, healed := project.HealDangling(msgs, prompt.Text("dangling_tool_call"))
+	msgs, healed := project.HealDangling(msgs, prompt.TextFrom(req.Texts, "dangling_tool_call"))
 	if len(healed) > 0 {
 		r.notices = append(r.notices, provider.Notice{Kind: "dangling_tool_call_healed", Detail: enc(map[string]any{"call_ids": healed})})
 	}

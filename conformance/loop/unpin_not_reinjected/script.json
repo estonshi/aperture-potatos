@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "Unpin takes a pin out of the set at once and tells the model with a reminder that rides the next turn; a compaction after it no longer re-injects the pin. Unpinning an unknown key fails.",
   "agent": {
     "nickname": "Tater",

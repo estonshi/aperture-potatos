@@ -316,7 +316,7 @@ func (s *Session) taskStart(ctx context.Context, spec TaskSpec, callID, turnID s
 	if reason == "" {
 		reason = "refused by a task_start hook"
 	}
-	return spec, &TaskDeniedError{Text: prompt.Textf("task_not_started", map[string]string{"reason": reason})}
+	return spec, &TaskDeniedError{Text: s.textf("task_not_started", map[string]string{"reason": reason})}
 }
 
 func sameInput(a, b json.RawMessage) bool {
@@ -481,7 +481,7 @@ func (s *Session) finishAttempt(st *state, id string, a *taskAttempt) {
 	fg := e.fg
 	e.fg = nil
 	for _, w := range fg {
-		r := finishedResult(e.view())
+		r := finishedResult(s.agent.cfg.texts, e.view())
 		w.res = &r
 	}
 	s.taskChanged(st, e, fin)
@@ -910,7 +910,7 @@ func (t *Tasks) Restart(ctx context.Context, id string, input json.RawMessage) e
 		return err
 	}
 	if input != nil {
-		if spec.Input, err = restartInput(spec, input); err != nil {
+		if spec.Input, err = restartInput(s.agent.cfg.texts, spec, input); err != nil {
 			return fail(err)
 		}
 	}
@@ -940,15 +940,17 @@ func (s *Session) gateRestart(ctx context.Context, kind string, input json.RawMe
 		view, err = normalizeInput(view)
 	}
 	if err != nil {
-		return nil, &TaskDeniedError{Text: prompt.Textf("invalid_input_detail", map[string]string{"detail": "the input is not a JSON object"})}
+		return nil, &TaskDeniedError{Text: s.textf("invalid_input_detail", map[string]string{"detail": "the input is not a JSON object"})}
 	}
-	v := decide(s.rules, ToolCallView{CallID: callID, Name: name, Input: view})
+	rules := s.ruleSet()
+	v := decide(rules, ToolCallView{CallID: callID, Name: name, Input: view})
+	s.logRuleFailures(v.failures)
 	if v.deny != nil {
-		return nil, &TaskDeniedError{Text: prompt.Textf("denied_by_rule", map[string]string{"id": v.deny.ID, "reason": v.deny.Reason})}
+		return nil, &TaskDeniedError{Text: s.textf("denied_by_rule", map[string]string{"id": v.deny.ID, "reason": v.deny.Reason})}
 	}
 	if v.action == RuleAsk {
 		rs := reviewScope{env: s.env(turnID, 0), publish: s.publish, hooks: func(id string) *hookScope { return &hookScope{turnID: turnID, callID: id} }}
-		outs, _ := s.review(ctx, rs, []askCall{{call: message.ToolCallBlock{ID: callID, Name: name, Input: view}, matched: v.matched}})
+		outs, _ := s.review(ctx, rs, []askCall{{call: message.ToolCallBlock{ID: callID, Name: name, Input: view}, rules: rules, matched: v.matched}})
 		if !outs[0].approved {
 			return nil, &TaskDeniedError{Text: message.Message{Content: outs[0].result.Content}.Text()}
 		}
@@ -1130,7 +1132,7 @@ func (t *Tasks) foreground(ctx context.Context, info TaskInfo, w *fgWaiter) (Too
 		if timedOut {
 			e.info.Foreground = len(e.fg) > 0
 			s.publishTasks(st)
-			r := startedResult(e.view(), true)
+			r := startedResult(s.agent.cfg.texts, e.view(), true)
 			res = &r
 			return
 		}
@@ -1164,7 +1166,7 @@ func (t *Tasks) detach(callID string) (TaskInfo, error) {
 			e.info.Foreground = len(e.fg) > 0
 			s.publishTasks(st)
 			info, found = e.view(), true
-			r := startedResult(info, true)
+			r := startedResult(s.agent.cfg.texts, info, true)
 			w.res = &r
 			close(w.ch)
 			return
@@ -1299,23 +1301,27 @@ func (s *Session) noteBody(info TaskInfo) string {
 			vars["unprocessed"] = strconv.Itoa(n)
 		}
 	}
-	return prompt.Filef("task_notification", vars)
+	return s.filef("task_notification", vars)
 }
 
 // foreign sanitizes text from another agent or task and cuts it to max code points with a note.
 func (s *Session) foreign(text string, max int) string {
 	cut, n := prompt.Truncate(prompt.Sanitize(text), max)
 	if n > 0 {
-		cut += "\n" + prompt.Textf("foreign_truncated", map[string]string{"count": strconv.Itoa(n)})
+		cut += "\n" + s.textf("foreign_truncated", map[string]string{"count": strconv.Itoa(n)})
 	}
 	return cut
 }
 
-// SanitizeForeign escapes runtime tags, quotes turn markers and truncates text that came from another agent or task.
-func SanitizeForeign(s string) string {
+// SanitizeForeign escapes runtime tags, quotes turn markers and truncates text that came from another agent or task; texts may be left out for the built-in text.
+func SanitizeForeign(s string, texts ...prompt.Source) string {
+	var src prompt.Source
+	if len(texts) > 0 {
+		src = texts[0]
+	}
 	cut, n := prompt.Truncate(prompt.Sanitize(s), defaults().Tasks.ForeignChars)
 	if n > 0 {
-		cut += "\n" + prompt.Textf("foreign_truncated", map[string]string{"count": strconv.Itoa(n)})
+		cut += "\n" + prompt.TextfFrom(src, "foreign_truncated", map[string]string{"count": strconv.Itoa(n)})
 	}
 	return cut
 }

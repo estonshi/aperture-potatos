@@ -11,7 +11,6 @@ import (
 
 	"github.com/estonshi/aperture-potatos/event"
 	"github.com/estonshi/aperture-potatos/internal/hookrun"
-	"github.com/estonshi/aperture-potatos/internal/prompt"
 	"github.com/estonshi/aperture-potatos/message"
 )
 
@@ -28,11 +27,12 @@ type ApprovalRequest struct {
 	ApprovedInput json.RawMessage `json:"approved_input,omitempty"` // what the earlier reviewers approved, when a later one rewrote it
 }
 
-// MatchedRule is a rule that matched the call under review, so a reviewer can show why it was asked.
+// MatchedRule is a rule that matched the call under review, so a reviewer can show why it was asked and which layer the rule came from.
 type MatchedRule struct {
 	ID     string     `json:"id"`
 	Action RuleAction `json:"action"`
 	Reason string     `json:"reason,omitempty"`
+	Scope  string     `json:"scope,omitempty"` // "agent" or "session", the scope the rule was registered in
 }
 
 // Verdict is a reviewer's answer; an empty or unknown verdict denies.
@@ -68,9 +68,14 @@ var Approval = func() *HookPoint[ApprovalRequest, ApprovalDecision] {
 	return p
 }()
 
-// WithApprover is On(Approval) at agent scope under the name "approver".
+// WithApprover is WithApproverNamed("approver", fn): On(Approval) at agent scope, where a later Priority decides.
 func WithApprover(fn func(ctx context.Context, req ApprovalRequest) (ApprovalDecision, error)) Option {
-	return WithHook(Approval, "approver", HookFunc[ApprovalRequest, ApprovalDecision](fn))
+	return WithApproverNamed("approver", fn)
+}
+
+// WithApproverNamed is On(Approval) at agent scope under the given name, so one session can run several reviewers; Priority orders them and the same name in one scope is ErrDuplicate.
+func WithApproverNamed(name string, fn func(ctx context.Context, req ApprovalRequest) (ApprovalDecision, error), opts ...HookOption) Option {
+	return WithHook(Approval, name, HookFunc[ApprovalRequest, ApprovalDecision](fn), opts...)
 }
 
 const maxReviewRounds = 2
@@ -81,6 +86,7 @@ var errStoppedByReviewer = errors.New("a reviewer stopped the turn")
 type askCall struct {
 	index       int
 	call        message.ToolCallBlock
+	rules       []compiledRule // the gate's snapshot, so a rewrite is judged by the policy the call was gated under
 	matched     []compiledRule
 	hookReasons []string
 }
@@ -128,7 +134,7 @@ func (s *Session) review(ctx context.Context, rs reviewScope, asks []askCall) ([
 		wg.Add(1)
 		s.wk.Go("approval "+a.call.ID, func() {
 			defer wg.Done()
-			out[i] = s.reviewOne(bctx, rs, reqs[i], a.call, func() { stopped.Store(true); stop(errStoppedByReviewer) })
+			out[i] = s.reviewOne(bctx, rs, reqs[i], a.call, a.rules, func() { stopped.Store(true); stop(errStoppedByReviewer) })
 		})
 	}
 	wg.Wait() // canceling ctx ends every review within HookGrace, so an interrupt never waits on a person
@@ -136,7 +142,7 @@ func (s *Session) review(ctx context.Context, rs reviewScope, asks []askCall) ([
 }
 
 // reviewOne walks the reviewers of one call; a rewrite after an approval restarts the walk, at most twice.
-func (s *Session) reviewOne(ctx context.Context, rs reviewScope, req ApprovalRequest, call message.ToolCallBlock, stopBatch func()) reviewed {
+func (s *Session) reviewOne(ctx context.Context, rs reviewScope, req ApprovalRequest, call message.ToolCallBlock, rules []compiledRule, stopBatch func()) reviewed {
 	started := time.Now()
 	asked := req.Call.Input
 	hctx := withHookScope(ctx, rs.hooks(call.ID))
@@ -146,13 +152,13 @@ func (s *Session) reviewOne(ctx context.Context, rs reviewScope, req ApprovalReq
 		return r
 	}
 	deny := func(key string, vars map[string]string) reviewed {
-		return reviewed{result: kernelResult(call, message.OutcomeDenied, prompt.Textf(key, vars))}
+		return reviewed{result: kernelResult(call, message.OutcomeDenied, s.textf(key, vars))}
 	}
 	canceled := func() reviewed {
 		if errors.Is(context.Cause(ctx), errStoppedByReviewer) {
-			return resolve(VerdictDeny, "", "canceled", reviewed{result: kernelResult(call, message.OutcomeNotExecuted, prompt.Text("approval_stopped"))})
+			return resolve(VerdictDeny, "", "canceled", reviewed{result: kernelResult(call, message.OutcomeNotExecuted, s.text("approval_stopped"))})
 		}
-		return resolve(VerdictDeny, "", "canceled", reviewed{result: kernelResult(call, message.OutcomeInterrupted, prompt.Text("approval_interrupted"))})
+		return resolve(VerdictDeny, "", "canceled", reviewed{result: kernelResult(call, message.OutcomeInterrupted, s.text("approval_interrupted"))})
 	}
 	for {
 		chain := s.reviewers(call.Name)
@@ -189,7 +195,8 @@ func (s *Session) reviewOne(ctx context.Context, rs reviewScope, req ApprovalReq
 					return resolve(VerdictDeny, reason, h.name, deny("denied_by_reviewer", map[string]string{"reason": reason}))
 				}
 				if !bytes.Equal(in, req.Call.Input) {
-					v := decide(s.rules, ToolCallView{CallID: call.ID, Name: call.Name, Input: in})
+					v := decide(rules, ToolCallView{CallID: call.ID, Name: call.Name, Input: in})
+					s.logRuleFailures(v.failures)
 					if v.deny != nil {
 						req.Call.Input = in
 						return resolve(VerdictDeny, v.deny.Reason, h.name, deny("denied_by_rule", map[string]string{"id": v.deny.ID, "reason": v.deny.Reason}))
@@ -229,7 +236,7 @@ func (s *Session) reviewers(tool string) []*hookEntry {
 func matchedRules(rs []compiledRule) []MatchedRule {
 	var out []MatchedRule
 	for _, r := range rs {
-		out = append(out, MatchedRule{ID: r.ID, Action: r.Action, Reason: r.Reason})
+		out = append(out, MatchedRule{ID: r.ID, Action: r.Action, Reason: r.Reason, Scope: r.scope.String()})
 	}
 	return out
 }
@@ -237,16 +244,17 @@ func matchedRules(rs []compiledRule) []MatchedRule {
 func ruleRefs(rs []MatchedRule) []event.RuleRef {
 	var out []event.RuleRef
 	for _, r := range rs {
-		out = append(out, event.RuleRef{ID: r.ID, Action: string(r.Action), Reason: r.Reason})
+		out = append(out, event.RuleRef{ID: r.ID, Action: string(r.Action), Reason: r.Reason, Scope: r.Scope})
 	}
 	return out
 }
 
 // warnNoReviewer tells people when a rule asks for review and nobody can give it, because such calls are then always denied.
 func (s *Session) warnNoReviewer() {
-	for _, r := range s.rules {
+	for _, r := range s.ruleSet() {
 		if r.Action == RuleAsk && len(s.hookEntries(Approval.meta)) == 0 {
-			s.publish(&event.Notice{Source: "approval", Text: "approval rule " + r.ID + " asks for review, but no reviewer is registered, so such calls are denied"})
+			s.publish(&event.Notice{Source: "approval", Kind: "no_reviewer", Detail: map[string]any{"rule": r.ID},
+				Text: "approval rule " + r.ID + " asks for review, but no reviewer is registered, so such calls are denied"})
 			return
 		}
 	}

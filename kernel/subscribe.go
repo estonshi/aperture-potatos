@@ -186,6 +186,16 @@ func (s *Session) Events(ctx context.Context, opts ...SubscribeOption) iter.Seq2
 // Run sends one input and yields the events of the turn that consumes it until turn.completed; breaking out or canceling ctx only stops iterating, never the turn.
 // For a command it yields the command's events until command.completed.
 func (s *Session) Run(ctx context.Context, in Input, opts ...SendOption) iter.Seq2[event.Event, error] {
+	return s.runInput(ctx, in, opts, false)
+}
+
+// RunCancelable is Run, except that ending iteration early also stops the work: a turn already running for this input is interrupted, and an input still queued is withdrawn.
+// A command is left to finish, since withdrawing one is not supported.
+func (s *Session) RunCancelable(ctx context.Context, in Input, opts ...SendOption) iter.Seq2[event.Event, error] {
+	return s.runInput(ctx, in, opts, true)
+}
+
+func (s *Session) runInput(ctx context.Context, in Input, opts []SendOption, cancelable bool) iter.Seq2[event.Event, error] {
 	return func(yield func(event.Event, error) bool) {
 		if reentrant(ctx, s.id) {
 			yield(event.Event{}, ErrReentrantWait)
@@ -201,6 +211,14 @@ func (s *Session) Run(ctx context.Context, in Input, opts ...SendOption) iter.Se
 		}
 		id := rc.InputID()
 		var turnID string
+		settled := false
+		if cancelable {
+			defer func() {
+				if !settled {
+					s.stopInput(id, turnID)
+				}
+			}()
+		}
 		for {
 			ev, ok := sub.Pop(ctx, s.bus)
 			if !ok {
@@ -222,6 +240,7 @@ func (s *Session) Run(ctx context.Context, in Input, opts ...SendOption) iter.Se
 				}
 			case *event.InputDropped:
 				if d.InputID == id {
+					settled = true
 					yield(*ev, nil)
 					return
 				}
@@ -237,6 +256,7 @@ func (s *Session) Run(ctx context.Context, in Input, opts ...SendOption) iter.Se
 				continue
 			case *event.CommandCompleted:
 				if d.CommandID == id {
+					settled = true
 					yield(*ev, nil)
 					return
 				}
@@ -249,10 +269,20 @@ func (s *Session) Run(ctx context.Context, in Input, opts ...SendOption) iter.Se
 				return
 			}
 			if d, ok := ev.Data.(*event.TurnCompleted); ok && d.TurnID == turnID {
+				settled = true
 				return
 			}
 		}
 	}
+}
+
+// stopInput ends the work one input started: a turn it already runs in is interrupted, and an input still queued is withdrawn.
+func (s *Session) stopInput(inputID, turnID string) {
+	if turnID != "" {
+		s.InterruptTurn(turnID, "run canceled")
+		return
+	}
+	_ = s.Withdraw(inputID)
 }
 
 // agentSink attaches one caller sink to every current and future session of an agent.

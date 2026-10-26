@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "description": "A turn-start provider adds its reminder once per turn; an every-step provider adds one at each delivery point, first in each user line.",
   "agent": {
     "nickname": "Tater",
