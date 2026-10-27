@@ -476,6 +476,10 @@ type PeerResult struct {
 // ExtensionBuilder turns an extension name and its options in a case into an instance; the extension test that drives the case supplies it.
 type ExtensionBuilder func(name string, options json.RawMessage) (kernel.Extension, error)
 
+// ModelExtensionBuilder is ExtensionBuilder with the case's providers, for an extension whose options resolve a
+// model name to one of them, such as ext/subagent. The map is keyed by the provider name in the case's script.
+type ModelExtensionBuilder func(name string, options json.RawMessage, models map[string]provider.ModelRef) (kernel.Extension, error)
+
 // ErrExtensionMissing from a builder skips the case, which names an extension that was deleted from this module.
 var ErrExtensionMissing = errors.New("conformance: extension not in this module")
 
@@ -486,6 +490,23 @@ func RunLoop(t *testing.T, dir string) LoopResult {
 
 // RunLoopWith runs a case that names extensions, building them with exts.
 func RunLoopWith(t *testing.T, dir string, exts ExtensionBuilder) LoopResult {
+	t.Helper()
+	var models ModelExtensionBuilder
+	if exts != nil {
+		models = func(name string, options json.RawMessage, _ map[string]provider.ModelRef) (kernel.Extension, error) {
+			return exts(name, options)
+		}
+	}
+	return runLoopWith(t, dir, models)
+}
+
+// RunLoopWithModels is RunLoopWith for an extension that resolves model names to the case's providers.
+func RunLoopWithModels(t *testing.T, dir string, exts ModelExtensionBuilder) LoopResult {
+	t.Helper()
+	return runLoopWith(t, dir, exts)
+}
+
+func runLoopWith(t *testing.T, dir string, exts ModelExtensionBuilder) LoopResult {
 	t.Helper()
 	var res LoopResult
 	var skipped error
@@ -531,7 +552,7 @@ type loopRun struct {
 	hookLog  *requestLog
 	ledger   []json.RawMessage
 	labels   []json.RawMessage
-	exts     ExtensionBuilder
+	exts     ModelExtensionBuilder
 	peers    []*peer
 	store    store.SessionStore
 	scripts  *taskScripts
@@ -540,7 +561,7 @@ type loopRun struct {
 	asyncErr chan error
 }
 
-func runLoop(t *testing.T, dir string, exts ExtensionBuilder) (LoopResult, error) {
+func runLoop(t *testing.T, dir string, exts ModelExtensionBuilder) (LoopResult, error) {
 	var sc LoopScript
 	if err := readJSON(filepath.Join(dir, "script.json"), &sc); err != nil {
 		return LoopResult{}, err
@@ -1116,7 +1137,7 @@ func (r *loopRun) agentOptions(model provider.ModelRef, st store.SessionStore) (
 		if r.exts == nil {
 			return nil, fmt.Errorf("the case names extension %q, but no extension test drives it", name)
 		}
-		ext, err := r.exts(name, a.Extensions[name])
+		ext, err := r.exts(name, a.Extensions[name], r.models)
 		if errors.Is(err, ErrExtensionMissing) {
 			return nil, fmt.Errorf("%w: the case needs %q", ErrExtensionMissing, name)
 		}

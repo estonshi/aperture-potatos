@@ -8,7 +8,7 @@
 
 ## 15.1 自动压缩
 
-可用窗口等于模型窗口减去最大输出。当上下文超过可用窗口的 90% 时，kernel 会在两次模型调用之间自动压缩。压缩时，kernel 让压缩策略生成一份摘要，然后开启一个新的 epoch，把摘要和 Pin 放在新 epoch 的开头。默认的压缩策略是 `ext/compact`，它让模型来写摘要。
+可用窗口等于当前窗口（模型窗口，或策略直接指定的窗口）减去最大输出。当上下文超过可用窗口的 90% 时，kernel 会在两次模型调用之间自动压缩。压缩时，kernel 让压缩策略生成一份摘要，然后开启一个新的 epoch，把摘要和 Pin 放在新 epoch 的开头。默认的压缩策略是 `ext/compact`，它让模型来写摘要。
 
 自动压缩要求已经安装压缩策略，`std.Defaults()` 已经包含了它。如果没有安装压缩策略，kernel 不会自动压缩，窗口占满时当前这一轮会以错误结束。
 
@@ -18,7 +18,7 @@
 
 ```go
 kernel.WithContextPolicy(kernel.ContextPolicy{
-	MaxContextTokens: 150000, // 设置一个比模型窗口更小的上限
+	MaxContextTokens: 150000, // 直接指定窗口；上游没给或给错时用它修正
 	AutoCompactRatio: 0.85,
 })
 ```
@@ -27,7 +27,7 @@ kernel.WithContextPolicy(kernel.ContextPolicy{
 
 | 字段 | 默认值 | 说明 |
 |---|---|---|
-| `MaxContextTokens` | 模型窗口 | 人为设置一个更小的窗口。 |
+| `MaxContextTokens` | 模型窗口 | 直接指定窗口，覆盖模型能力里的值；用于修正上游没有提供或提供错误的窗口。0 表示用模型的。 |
 | `AutoCompactRatio` | 0.9 | 上下文占可用窗口的比例达到该值时触发自动压缩。 |
 | `TargetRatio` | 0.1 | 摘要的目标长度占可用窗口的比例。 |
 | `MinSummaryTokens`、`MaxSummaryTokens` | 20k、50k | 摘要长度的下限和上限。 |
@@ -36,6 +36,10 @@ kernel.WithContextPolicy(kernel.ContextPolicy{
 | `MaxConsecutiveFailures` | 3 | 连续失败达到该次数后，不再尝试自动压缩。 |
 | `Disabled` | false | 设为 true 时关闭自动压缩。 |
 | `StopTasksOnClear` | false | 设为 true 时，执行 `/clear` 会停止后台任务。 |
+
+窗口也可以在运行期改。`sess.SetContextWindow(1000000)` 设置这个会话的窗口，`sess.SetContextWindow(0)` 恢复成模型的；新建或恢复会话时可以传 `kernel.SessionContextWindow(n)`。新窗口和跟着它算出的压缩阈值从**下一次模型调用**起生效，不需要等这一轮结束：一轮进行中调大窗口，这一轮的下一次调用就不会因为旧阈值触发压缩。分叉出来的会话沿用源会话的窗口。
+
+窗口保存在会话文件里：设置后随会话写的下一条记录写入，`Resume` 时自动恢复这条记录（副本不带自己的记录，恢复只看会话自己写的行）。所以宿主不需要在恢复时再传一次；传了则以传入的为准。
 
 默认情况下，kernel 估算上下文的 token 数。使用 `kernel.WithTokenCounter(tc)` 后，当上下文接近阈值时，kernel 会改用精确计数。Anthropic 适配器自带 `CountTokens`，其他接口则需要你自己提供计数器。
 

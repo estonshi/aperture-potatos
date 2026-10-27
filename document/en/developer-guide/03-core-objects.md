@@ -106,6 +106,7 @@ The Session methods below are grouped by purpose, and each group names the chapt
 |---|---|
 | `Compact(ctx, instructions, opts...)` | Compacts the context manually. |
 | `Clear(ctx)` | Clears the context. |
+| `SetContextWindow(tokens)` | Sets this session's context window; 0 follows the model. It applies from the next model call; see [15.1](15-context.md#151-automatic-compaction). |
 | `Turns()`, `Rewind(ctx, turnID)` | Lists the turns you can rewind to, and rewinds to a given turn. |
 | `Fork(ctx, opts...)` | Copies the current context into a new session. |
 | `SideChat(ctx, name, opts...)`, `SideChats(ctx)`, `DropSideChat(ctx, name)` | Opens, lists and deletes side chats. |
@@ -146,6 +147,7 @@ The Session methods below are grouped by purpose, and each group names the chapt
 | `kernel.WithSessionFunc(fn, subOpts...)` | Works like the previous option, but receives events through a callback function. |
 | `kernel.WithLabels(map)` | Sets labels on the session. The kernel itself does not interpret labels; extensions read them by convention. For example, memory reads `user_id` and `project_id`. `WithInstructionsFunc` can also read these labels. You can change them after the session is created with `SetLabels`; see [16.5](16-storage.md#165-session-labels). |
 | `kernel.SessionInstructions(text)` | Sets the user instructions section for this session, overriding the agent-level setting. |
+| `kernel.SessionContextWindow(tokens)` | Sets the session's context window at creation or resume, the same as `SetContextWindow`. |
 | `kernel.SessionApprovalRules(rules...)` | Adds approval rules for this session. |
 | `kernel.SessionInputMode(mode)` | Sets the default input mode for this session. |
 | `kernel.SessionUse(exts...)` | Specifies extensions that are installed only for this session. |

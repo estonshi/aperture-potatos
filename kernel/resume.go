@@ -2,6 +2,7 @@ package kernel
 
 import (
 	"context"
+	"fmt"
 	"slices"
 
 	"github.com/estonshi/aperture-potatos/internal/prompt"
@@ -22,6 +23,9 @@ func (a *Agent) Resume(ctx context.Context, id string, opts ...SessionOption) (*
 	}
 	if _, ok := modeRank[mode]; !ok {
 		return nil, ErrInvalidMode
+	}
+	if sc.contextWindow != nil && *sc.contextWindow < 0 {
+		return nil, fmt.Errorf("%w: %d", ErrInvalidWindow, *sc.contextWindow)
 	}
 	if _, err := compileRules(sc.rules); err != nil {
 		return nil, err
@@ -56,6 +60,11 @@ func (a *Agent) resume(ctx context.Context, id string, lines []message.Message, 
 		return nil, err
 	}
 	sc.labels = labels
+	if sc.contextWindow == nil { // the host's option wins over what the file recorded
+		if w, ok := storedWindow(lines); ok {
+			sc.contextWindow = &w
+		}
+	}
 	s := a.newSession(id, mode, sc)
 	for _, rule := range sc.rules {
 		compiled, err := compileRules([]ApprovalRule{rule})
@@ -164,6 +173,17 @@ func storedSystem(line message.Message) []provider.SystemBlock {
 		}
 	}
 	return out
+}
+
+// storedWindow is the last window a line of this file recorded. Copies repeat an older line's value, so the scan
+// takes originals only; a recorded 0 means the session cleared its window and follows the model again.
+func storedWindow(lines []message.Message) (int, bool) {
+	for i := len(lines) - 1; i >= 0; i-- {
+		if m := lines[i]; m.CopyOf == "" && m.ContextWindow != nil {
+			return *m.ContextWindow, true
+		}
+	}
+	return 0, false
 }
 
 // lostTail pairs the calls the file left without results with lost results; they are never re-run (I2).

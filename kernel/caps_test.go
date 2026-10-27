@@ -398,7 +398,7 @@ func TestSignatureBoundIsLearned(t *testing.T) {
 	})
 }
 
-// TestMaxContextTokensLeavesRoom: the room a session needs is counted in the smaller of the window and MaxContextTokens.
+// TestMaxContextTokensLeavesRoom: MaxContextTokens names the window, and the effective output cap must leave room in it.
 func TestMaxContextTokensLeavesRoom(t *testing.T) {
 	synctest.Test(t, func(t *testing.T) {
 		sp := providertest.NewScriptProvider(provider.APIAnthropicMessages)

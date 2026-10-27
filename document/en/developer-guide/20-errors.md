@@ -22,6 +22,7 @@ The kernel exports the following sentinel errors, which you can check with `erro
 | `ErrInvalidOrigin`, `ErrEmptyInput`, `ErrInvalidMode` | The input passed to `Send` is invalid. |
 | `ErrUnknownCommand` | The command you invoked does not exist. |
 | `ErrCapability` | The model capabilities do not allow the current configuration. |
+| `ErrInvalidWindow` | The window passed to `SetContextWindow` or `SessionContextWindow` is negative. |
 | `ErrNoMatcher`, `ErrAsyncNotAllowed` | The first means the hook point does not support matchers. The second means the hook point accepts only synchronous hooks. |
 | `ErrBlocked` | A hook blocked the operation. When `pre_compact` blocks `Compact`, `Compact` returns this error directly. When `command_invoke` blocks a command, the error appears in the receipt's `TurnResult.Err`. |
 | `ErrSessionOpen`, `ErrSessionNotFound`, `ErrSideChat`, `ErrChildSession` | `NewSession` or `Resume` runs into a situation it does not allow. See [16.2](16-storage.md#162-resuming-a-session). |

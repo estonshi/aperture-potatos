@@ -90,14 +90,15 @@ A `Def` describes one type of subagent and has the following fields.
 | `Instructions` | The subagent's instructions section. |
 | `Tools`, `DenyTools` | The tools that are allowed and denied, respectively. |
 | `Model` | The model the subagent uses. When nil, it uses the parent session's current model. |
+| `FixedModel` | When true, the call's `model` and `effort` are ignored, so the type always follows the parent's model even when `Model` is nil. |
 | `MaxSteps` | The maximum number of steps the child session runs per turn. The default is 50. |
 | `AskTimeout` | How long `ask_parent` waits for an answer. 0 waits indefinitely. |
 
-`Options.MaxConcurrent` limits how many subagents can run at the same time in one session. The default is 8. To add a subagent type at runtime, call `subagent.Define(r, def)`. A type defined at session level is visible only to that session.
+`Options.MaxConcurrent` limits how many subagents can run at the same time in one session. The default is 8. `Options.Models` and `Options.Efforts` declare the model and effort choices a call may name; they become the tool schema's enums, and an empty list leaves that parameter out. `Options.ResolveModel` turns a name from `Models` into a `provider.ModelRef`; `inherit` needs no resolution and runs on the parent session's model. To add a subagent type at runtime, call `subagent.Define(r, def)`. A type defined at session level is visible only to that session.
 
-When the model calls the `subagent` tool, it passes the following parameters: `agent_type` selects the type, `description` is a summary of 3 to 8 words, `prompt` holds the complete instructions and context, and `background` decides whether to run the subagent in the background. The subagent cannot see the parent session, so `prompt` must contain all the information it needs. The subagent can query the parent session with `search_history{parent:true}` and ask the parent a question with `ask_parent{question}`. After it asks, the task enters the waiting-for-input state, and the parent (the model or the host) answers with `task_send`. A subagent cannot use subagents of its own.
+When the model calls the `subagent` tool, it passes the following parameters: `agent_type` selects the type, `description` is a summary of 3 to 8 words, `prompt` holds the complete instructions and context, and `background` decides whether to run the subagent in the background; optional `model` and `effort` come from the host's enums, and `model: inherit` runs on the parent session's model. The subagent cannot see the parent session, so `prompt` must contain all the information it needs. The subagent can query the parent session with `search_history{parent:true}` and ask the parent a question with `ask_parent{question}`. After it asks, the task enters the waiting-for-input state, and the parent (the model or the host) answers with `task_send`. A subagent cannot use subagents of its own.
 
-The extension defines two hook points. `subagent.Start` can block the start, modify the prompt or add context for the child session. `subagent.Stop` can keep the child session running. See [9.7](09-hooks.md#97-hook-points-defined-by-extensions). Events emitted by the child session carry a `Path` field whose first hop has `Kind` set to `task` and `Name` set to `subagent`.
+The extension defines two hook points. `subagent.Start` can block the start, modify the prompt, choose the model or effort, or add context for the child session. `subagent.Stop` can keep the child session running. See [9.7](09-hooks.md#97-hook-points-defined-by-extensions). Events emitted by the child session carry a `Path` field whose first hop has `Kind` set to `task` and `Name` set to `subagent`.
 
 ## 14.5 ext/skills
 

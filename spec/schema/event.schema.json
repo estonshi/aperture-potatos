@@ -3009,7 +3009,8 @@
           "type": "integer"
         },
         "window_tokens": {
-          "type": "integer"
+          "type": "integer",
+          "description": "The session's window, which its policy may set, not necessarily the one the model reports."
         },
         "threshold_tokens": {
           "type": "integer"

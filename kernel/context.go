@@ -1,6 +1,7 @@
 package kernel
 
 import (
+	"fmt"
 	"math"
 	"slices"
 	"strings"
@@ -12,7 +13,7 @@ import (
 
 // ContextPolicy decides when a session compacts and what survives; zero fields take spec/data/limits.json.
 type ContextPolicy struct {
-	MaxContextTokens       int
+	MaxContextTokens       int // the window when set, overriding the model's reported one, so a host can correct a wrong value; 0 follows the model
 	AutoCompactRatio       float64
 	TargetRatio            float64
 	MinSummaryTokens       int
@@ -27,6 +28,13 @@ type ContextPolicy struct {
 
 // WithContextPolicy sets when sessions compact and how large summaries and pins may be; zero fields keep the defaults.
 func WithContextPolicy(p ContextPolicy) Option { return func(c *config) { c.context = p } }
+
+// SessionContextWindow sets this session's window, overriding the model's reported one, which a host corrects
+// when the provider does not report it or reports it wrongly; 0 follows the model. The value is written to the
+// session file with the session's first line, and SetContextWindow changes it later.
+func SessionContextWindow(tokens int) SessionOption {
+	return func(c *sessionConfig) { c.contextWindow = &tokens }
+}
 
 // WithTokenCounter counts a request exactly when the estimate is close to the compaction threshold; a provider that counts tokens itself is asked without it.
 func WithTokenCounter(tc provider.TokenCounter) Option {
@@ -54,39 +62,81 @@ func (p ContextPolicy) resolved() ContextPolicy {
 
 // window is the context budget of the current model under the policy (runtime.md §12.1).
 type window struct {
+	total     int64 // the window itself, before the output reserve
 	usable    int64 // window minus the output reserve
 	threshold int64 // automatic compaction starts above it
 	target    int64 // the summary's token budget
 }
 
+// windowTokens is the window a session sizes its context against: the policy's own when set, else the model's.
+func (p ContextPolicy) windowTokens(caps provider.Capabilities) int64 {
+	if p.MaxContextTokens > 0 {
+		return int64(p.MaxContextTokens)
+	}
+	if caps.ContextWindow > 0 {
+		return int64(caps.ContextWindow)
+	}
+	return provider.DefaultContextWindow
+}
+
 func (p ContextPolicy) window(caps provider.Capabilities, maxOutput int) window {
-	w := int64(caps.ContextWindow)
-	if w == 0 {
-		w = provider.DefaultContextWindow
-	}
-	if p.MaxContextTokens > 0 && int64(p.MaxContextTokens) < w {
-		w = int64(p.MaxContextTokens)
-	}
+	w := p.windowTokens(caps)
 	out := int64(maxOutput)
 	if out <= 0 {
 		out = provider.DefaultMaxOutputTokens
 	}
 	usable := w - out
 	if usable <= 0 {
-		return window{}
+		return window{total: w}
 	}
 	th := int64(math.Floor(p.AutoCompactRatio * float64(usable)))
 	target := min(max(int64(p.TargetRatio*float64(usable)), int64(p.MinSummaryTokens)), int64(p.MaxSummaryTokens))
 	if target > th/2 {
 		target = th / 2 // a small window yields to the floor, so a compacted context still has room
 	}
-	return window{usable: usable, threshold: th, target: target}
+	return window{total: w, usable: usable, threshold: th, target: target}
 }
 
 func (st *state) setWindow() {
 	w := st.policy.window(st.model.caps, st.model.ref.Params.MaxOutputTokens)
-	st.context.WindowTokens = int64(st.model.caps.ContextWindow)
+	st.context.WindowTokens = w.total
 	st.context.ThresholdTokens = w.threshold
+}
+
+// contextPolicy is the session's policy as it stands; a caller off the actor reads it through the actor, and a
+// session already closed answers with the agent's.
+func (s *Session) contextPolicy() ContextPolicy {
+	p := s.agent.cfg.context
+	_ = s.exec(func(st *state) { p = st.policy })
+	return p
+}
+
+// SetContextWindow sets the window this session sizes its context against, overriding the model's reported one;
+// 0 follows the model again. The change applies from the session's next model call, so a running turn picks it
+// up before its next step, and the compaction threshold follows the new window at once. The value is written to
+// the session file with the next line the session writes, so a resume restores it (runtime.md §12.1).
+func (s *Session) SetContextWindow(tokens int) error {
+	if tokens < 0 {
+		return fmt.Errorf("%w: %d", ErrInvalidWindow, tokens)
+	}
+	var err error
+	if e := s.exec(func(st *state) {
+		out := st.model.ref.Params.MaxOutputTokens
+		if out <= 0 {
+			out = provider.DefaultMaxOutputTokens
+		}
+		if tokens > 0 && tokens <= out {
+			err = fmt.Errorf("%w: a %d-token window leaves no room for %d output tokens", ErrCapability, tokens, out)
+			return
+		}
+		st.policy.MaxContextTokens = tokens
+		st.windowSet, st.windowDirty = true, true
+		st.setWindow()
+		s.publishSnapshot()
+	}); e != nil {
+		return e
+	}
+	return err
 }
 
 // base is what the system and the frozen tools of this epoch cost, which the tail estimate adds when there is no anchor.
@@ -170,7 +220,7 @@ func (s *Session) Context() ContextReport {
 			return // still initializing
 		}
 		w := st.policy.window(st.model.caps, st.model.ref.Params.MaxOutputTokens)
-		rep = ContextReport{Model: st.model.info, Epoch: st.epoch, Window: st.context.WindowTokens, Usable: w.usable, Threshold: w.threshold, Used: st.estimate(), Basis: "estimated"}
+		rep = ContextReport{Model: st.model.info, Epoch: st.epoch, Window: w.total, Usable: w.usable, Threshold: w.threshold, Used: st.estimate(), Basis: "estimated"}
 		if len(st.history) > 0 && st.meter.AnchorLen == len(st.history)-1 {
 			rep.Basis = st.context.Basis // nothing was added since the last report or count
 		}

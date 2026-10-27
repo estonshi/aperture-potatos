@@ -22,6 +22,7 @@ kernel 导出了以下哨兵错误，你可以用 `errors.Is` 判断：
 | `ErrInvalidOrigin`、`ErrEmptyInput`、`ErrInvalidMode` | 传给 `Send` 的输入不合法。 |
 | `ErrUnknownCommand` | 调用的命令不存在。 |
 | `ErrCapability` | 模型能力不允许当前的配置。 |
+| `ErrInvalidWindow` | 传给 `SetContextWindow` 或 `SessionContextWindow` 的窗口是负数。 |
 | `ErrNoMatcher`、`ErrAsyncNotAllowed` | 前者表示这个 hook 点不支持匹配器，后者表示这个 hook 点只接受同步 hook。 |
 | `ErrBlocked` | 操作被 hook 阻断。`Compact` 被 `pre_compact` 阻断时直接返回这个错误。命令被 `command_invoke` 阻断时，这个错误出现在回执的 `TurnResult.Err` 中。 |
 | `ErrSessionOpen`、`ErrSessionNotFound`、`ErrSideChat`、`ErrChildSession` | `NewSession` 或 `Resume` 遇到不允许的情况，见 [16.2](16-storage.md#162-恢复会话)。 |

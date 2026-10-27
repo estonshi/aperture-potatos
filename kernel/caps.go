@@ -135,11 +135,8 @@ func (s *Session) prepareModel(ctx context.Context, ref provider.ModelRef, tools
 	if ms.caps.NoTools && tools > 0 {
 		return ms, fmt.Errorf("%w: %s on %s takes no tools, and the session has %d", ErrCapability, ms.info.Model, ms.info.API, tools)
 	}
-	if ms.caps.ContextWindow-eff <= 0 {
-		return ms, fmt.Errorf("%w: max output %d leaves no room in a %d-token window; set Params.MaxOutputTokens", ErrCapability, eff, ms.caps.ContextWindow)
-	}
-	if limit := a.cfg.context.MaxContextTokens; limit > 0 && limit-eff <= 0 {
-		return ms, fmt.Errorf("%w: max output %d leaves no room in the %d tokens of ContextPolicy.MaxContextTokens; raise it or set Params.MaxOutputTokens", ErrCapability, eff, limit)
+	if win := s.contextPolicy().windowTokens(ms.caps); win-int64(eff) <= 0 {
+		return ms, fmt.Errorf("%w: max output %d leaves no room in a %d-token window; set Params.MaxOutputTokens or widen the context window", ErrCapability, eff, win)
 	}
 	return ms, nil
 }

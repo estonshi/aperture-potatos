@@ -23,6 +23,14 @@
         "agent_type": {
           "type": "string"
         },
+        "model": {
+          "type": "string",
+          "description": "The model the call asked for; empty when the type fixes its model or the call named none."
+        },
+        "effort": {
+          "type": "string",
+          "description": "The effort the call asked for; empty when the type fixes its model or the call named none."
+        },
         "prompt": {
           "type": "string"
         }
@@ -46,6 +54,14 @@
         },
         "updated_prompt": {
           "type": "string"
+        },
+        "model": {
+          "type": "string",
+          "description": "Overrides the model the call asked for."
+        },
+        "effort": {
+          "type": "string",
+          "description": "Overrides the effort the call asked for."
         },
         "additional_context": {
           "type": "string"

@@ -73,6 +73,7 @@ again, err := ag.Resume(ctx, id)
 | `tools`、`hosted_tools` | 仅出现在 system 行中，记录该 epoch 的工具定义。 |
 | `tasks` | 任务的启动参数和状态。这是任务唯一的持久记录。 |
 | `partial` | 表示该行是在被打断后提交的，其中只包含已经结束的内容块。 |
+| `context_window` | 仅当写这一行时会话自己设置了窗口才出现：该会话的上下文窗口，恢复会话时用它还原；副本沿用原行的值。 |
 | `ts` | 时间。 |
 
 `store.Current(msgs)` 从一组行中取出最后一个 epoch 开头之后的部分，这部分就是下一轮模型会看到的上下文。

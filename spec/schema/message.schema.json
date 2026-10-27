@@ -54,6 +54,11 @@
       "type": "boolean",
       "description": "Committed after an interrupt; only closed blocks are kept."
     },
+    "context_window": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "The session's own context window when the line was written, so a resume restores it; a copy repeats its original's value."
+    },
     "boundary": {
       "$ref": "#/$defs/boundary"
     },

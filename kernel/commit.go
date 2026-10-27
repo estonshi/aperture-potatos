@@ -20,6 +20,11 @@ func (s *Session) appendLine(st *state, m *message.Message, turnID string) {
 	}
 	m.SessionID, m.Seq, m.Epoch, m.TurnID = s.id, st.lineSeq, st.epoch, turnID
 	m.CreatedAt = s.agent.cfg.clock.Now()
+	if st.windowDirty && m.CopyOf == "" {
+		w := st.policy.MaxContextTokens // a copy repeats its original's value instead, which a resume skips
+		m.ContextWindow = &w
+		st.windowDirty = false
+	}
 	st.history = append(st.history, *m)
 	st.pending = append(st.pending, *m)
 	if !(m.Role == message.RoleAssistant && len(m.ToolCalls()) > 0) {

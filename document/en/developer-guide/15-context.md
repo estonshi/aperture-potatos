@@ -8,7 +8,7 @@ In this chapter: [15.1 Automatic compaction](#151-automatic-compaction) · [15.2
 
 ## 15.1 Automatic compaction
 
-The usable window is the model's window minus the maximum output. When the context exceeds 90% of the usable window, the kernel compacts it automatically between two model calls. To compact, the kernel asks the compaction strategy for a summary, then starts a new epoch and places the summary and the Pins at the head of the new epoch. The default compaction strategy is `ext/compact`, which has the model write the summary.
+The usable window is the session's window (the model's, or one the policy names) minus the maximum output. When the context exceeds 90% of the usable window, the kernel compacts it automatically between two model calls. To compact, the kernel asks the compaction strategy for a summary, then starts a new epoch and places the summary and the Pins at the head of the new epoch. The default compaction strategy is `ext/compact`, which has the model write the summary.
 
 Automatic compaction requires an installed compaction strategy, and `std.Defaults()` already includes one. If no compaction strategy is installed, the kernel never compacts automatically, and the current turn ends with an error once the window is full.
 
@@ -18,7 +18,7 @@ You can tune automatic compaction with `kernel.ContextPolicy`:
 
 ```go
 kernel.WithContextPolicy(kernel.ContextPolicy{
-	MaxContextTokens: 150000, // a limit smaller than the model's window
+	MaxContextTokens: 150000, // the window itself, to correct one the provider does not report
 	AutoCompactRatio: 0.85,
 })
 ```
@@ -27,7 +27,7 @@ kernel.WithContextPolicy(kernel.ContextPolicy{
 
 | Field | Default | Description |
 |---|---|---|
-| `MaxContextTokens` | The model's window | Sets an artificially smaller window. |
+| `MaxContextTokens` | The model's window | Sets the window itself, overriding the model's reported value; use it to correct a window the provider does not report or reports wrongly. 0 uses the model's. |
 | `AutoCompactRatio` | 0.9 | Automatic compaction starts when the context reaches this fraction of the usable window. |
 | `TargetRatio` | 0.1 | The target length of the summary, as a fraction of the usable window. |
 | `MinSummaryTokens`, `MaxSummaryTokens` | 20k, 50k | The minimum and maximum summary length. |
@@ -36,6 +36,10 @@ kernel.WithContextPolicy(kernel.ContextPolicy{
 | `MaxConsecutiveFailures` | 3 | After this many consecutive failures, the kernel stops attempting automatic compaction. |
 | `Disabled` | false | Set to true to turn off automatic compaction. |
 | `StopTasksOnClear` | false | Set to true to make `/clear` stop background tasks. |
+
+The window can also change at run time. `sess.SetContextWindow(1000000)` sets this session's window and `sess.SetContextWindow(0)` follows the model again; `kernel.SessionContextWindow(n)` does the same at creation or resume. The new window, and the compaction threshold computed from it, apply from the session's next model call rather than the next turn: widening it in the middle of a turn keeps that turn from compacting at its next step. A fork keeps its source's window.
+
+The window lives in the session file: a change is written with the next line the session writes, and a resume restores the last recorded one (copies record none of their own, so only lines the session wrote count). A host need not pass it again on resume; an option it passes wins over the file.
 
 By default, the kernel estimates the context's token count. If you pass `kernel.WithTokenCounter(tc)`, the kernel switches to an exact count when the context nears the threshold. The Anthropic adapter comes with its own `CountTokens`; for other APIs you need to supply a counter yourself.
 

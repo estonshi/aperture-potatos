@@ -40,6 +40,7 @@ type Def struct {
 	Tools        []string // nil gives every tool the parent has; an empty slice gives none
 	DenyTools    []string
 	Model        *provider.ModelRef // nil uses the parent session's current model
+	FixedModel   bool               // a call's model and effort are ignored even when Model is nil, so the type always follows the parent's
 	MaxSteps     int
 	AskTimeout   time.Duration // how long ask_parent waits for an answer; 0 waits until one arrives
 }
@@ -47,6 +48,11 @@ type Def struct {
 type Options struct {
 	Defs          []Def
 	MaxConcurrent int // subagents of one session running at once, foreground and background; 0 means 8
+	// ResolveModel turns a name from Models into the model a child starts with; nil leaves model out of the start
+	// tool's schema, and a call that names one anyway fails.
+	ResolveModel func(name string) (*provider.ModelRef, error)
+	Models       []string // the start tool's model enum; empty exposes no model choice, and "inherit" runs on the parent's model
+	Efforts      []string // the start tool's effort enum, values as in provider.ReasoningParams.Effort; empty exposes no effort choice
 }
 
 type StartInput struct {
@@ -54,6 +60,8 @@ type StartInput struct {
 	TaskID    string `json:"task_id"`
 	Attempt   int    `json:"attempt"`
 	AgentType string `json:"agent_type"`
+	Model     string `json:"model,omitempty"` // what the call asked for; empty when the type fixes its model or the call named none
+	Effort    string `json:"effort,omitempty"`
 	Prompt    string `json:"prompt"`
 }
 
@@ -62,6 +70,8 @@ type StartOutput struct {
 	Deny              bool   `json:"deny,omitempty"`
 	Reason            string `json:"reason,omitempty"`
 	UpdatedPrompt     string `json:"updated_prompt,omitempty"`
+	Model             string `json:"model,omitempty"` // overrides the model the call asked for
+	Effort            string `json:"effort,omitempty"`
 	AdditionalContext string `json:"additional_context,omitempty"` // rides along with the child's first turn
 }
 
@@ -87,6 +97,12 @@ var (
 			if out.UpdatedPrompt != "" {
 				in.Prompt = out.UpdatedPrompt
 			}
+			if out.Model != "" {
+				in.Model = out.Model
+			}
+			if out.Effort != "" {
+				in.Effort = out.Effort
+			}
 			return in
 		},
 		Merge: func(acc, out StartOutput) (StartOutput, bool) {
@@ -95,6 +111,12 @@ var (
 			}
 			if out.UpdatedPrompt != "" {
 				acc.UpdatedPrompt = out.UpdatedPrompt
+			}
+			if out.Model != "" {
+				acc.Model = out.Model
+			}
+			if out.Effort != "" {
+				acc.Effort = out.Effort
 			}
 			acc.AdditionalContext = joinText(acc.AdditionalContext, out.AdditionalContext)
 			return acc, false
@@ -137,16 +159,41 @@ func joinText(a, b string) string {
 var (
 	defsKey    = kernel.NewKey[[]Def]("subagent.defs")                          // on the scope that installed or defined them
 	toolKey    = kernel.NewKey[bool]("subagent.session_tool")                   // the session registered its own start tool for its own definitions
+	optsKey    = kernel.NewKey[startOptions]("subagent.start_options")          // the choices the start tool exposes
 	slotsKey   = kernel.NewKey[int]("subagent.running")                         // on the owner session: attempts holding a slot
 	childKey   = kernel.NewKey[map[string]*kernel.Session]("subagent.children") // on the owner session: task id -> its live child
 	attemptKey = kernel.NewKey[*attempt]("subagent.attempt")                    // on a child session: the attempt it works for now
 )
+
+// startOptions is Options as the start tool and a session-scope Define read it.
+type startOptions struct {
+	models  []string
+	efforts []string
+	resolve func(string) (*provider.ModelRef, error)
+}
+
+// startOptionsFor reads the options installed at this scope, falling back to the agent's for a session's own tool.
+func startOptionsFor(r kernel.Registrar) startOptions {
+	if s := r.Session(); s != nil {
+		if o, ok := kernel.Get(s, optsKey); ok {
+			return o
+		}
+	}
+	o, _ := kernel.Get(r.Agent(), optsKey)
+	return o
+}
 
 var defName = regexp.MustCompile(`^[a-zA-Z0-9_-]{1,64}$`)
 
 // New registers the subagent kind together with its start tool, so the model can delegate in the foreground or the background.
 func New(o Options) kernel.Extension {
 	return kernel.ExtensionFunc(Name, func(r kernel.Registrar) error {
+		so := startOptions{models: slices.Clone(o.Models), efforts: slices.Clone(o.Efforts), resolve: o.ResolveModel}
+		if s := r.Session(); s != nil {
+			kernel.Set(s, optsKey, so)
+		} else {
+			kernel.Set(r.Agent(), optsKey, so)
+		}
 		defs := o.Defs
 		if len(defs) == 0 {
 			defs = []Def{{Name: generalName, Description: text("general")}}
@@ -166,7 +213,7 @@ func New(o Options) kernel.Extension {
 				if err := json.Unmarshal(spec.Input, &in); err != nil {
 					return nil, fmt.Errorf("invalid subagent input: %w", err)
 				}
-				return &task{in: in, max: max}, nil
+				return &task{in: in, max: max, models: o.Models, efforts: o.Efforts, resolve: o.ResolveModel}, nil
 			}}); err != nil {
 			return err
 		}
@@ -236,6 +283,8 @@ func defs(s *kernel.Session) map[string]Def {
 type input struct {
 	AgentType   string `json:"agent_type"`
 	Description string `json:"description"`
+	Model       string `json:"model,omitempty"`
+	Effort      string `json:"effort,omitempty"`
 	Prompt      string `json:"prompt"`
 }
 
@@ -244,6 +293,7 @@ type startTool struct {
 	agent   *kernel.Agent
 	session *kernel.Session // set for a session's own start tool
 	base    kernel.ToolSpec
+	opts    startOptions
 }
 
 var toolDef = func() kernel.ToolSpec {
@@ -259,7 +309,7 @@ var toolDef = func() kernel.ToolSpec {
 }()
 
 func newStartTool(r kernel.Registrar) *startTool {
-	return &startTool{agent: r.Agent(), session: r.Session(), base: toolDef}
+	return &startTool{agent: r.Agent(), session: r.Session(), base: toolDef, opts: startOptionsFor(r)}
 }
 
 func toSpec(raw json.RawMessage) (kernel.TaskSpec, error) {
@@ -291,7 +341,7 @@ func (t *startTool) Spec() kernel.ToolSpec {
 	}
 	names := slices.Sorted(maps.Keys(byName))
 	spec := t.base
-	spec.InputSchema = withEnum(spec.InputSchema, names)
+	spec.InputSchema = withEnums(spec.InputSchema, names, t.opts.models, t.opts.efforts)
 	lines := []string{text("types")}
 	for _, n := range names {
 		lines = append(lines, text("type", "name", n, "description", byName[n].Description))
@@ -313,8 +363,10 @@ func unknownType(s *kernel.Session, name string) string {
 	return text("unknown_type", "agent_type", name, "types", strings.Join(slices.Sorted(maps.Keys(defs(s))), ", "))
 }
 
-// withEnum sets the agent_type enum; the schema comes from subagent.json, so its shape is known.
-func withEnum(schema json.RawMessage, names []string) json.RawMessage {
+// withEnums sets the agent_type enum and the model and effort enums the host exposes; the schema comes from
+// subagent.json, so its shape is known. An empty list leaves that property out, so the model never sees a choice
+// the host does not offer.
+func withEnums(schema json.RawMessage, names, models, efforts []string) json.RawMessage {
 	var s map[string]json.RawMessage
 	var props map[string]json.RawMessage
 	var at map[string]json.RawMessage
@@ -324,7 +376,26 @@ func withEnum(schema json.RawMessage, names []string) json.RawMessage {
 	enum, _ := json.Marshal(names)
 	at["enum"] = enum
 	props["agent_type"] = ordered(at, "type", "enum", "description")
-	s["properties"] = ordered(props, "agent_type", "description", "prompt")
+	order := []string{"agent_type", "description"}
+	for _, p := range []struct {
+		name   string
+		values []string
+	}{{"model", models}, {"effort", efforts}} {
+		if len(p.values) == 0 {
+			delete(props, p.name)
+			continue
+		}
+		var prop map[string]json.RawMessage
+		if json.Unmarshal(props[p.name], &prop) != nil {
+			continue
+		}
+		values, _ := json.Marshal(p.values)
+		prop["enum"] = values
+		props[p.name] = ordered(prop, "type", "enum", "description")
+		order = append(order, p.name)
+	}
+	order = append(order, "prompt")
+	s["properties"] = ordered(props, order...)
 	return ordered(s, "type", "properties", "required", "additionalProperties")
 }
 
@@ -332,14 +403,20 @@ func withEnum(schema json.RawMessage, names []string) json.RawMessage {
 func ordered(m map[string]json.RawMessage, keys ...string) json.RawMessage {
 	var b strings.Builder
 	b.WriteByte('{')
-	for i, k := range keys {
-		if i > 0 {
+	first := true
+	for _, k := range keys {
+		v, ok := m[k]
+		if !ok {
+			continue // a property the host exposes no choice for
+		}
+		if !first {
 			b.WriteByte(',')
 		}
+		first = false
 		name, _ := json.Marshal(k)
 		b.Write(name)
 		b.WriteByte(':')
-		b.Write(m[k])
+		b.Write(v)
 	}
 	b.WriteByte('}')
 	return json.RawMessage(b.String())
@@ -348,14 +425,20 @@ func ordered(m map[string]json.RawMessage, keys ...string) json.RawMessage {
 // ---- the task ----
 
 type task struct {
-	in  input
-	max int
+	in      input
+	max     int
+	models  []string
+	efforts []string
+	resolve func(string) (*provider.ModelRef, error)
 }
 
-// saved is the attempt's state, which a continuation after a restart of the process resumes the child from.
+// saved is the attempt's state, which a continuation after a restart of the process resumes the child from; the
+// model and effort are the ones this attempt settled on, so a resumed child keeps them.
 type saved struct {
 	ChildSessionID string `json:"child_session_id"`
 	AgentType      string `json:"agent_type"`
+	Model          string `json:"model,omitempty"`
+	Effort         string `json:"effort,omitempty"`
 }
 
 // attempt is what ask_parent in the child needs from the attempt it works for.
@@ -407,8 +490,13 @@ func (t *task) open(ctx context.Context, rt kernel.TaskRuntime, owner *kernel.Se
 	if cont := rt.Spec().Continue; cont != nil {
 		var st saved
 		_ = json.Unmarshal(cont.State, &st)
+		model, effort := t.fixedChoice(def, st.Model, st.Effort)
 		if child = liveChild(owner, rt.ID(), st.ChildSessionID); child == nil {
-			derived, err := derive(owner, def)
+			ref, err := t.modelRef(owner, model, effort)
+			if err != nil {
+				return nil, first, mode, err
+			}
+			derived, err := derive(owner, def, ref)
 			if err != nil {
 				return nil, first, mode, err
 			}
@@ -422,18 +510,32 @@ func (t *task) open(ctx context.Context, rt kernel.TaskRuntime, owner *kernel.Se
 		}
 		return child, kernel.Input{Text: cont.Instruction.Text, Origin: from}, cont.Instruction.Mode, nil
 	}
-	out, in := kernel.Fire(ctx, owner, Start, StartInput{HookEnv: env(owner, rt), TaskID: rt.ID(), Attempt: rt.Attempt(), AgentType: def.Name, Prompt: t.in.Prompt})
+	model, effort := t.fixedChoice(def, t.in.Model, t.in.Effort)
+	if err := t.check(model, effort); err != nil {
+		return nil, first, mode, err
+	}
+	out, in := kernel.Fire(ctx, owner, Start, StartInput{HookEnv: env(owner, rt), TaskID: rt.ID(), Attempt: rt.Attempt(), AgentType: def.Name, Model: model, Effort: effort, Prompt: t.in.Prompt})
 	if out.Deny {
 		return nil, first, mode, errors.New(text("denied", "reason", out.Reason))
 	}
-	derived, err := derive(owner, def)
+	if out.Model != "" {
+		model = out.Model // the hook chose, so it is not held to the enum the model sees
+	}
+	if out.Effort != "" {
+		effort = out.Effort
+	}
+	ref, err := t.modelRef(owner, model, effort)
+	if err != nil {
+		return nil, first, mode, err
+	}
+	derived, err := derive(owner, def, ref)
 	if err != nil {
 		return nil, first, mode, err
 	}
 	if child, err = derived.NewSession(ctx, childOptions(rt, def)...); err != nil {
 		return nil, first, mode, err
 	}
-	state, _ := json.Marshal(saved{ChildSessionID: child.Info().SessionID, AgentType: def.Name})
+	state, _ := json.Marshal(saved{ChildSessionID: child.Info().SessionID, AgentType: def.Name, Model: model, Effort: effort})
 	rt.SaveState(state)
 	remember(owner, rt.ID(), child)
 	if out.AdditionalContext != "" {
@@ -447,11 +549,82 @@ func env(s *kernel.Session, rt kernel.TaskRuntime) kernel.HookEnv {
 	return kernel.HookEnv{Session: s, SessionID: info.SessionID, Agent: info.Agent, TurnID: rt.TurnID()}
 }
 
-// derive makes the child's agent: the parent's tools as the definition narrows them, never the start tool, the definition's user section and model, and the parent's hooks.
-func derive(owner *kernel.Session, def Def) (*kernel.Agent, error) {
+// inheritModel is the name that runs a child on the parent's current model, so a host that lists it in Models need
+// not resolve it itself.
+const inheritModel = "inherit"
+
+// fixedChoice drops a call's choice when the definition fixes the model, as a type that always runs on the parent's
+// or its own model must.
+func (t *task) fixedChoice(def Def, model, effort string) (string, string) {
+	if def.Model != nil || def.FixedModel {
+		return "", ""
+	}
+	return model, effort
+}
+
+// check rejects a name outside the enums the host declared, so the model learns instead of running on the default.
+func (t *task) check(model, effort string) error {
+	if model != "" && model != inheritModel {
+		switch {
+		case len(t.models) == 0:
+			return errors.New(text("no_model_choice"))
+		case !slices.Contains(t.models, model):
+			return errors.New(text("unknown_model", "model", model, "models", strings.Join(t.models, ", ")))
+		}
+	}
+	if effort != "" {
+		switch {
+		case len(t.efforts) == 0:
+			return errors.New(text("no_effort_choice"))
+		case !slices.Contains(t.efforts, effort):
+			return errors.New(text("unknown_effort", "effort", effort, "efforts", strings.Join(t.efforts, ", ")))
+		}
+	}
+	return nil
+}
+
+// modelRef is the base the child's agent starts from: the parent's current model, the one this attempt named
+// (inherit included) or the host resolved, with the effort this attempt asked for.
+func (t *task) modelRef(owner *kernel.Session, model, effort string) (*provider.ModelRef, error) {
+	ref := owner.Model()
+	if model != "" && model != inheritModel {
+		if t.resolve == nil {
+			return nil, errors.New(text("no_model_resolver", "model", model))
+		}
+		resolved, err := callResolve(t.resolve, model)
+		if err != nil {
+			return nil, err
+		}
+		if resolved == nil || resolved.Provider == nil {
+			return nil, errors.New(text("no_model_provider", "model", model))
+		}
+		ref = *resolved
+	}
+	if effort != "" {
+		ref.Params.Reasoning.Effort = effort
+	}
+	return &ref, nil
+}
+
+// callResolve runs caller code, so a panic fails the attempt instead of the task manager.
+func callResolve(resolve func(string) (*provider.ModelRef, error), name string) (ref *provider.ModelRef, err error) {
+	defer func() {
+		if p := recover(); p != nil {
+			err = fmt.Errorf("model resolver panicked: %v", p)
+		}
+	}()
+	return resolve(name)
+}
+
+// derive makes the child's agent: the parent's tools as the definition narrows them, never the start tool, the
+// definition's user section and model, and the parent's hooks; ref is what this attempt chose, nil for the default.
+func derive(owner *kernel.Session, def Def, ref *provider.ModelRef) (*kernel.Agent, error) {
 	model := owner.Model()
+	if ref != nil {
+		model = *ref
+	}
 	if def.Model != nil {
-		model = *def.Model
+		model = *def.Model // the definition named its model, and the attempt's choice was dropped already
 	}
 	steps := def.MaxSteps
 	if steps == 0 {

@@ -73,6 +73,7 @@ Each line in the store is one `message.Message` encoded as JSON, and the schema 
 | `tools`, `hosted_tools` | Present only on system lines, where they record the tool definitions for that epoch. |
 | `tasks` | The start parameters and state of tasks. This is the only persistent record of a task. |
 | `partial` | Marks a line that was committed after an interrupt. Such a line contains only the content blocks that had finished. |
+| `context_window` | Present only when the session had set a window of its own when the line was written: that window, restored on resume. A copy keeps its original's value. |
 | `ts` | The timestamp. |
 
 `store.Current(msgs)` returns the lines from the head of the last epoch onward. That part is the context the model sees on the next turn.

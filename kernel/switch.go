@@ -72,9 +72,12 @@ func (t *turn) applySwitch(ctx context.Context, to modelState) {
 		t.publish(&event.ProviderSwitchRejected{To: to.name(), Reason: "hook_blocked"})
 		return
 	}
-	room := s.agent.cfg.context.window(to.caps, to.ref.Params.MaxOutputTokens).usable
+	var room int64
 	over := false
-	_ = s.exec(func(st *state) { over = st.context.UsedTokens > room })
+	_ = s.exec(func(st *state) {
+		room = st.policy.window(to.caps, to.ref.Params.MaxOutputTokens).usable
+		over = st.context.UsedTokens > room
+	})
 	if over && s.compactor() != nil {
 		_, _ = s.compact(ctx, TriggerSwitch, "", compactConfig{}, t) // on the current model, which still holds the history; a failure is refused below
 	}

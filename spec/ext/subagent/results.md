@@ -55,3 +55,27 @@ No answer arrived within {{duration}}. Continue on your own judgment, and state 
 ## no_one_to_ask
 
 Nobody is waiting on this task right now, so there is no one to ask. Continue on your own judgment, and state the assumption you made in your final answer.
+
+## no_model_choice
+
+This agent type takes no model choice; drop model from the call.
+
+## unknown_model
+
+Unknown model "{{model}}". Use one of: {{models}}.
+
+## no_effort_choice
+
+This agent type takes no effort choice; drop effort from the call.
+
+## unknown_effort
+
+Unknown effort "{{effort}}". Use one of: {{efforts}}.
+
+## no_model_resolver
+
+The host resolves no model for subagents, so "{{model}}" cannot start this one.
+
+## no_model_provider
+
+The model "{{model}}" resolved without a provider.

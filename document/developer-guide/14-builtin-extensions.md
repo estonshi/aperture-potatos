@@ -90,14 +90,15 @@ std.Defaults(std.With(subagent.New(subagent.Options{
 | `Instructions` | 子 agent 的指令段。 |
 | `Tools`、`DenyTools` | 分别指定允许和禁止的工具。 |
 | `Model` | 子 agent 使用的模型。为 nil 时使用父 session 当前的模型。 |
+| `FixedModel` | 为 true 时忽略调用里的 `model` 和 `effort`，即使 `Model` 为 nil 也始终跟随父 session 的模型。 |
 | `MaxSteps` | 子 session 每一轮最多执行的 step 数，默认为 50。 |
 | `AskTimeout` | `ask_parent` 等待回答的时长。为 0 时一直等待。 |
 
-`Options.MaxConcurrent` 限制一个 session 中同时运行的 subagent 数量，默认为 8。如果需要在运行中新增子 agent 类型，可以调用 `subagent.Define(r, def)`。在 session 级定义的类型只对该 session 可见。
+`Options.MaxConcurrent` 限制一个 session 中同时运行的 subagent 数量，默认为 8。`Options.Models` 和 `Options.Efforts` 声明调用时可选的模型档和思考强度，会写进工具 schema 的枚举；为空时对应参数不出现。`Options.ResolveModel` 把 `Models` 里的名字解析成 `provider.ModelRef`；`inherit` 不需要解析，直接用父 session 的模型。如果需要在运行中新增子 agent 类型，可以调用 `subagent.Define(r, def)`。在 session 级定义的类型只对该 session 可见。
 
-模型调用 `subagent` 工具时传入以下参数：`agent_type` 指定类型，`description` 是 3 到 8 个词的摘要，`prompt` 是完整的指令和上下文，`background` 决定是否放到后台运行。子 agent 看不到父会话，因此 `prompt` 中需要写全它所需的信息。子 agent 可以用 `search_history{parent:true}` 查询父会话，也可以用 `ask_parent{question}` 向父级提问。提问后，任务进入等待输入的状态，父级（模型或宿主程序）用 `task_send` 回答。子 agent 不能再嵌套使用 subagent。
+模型调用 `subagent` 工具时传入以下参数：`agent_type` 指定类型，`description` 是 3 到 8 个词的摘要，`prompt` 是完整的指令和上下文，`background` 决定是否放到后台运行；`model` 和 `effort` 可选，从宿主声明的枚举里选，`model: inherit` 表示跟随父 session。子 agent 看不到父会话，因此 `prompt` 中需要写全它所需的信息。子 agent 可以用 `search_history{parent:true}` 查询父会话，也可以用 `ask_parent{question}` 向父级提问。提问后，任务进入等待输入的状态，父级（模型或宿主程序）用 `task_send` 回答。子 agent 不能再嵌套使用 subagent。
 
-该扩展定义了两个 hook 点。`subagent.Start` 可以阻断启动、修改 prompt，或为子 session 追加上下文。`subagent.Stop` 可以让子 session 继续运行。详见 [9.7](09-hooks.md#97-扩展定义的-hook-点)。子 session 发出的事件带有 `Path` 字段，其中第一跳的 `Kind` 为 `task`，`Name` 为 `subagent`。
+该扩展定义了两个 hook 点。`subagent.Start` 可以阻断启动、修改 prompt、选择 model / effort，或为子 session 追加上下文。`subagent.Stop` 可以让子 session 继续运行。详见 [9.7](09-hooks.md#97-扩展定义的-hook-点)。子 session 发出的事件带有 `Path` 字段，其中第一跳的 `Kind` 为 `task`，`Name` 为 `subagent`。
 
 ## 14.5 ext/skills
 

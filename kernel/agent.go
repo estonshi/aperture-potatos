@@ -280,13 +280,14 @@ func (a *Agent) unregister(s *Session) {
 type SessionOption func(*sessionConfig)
 
 type sessionConfig struct {
-	inputMode    InputMode
-	instructions *string
-	labels       map[string]string
-	exts         []Extension
-	sinks        []sinkSpec
-	rules        []ApprovalRule
-	owner        TaskRuntime // ChildOf
+	inputMode     InputMode
+	instructions  *string
+	labels        map[string]string
+	exts          []Extension
+	sinks         []sinkSpec
+	rules         []ApprovalRule
+	owner         TaskRuntime // ChildOf
+	contextWindow *int        // SessionContextWindow, or the source's for a fork; nil follows the agent's policy
 }
 
 // SessionInstructions replaces the agent's developer section for this session.
@@ -311,6 +312,9 @@ func (a *Agent) NewSession(ctx context.Context, opts ...SessionOption) (*Session
 	}
 	if _, ok := modeRank[mode]; !ok {
 		return nil, ErrInvalidMode
+	}
+	if sc.contextWindow != nil && *sc.contextWindow < 0 {
+		return nil, fmt.Errorf("%w: %d", ErrInvalidWindow, *sc.contextWindow)
 	}
 	own, err := compileRules(sc.rules)
 	if err != nil {
@@ -410,6 +414,10 @@ func (a *Agent) newSession(id string, mode InputMode, sc sessionConfig) *Session
 	s.st.model = modelState{ref: *a.cfg.model, info: infoOf(*a.cfg.model), caps: provider.Capabilities{ContextWindow: provider.DefaultContextWindow}}
 	s.st.usage = newUsageReport()
 	s.st.policy = a.cfg.context
+	if sc.contextWindow != nil {
+		s.st.policy.MaxContextTokens = *sc.contextWindow
+		s.st.windowSet, s.st.windowDirty = true, true // the session's first line records it, so a resume restores it
+	}
 	s.st.context = ContextUsage{Basis: "estimated"}
 	s.st.setWindow()
 	s.publishSnapshot()

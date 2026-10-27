@@ -54,6 +54,7 @@ type forkSource struct {
 	learned  map[provider.ModelInfo]*learned
 	main     *mainView // a side chat being opened: the main part it weighs from the start
 	fromSide bool      // the source is a side chat, so the copied lines follow a main part other than the one their thinking was made on
+	window   *int      // the source's own context window, which the new session keeps; nil follows the agent's
 }
 
 // Fork copies the current context into a new independent session of the same agent, stored under its own id and resumable like any other; a side chat's context is its main part followed by its own lines.
@@ -90,8 +91,13 @@ func (s *Session) fork(ctx context.Context, id string, parent *Session, name str
 				return
 			}
 		}
+		var window *int
+		if st.windowSet {
+			w := st.policy.MaxContextTokens
+			window = &w
+		}
 		lines := slices.Clone(st.history[:cut])
-		src = forkSource{id: s.id, system: slices.Clone(st.system), model: st.model, meter: st.meter, learned: map[provider.ModelInfo]*learned{}}
+		src = forkSource{id: s.id, system: slices.Clone(st.system), model: st.model, meter: st.meter, learned: map[provider.ModelInfo]*learned{}, window: window}
 		switch {
 		case parent != nil:
 			lines, src.main = lines[:1], st.view(s.agent.cfg.texts)
@@ -111,7 +117,7 @@ func (s *Session) fork(ctx context.Context, id string, parent *Session, name str
 	if err != nil {
 		return nil, err
 	}
-	ns := s.agent.newSession(id, s.inputMode, sessionConfig{labels: maps.Clone(s.labelMap()), instructions: s.sessInstr})
+	ns := s.agent.newSession(id, s.inputMode, sessionConfig{labels: maps.Clone(s.labelMap()), instructions: s.sessInstr, contextWindow: src.window})
 	ns.nickname.Store(s.nickname.Load()) // the copied system was rendered with this name
 	s.inherit(ns, parent, fc)
 	ns.sideName = name

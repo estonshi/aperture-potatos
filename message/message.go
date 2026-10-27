@@ -53,28 +53,29 @@ type Producer struct {
 
 // Message is immutable once committed; its JSON is exactly one line of the session file.
 type Message struct {
-	V           int          `json:"v"`
-	ID          string       `json:"id"`
-	SessionID   string       `json:"session_id"`
-	Seq         int64        `json:"seq"`
-	Epoch       int          `json:"epoch"`
-	Role        Role         `json:"role"`
-	Origin      Origin       `json:"origin"`
-	Content     Content      `json:"content"`
-	Producer    *Producer    `json:"producer,omitempty"`
-	Usage       *Usage       `json:"usage,omitempty"`
-	StopReason  string       `json:"stop_reason,omitempty"`
-	Native      *Native      `json:"native,omitempty"` // message-level raw: chat assistant message, OpenRouter reasoning_details
-	TurnID      string       `json:"turn_id,omitempty"`
-	Partial     bool         `json:"partial,omitempty"` // committed after an interrupt; only closed blocks are kept
-	Boundary    *Boundary    `json:"boundary,omitempty"`
-	Tools       []ToolDef    `json:"tools,omitempty"`
-	HostedTools []HostedTool `json:"hosted_tools,omitempty"`
-	Tasks       []TaskRef    `json:"tasks,omitempty"` // a list, because one batch can start several tasks and one notification can cover several
-	CopyOf      string       `json:"copy_of,omitempty"`
-	Batch       string       `json:"batch,omitempty"`     // storage only: shared by the lines of one multi-line Append, so Load can find a batch a crash tore
-	BatchEnd    bool         `json:"batch_end,omitempty"` // storage only: a batch whose last line never landed is dropped as a whole
-	CreatedAt   time.Time    `json:"ts"`
+	V             int          `json:"v"`
+	ID            string       `json:"id"`
+	SessionID     string       `json:"session_id"`
+	Seq           int64        `json:"seq"`
+	Epoch         int          `json:"epoch"`
+	Role          Role         `json:"role"`
+	Origin        Origin       `json:"origin"`
+	Content       Content      `json:"content"`
+	Producer      *Producer    `json:"producer,omitempty"`
+	Usage         *Usage       `json:"usage,omitempty"`
+	StopReason    string       `json:"stop_reason,omitempty"`
+	Native        *Native      `json:"native,omitempty"` // message-level raw: chat assistant message, OpenRouter reasoning_details
+	TurnID        string       `json:"turn_id,omitempty"`
+	Partial       bool         `json:"partial,omitempty"`        // committed after an interrupt; only closed blocks are kept
+	ContextWindow *int         `json:"context_window,omitempty"` // the session's own window when the line was written; a resume restores the last written one, and a copy repeats its original's
+	Boundary      *Boundary    `json:"boundary,omitempty"`
+	Tools         []ToolDef    `json:"tools,omitempty"`
+	HostedTools   []HostedTool `json:"hosted_tools,omitempty"`
+	Tasks         []TaskRef    `json:"tasks,omitempty"` // a list, because one batch can start several tasks and one notification can cover several
+	CopyOf        string       `json:"copy_of,omitempty"`
+	Batch         string       `json:"batch,omitempty"`     // storage only: shared by the lines of one multi-line Append, so Load can find a batch a crash tore
+	BatchEnd      bool         `json:"batch_end,omitempty"` // storage only: a batch whose last line never landed is dropped as a whole
+	CreatedAt     time.Time    `json:"ts"`
 
 	extra map[string]json.RawMessage // fields this binding does not know, written back so a copy or rewrite of a newer line loses nothing
 }

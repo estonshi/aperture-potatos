@@ -6,6 +6,8 @@
     "properties": {
       "agent_type": { "type": "string", "enum": [], "description": "Subagent definition to use." },
       "description": { "type": "string", "maxLength": 120, "description": "3-8 word summary of the task." },
+      "model": { "type": "string", "enum": [], "description": "Model for this subagent, from the host's list; inherit runs on this session's model." },
+      "effort": { "type": "string", "enum": [], "description": "Reasoning effort for this subagent, from the host's list." },
       "prompt": { "type": "string", "description": "Complete, self-contained instructions and context." }
     },
     "required": ["agent_type", "description", "prompt"],

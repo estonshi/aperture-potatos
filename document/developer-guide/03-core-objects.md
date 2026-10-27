@@ -106,6 +106,7 @@
 |---|---|
 | `Compact(ctx, instructions, opts...)` | 手动压缩上下文。 |
 | `Clear(ctx)` | 清空上下文。 |
+| `SetContextWindow(tokens)` | 设置这个会话的上下文窗口，0 表示回到模型能力；从下一次模型调用起生效，见 [15.1](15-context.md#151-自动压缩)。 |
 | `Turns()`、`Rewind(ctx, turnID)` | 列出可以回退到的轮次，以及回退到指定轮次。 |
 | `Fork(ctx, opts...)` | 把当前上下文复制成一个新的 session。 |
 | `SideChat(ctx, name, opts...)`、`SideChats(ctx)`、`DropSideChat(ctx, name)` | 打开、列出和删除旁路对话。 |
@@ -146,6 +147,7 @@
 | `kernel.WithSessionFunc(fn, subOpts...)` | 作用与上一项相同，但使用回调函数接收事件。 |
 | `kernel.WithLabels(map)` | 为 session 设置标签。kernel 本身不解读标签，由扩展按约定读取，例如 memory 会读取 `user_id` 和 `project_id`。`WithInstructionsFunc` 也能读到这些标签。创建之后可以用 `SetLabels` 修改，见 [16.5](16-storage.md#165-会话标签)。 |
 | `kernel.SessionInstructions(text)` | 设置这个 session 的用户指令段，它会覆盖 agent 级的设置。 |
+| `kernel.SessionContextWindow(tokens)` | 创建或恢复会话时直接设置它的上下文窗口，作用与 `SetContextWindow` 相同。 |
 | `kernel.SessionApprovalRules(rules...)` | 为这个 session 追加审查规则。 |
 | `kernel.SessionInputMode(mode)` | 设置这个 session 的默认输入模式。 |
 | `kernel.SessionUse(exts...)` | 指定只为这个 session 装配的扩展。 |

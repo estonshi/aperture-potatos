@@ -101,7 +101,11 @@ type state struct {
 	calls   []ModelCall // booked calls the store does not have yet
 	writing bool        // a calls writer is running
 	policy  ContextPolicy
-	meter   tokens.Estimate
+	// windowSet is the session's own window, from SessionContextWindow or SetContextWindow rather than the agent's;
+	// windowDirty is a value a line the session writes has not recorded yet.
+	windowSet   bool
+	windowDirty bool
+	meter       tokens.Estimate
 
 	mainTokens int64 // a side chat's main part as its latest request or turn carried it, which the estimate adds and a report subtracts
 	mainLines  int

@@ -23,6 +23,7 @@ var (
 	ErrInvalidOrigin       = errors.New("Send accepts only human, command, agent and reminder origins")  // the other kinds, such as task notifications, are written only by the kernel
 	ErrEmptyInput          = errors.New("input has neither text nor parts")                              // Send refuses it, so an empty input never starts a turn
 	ErrInvalidMode         = errors.New("unknown input mode")                                            // an InputMode outside the declared constants, from any option or call that takes one
+	ErrInvalidWindow       = errors.New("invalid context window")                                        // a window below zero, from SetContextWindow or SessionContextWindow
 	ErrUnknownCommand      = errors.New("no such command")                                               // Session.Command named no registered command
 	ErrCapability          = errors.New("model capability does not allow this configuration")            // the declared capabilities cannot serve the session, such as tools on a model that takes none
 	ErrNoMatcher           = errors.New("hook point does not support matchers")                          // Match given on a hook point that has no key to match
