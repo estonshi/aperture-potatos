@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "A job waiting for input is stopped by the host: Run ends through its canceled context, the attempt is canceled with the host's reason, and that is notified.",
   "agent": {
     "nickname": "Tater",

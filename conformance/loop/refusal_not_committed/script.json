@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "A refusal is discarded: nothing from the attempt reaches history, and the turn ends refused.",
   "agent": {
     "nickname": "Tater",

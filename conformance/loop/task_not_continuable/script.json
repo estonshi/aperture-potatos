@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "An instruction to a finished job whose kind has no continuation is refused, and so is one to a running job whose kind takes no instructions.",
   "agent": {
     "nickname": "Tater",

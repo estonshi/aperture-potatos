@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "The model starts a job in the background and ends its turn. When the job succeeds, its notification wakes the idle session and starts a turn with trigger task; the tool line and the notification line both reference the task.",
   "agent": {
     "nickname": "Tater",

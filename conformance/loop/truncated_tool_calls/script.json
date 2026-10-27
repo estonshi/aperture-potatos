@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "A reply cut off by max_tokens inside a call: the call is never run, gets not_executed, and the turn continues once.",
   "agent": {
     "nickname": "Tater",

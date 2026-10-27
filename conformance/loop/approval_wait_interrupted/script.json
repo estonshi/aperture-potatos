@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "An interrupt ends a review that is still waiting: the call is not executed and the turn ends interrupted.",
   "agent": {
     "nickname": "Tater",

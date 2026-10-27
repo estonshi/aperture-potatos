@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "With one slot per session, a second subagent started while the first one waits for an answer fails at once instead of queueing; the first one still finishes once answered. A post_tool_use hook holds the first start call's result for 1 ms of virtual time and the child's first reply holds for 5 ms, so the child takes its message ids before the parent's tool line and its forwarded usage and question follow the parent's first turn, which O4 otherwise leaves unordered.",
   "agent": {
     "nickname": "Tater",

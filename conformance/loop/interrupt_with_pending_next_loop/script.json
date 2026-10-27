@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "An interrupt input stops the running tool; the next turn gets the undelivered next_loop input first, then the interrupt, with the interruption note.",
   "agent": {
     "nickname": "Tater",

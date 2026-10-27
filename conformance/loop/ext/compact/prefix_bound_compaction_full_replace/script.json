@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "On a prefix-bound model the default strategy keeps no original line, not even the running turn: the new epoch is the rebuilt head and the continue reminder.",
   "agent": {
     "nickname": "Tater",

@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "task_status lists the tasks, reports one as a JSON object, and gives an error for an unknown id; task_send delivers to a running task in its mode, and continues a finished one whose kind allows it. With include_result a finished task's content follows the object. The capabilities section explains the tools.",
   "agent": {
     "nickname": "Tater",

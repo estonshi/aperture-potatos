@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "A Background tool called with background:true passes the gate under its own name, starts a tool_exec task and returns task_started at once, skipping the loop's post_tool_use. The run has a tcall id, its tool events and post_tool_use sit under the task hop, and the tool never sees background. Called with background:false it runs in the call as before.",
   "agent": {
     "nickname": "Tater",

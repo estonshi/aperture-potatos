@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "A Chat server refuses max_tokens; the step retries once with max_completion_tokens, and the next turn keeps that field.",
   "agent": {
     "nickname": "Tater",

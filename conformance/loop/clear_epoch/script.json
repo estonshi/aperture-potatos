@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "Clear opens an epoch with a re-rendered system and no old line: the pin set empties, a reminder queued before it is dropped, and session_start{clear} gives the new epoch head.",
   "agent": {
     "nickname": "Tater",

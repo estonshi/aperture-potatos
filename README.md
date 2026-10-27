@@ -105,8 +105,8 @@ func main() {
 
 - [开发指南](document/developer-guide/README.md)：逐项介绍各个功能，附示例和建议做法，可以从[简介](document/developer-guide/01-overview.md)开始阅读。
 - [架构说明](document/architecture.html)：SDK 内部是如何组织起来的。
-- [发布说明](document/releases/v0.2.0.md)：v0.2.0 的新增、行为变更与迁移。
-- 规范：`spec/` 目录下是与语言无关的规范，定义事件、会话文件格式、面向模型的文字和默认值，`conformance/` 目录下是对应的一致性测试用例。本 Go 实现支持 spec 0.2，即 `v0.2.y` 各版本，详见[支持的 spec 版本](document/developer-guide/01-overview.md#支持的-spec-版本)。
+- [发布说明](document/releases/v0.3.0.md)：v0.3.0 的新增、行为变更与迁移。
+- 规范：`spec/` 目录下是与语言无关的规范，定义事件、会话文件格式、面向模型的文字和默认值，`conformance/` 目录下是对应的一致性测试用例。本 Go 实现支持 spec 0.3，即 `v0.3.y` 各版本，详见[支持的 spec 版本](document/developer-guide/01-overview.md#支持的-spec-版本)。
 
 ## 目录结构
 

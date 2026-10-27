@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "A deny rule on the statement refuses the call without asking anyone; the model sees which rule said no.",
   "agent": {
     "nickname": "Tater",

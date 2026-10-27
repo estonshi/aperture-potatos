@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "Summarize up to a turn when the model answers with an empty summary: the compaction fails and the history stays as it was, so the next request still carries every turn.",
   "agent": {
     "nickname": "Tater",

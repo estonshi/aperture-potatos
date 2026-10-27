@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "A rewind drops the reminder items queued before it, like clear (input.dropped{rewound}), so the turn after it does not carry them.",
   "agent": {
     "nickname": "Tater",

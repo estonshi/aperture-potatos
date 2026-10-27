@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "A fork limited to some tools still sends every tool definition, so the prefix holds; its first turn carries a tools_allowed reminder, and a call to any other tool is refused at the gate with tool_not_allowed, before hooks and review.",
   "agent": {
     "nickname": "Tater",

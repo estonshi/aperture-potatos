@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "Rewinding to a turn opens an epoch whose system line and kept lines are the current ones verbatim: the request after it is the second turn's request up to that turn's input, byte for byte, so its cache and signatures still hold.",
   "agent": {
     "nickname": "Tater",

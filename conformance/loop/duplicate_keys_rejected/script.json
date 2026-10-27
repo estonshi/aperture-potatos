@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "Arguments that name a key twice are invalid input before any hook, rule or tool sees them, because decoders disagree on which one wins.",
   "agent": {
     "nickname": "Tater",

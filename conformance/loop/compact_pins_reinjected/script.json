@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "Compaction re-injects pins into the new epoch head, newest first within the budgets: a pin over pin_tokens is cut with a note, and once pin_total_tokens is spent the oldest pin is dropped. A command's pin joins the set too.",
   "agent": {
     "nickname": "Tater",

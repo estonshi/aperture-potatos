@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "A failed lookup falls back to the defaults; a model with no room or no tools is refused when the switch is asked for; a history too large for the new window refuses the switch at the turn's start; a resolved window caps the output at a quarter of it.",
   "agent": {
     "nickname": "Tater",

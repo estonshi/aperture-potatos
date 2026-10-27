@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "A rule's native predicate is ANDed with tool and when: a panic makes deny and ask match but allow not, a failing contains lets the call run, and a when miss never runs the predicate.",
   "agent": {
     "nickname": "Tater",

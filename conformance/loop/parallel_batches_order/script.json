@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "Adjacent parallel calls share a group and overlap; the serial call between them runs alone; every group waits for the one before, and the tool line keeps call order.",
   "agent": {
     "nickname": "Tater",

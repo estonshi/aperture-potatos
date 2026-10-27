@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "Forking at an input a turn delivered in its middle copies only the lines before it, so the fork never sees the injected message.",
   "agent": {
     "nickname": "Tater",

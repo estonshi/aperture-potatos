@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "The peer asks for input: the foreground call returns its question and the task waits; the host's answer goes to the same remote task, and the end is notified.",
   "agent": {
     "nickname": "Tater",

@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "An async hook started in a turn that a rewind then takes out answers a context that no longer exists, so its context is dropped and never reaches a later request.",
   "agent": {
     "nickname": "Tater",

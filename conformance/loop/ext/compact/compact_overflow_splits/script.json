@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "After an overflow the whole context no longer fits one summary request, so the strategy summarizes the oldest half and the rest apart, as appended messages, and merges the two summaries.",
   "agent": {
     "nickname": "Tater",

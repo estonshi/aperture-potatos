@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "Prompt commands expand their templates: named and numbered placeholders, the whole argument string, a literal dollar, and a template without placeholders that gets the arguments appended.",
   "agent": {
     "nickname": "Tater",

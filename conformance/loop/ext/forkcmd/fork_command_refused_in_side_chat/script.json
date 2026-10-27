@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "/fork in a side chat is refused with a line saying so and forks nothing; making a side chat a session of its own is the host's call, through Fork.",
   "agent": {
     "nickname": "Tater",

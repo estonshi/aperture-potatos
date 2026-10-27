@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "On a prefix-bound model pruning is skipped, because changing an earlier result would invalidate the thinking signatures after it; the strategy summarizes.",
   "agent": {
     "nickname": "Tater",

@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "The parent agent's approval rule and reviewer apply in the child session: the subagent's call is reviewed by the same reviewer, whose request carries the task hop in its path, and the review's events arrive under that hop.",
   "agent": {
     "nickname": "Tater",

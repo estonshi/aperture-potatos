@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "A task's Run that waits on its own session with WaitQuiet is refused as re-entrant instead of waiting for itself.",
   "agent": {
     "nickname": "Tater",

@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "After a compaction the new epoch head lists the tasks still unfinished, one line each, so the model keeps their ids when the summary does not.",
   "agent": {
     "nickname": "Tater",

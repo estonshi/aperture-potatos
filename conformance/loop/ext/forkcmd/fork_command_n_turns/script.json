@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "/fork 1 copies what came before the last turn; the fork, resumed, goes on from there.",
   "agent": {
     "nickname": "Tater",

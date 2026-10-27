@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "/fork with a count that is not a positive number gets the usage line and forks nothing.",
   "agent": {
     "nickname": "Tater",

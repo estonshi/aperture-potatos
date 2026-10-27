@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "A subagent never gets the subagent tool, even when its definition lists it, so it cannot delegate again; its other tools are exactly the ones Tools lists from the parent's, and without ask_parent in that list it has no ask_parent either.",
   "agent": {
     "nickname": "Tater",

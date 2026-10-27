@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "A rewind rebuilds the pin set from the kept lines: a pin declared in a dropped turn is gone, so the next compaction re-injects only the earlier one.",
   "agent": {
     "nickname": "Tater",

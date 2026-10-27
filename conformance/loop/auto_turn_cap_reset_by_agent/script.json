@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "An input from another agent resets the count of automatic turns as a human one does: after it, a reminder starts a turn of its own again.",
   "agent": {
     "nickname": "Tater",

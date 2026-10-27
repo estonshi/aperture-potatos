@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "TurnCost prices a turn of two requests: the first is logged at once, the second only on the third round, and the second round fails with a 503 that is retried. The waits are 1s and 2s of virtual time.",
   "agent": {
     "nickname": "Tater",

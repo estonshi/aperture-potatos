@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.2",
+  "spec_version": "0.3",
   "description": "Without a compaction strategy, /compact says none is installed.",
   "agent": {
     "nickname": "Tater",
