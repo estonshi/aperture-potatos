@@ -50,6 +50,13 @@
     "turn_id": {
       "type": "string"
     },
+    "input_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "The inputs a user line delivered, in arrival order; a merged line holds every id it merged, and a copy keeps them. A rewind or fork names one to cut before the line."
+    },
     "partial": {
       "type": "boolean",
       "description": "Committed after an interrupt; only closed blocks are kept."

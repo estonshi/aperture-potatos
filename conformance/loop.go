@@ -369,7 +369,7 @@ type loopAction struct {
 	Compact        *compactAction      `json:"compact"`
 	Clear          bool                `json:"clear"`
 	Unpin          string              `json:"unpin"`
-	Rewind         string              `json:"rewind"` // turn id
+	Rewind         string              `json:"rewind"` // input or turn id
 	Fork           *forkAction         `json:"fork"`
 	SideChat       *forkAction         `json:"side_chat"`
 	DropSideChat   string              `json:"drop_side_chat"`

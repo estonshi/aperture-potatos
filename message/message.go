@@ -66,6 +66,7 @@ type Message struct {
 	StopReason    string       `json:"stop_reason,omitempty"`
 	Native        *Native      `json:"native,omitempty"` // message-level raw: chat assistant message, OpenRouter reasoning_details
 	TurnID        string       `json:"turn_id,omitempty"`
+	InputIDs      []string     `json:"input_ids,omitempty"`      // inputs a user line delivered; a merged line holds every id it merged, and a copy keeps them
 	Partial       bool         `json:"partial,omitempty"`        // committed after an interrupt; only closed blocks are kept
 	ContextWindow *int         `json:"context_window,omitempty"` // the session's own window when the line was written; a resume restores the last written one, and a copy repeats its original's
 	Boundary      *Boundary    `json:"boundary,omitempty"`

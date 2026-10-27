@@ -65,6 +65,7 @@ again, err := ag.Resume(ctx, id)
 | `v` | 行格式的版本。 |
 | `id`、`session_id`、`seq` | 分别是行 id、所属的 session 和序号。序号在同一个 session 内严格递增。 |
 | `epoch`、`turn_id` | 该行所属的 epoch 和轮次。 |
+| `input_ids` | 这一行是由哪几条输入拼成的：按到达顺序列出它们的 id。只有 user 行可能有；一行里合并了几条就列几条；复制这一行时原样保留。回退和分叉靠它定位到这一行之前。 |
 | `role` | 取值为 `system`、`user`、`assistant` 或 `tool`。`system` 是每个 epoch 的第一行，`tool` 表示一批工具结果。 |
 | `origin` | 该行的来源，包含 `kind` 和 `source`。`kind` 的取值有 human、command、agent、task、reminder、continuation、epoch_head、model、tool 和 system。 |
 | `content` | 内容块数组，按 `type` 区分。`type` 的取值有 text、refusal、image、document、reasoning、tool_call、tool_result、reminder、opaque、hosted_call 和 hosted_result。 |

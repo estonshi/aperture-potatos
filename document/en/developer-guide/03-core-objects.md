@@ -107,8 +107,8 @@ The Session methods below are grouped by purpose, and each group names the chapt
 | `Compact(ctx, instructions, opts...)` | Compacts the context manually. |
 | `Clear(ctx)` | Clears the context. |
 | `SetContextWindow(tokens)` | Sets this session's context window; 0 follows the model. It applies from the next model call; see [15.1](15-context.md#151-automatic-compaction). |
-| `Turns()`, `Rewind(ctx, turnID)` | Lists the turns you can rewind to, and rewinds to a given turn. |
-| `Fork(ctx, opts...)` | Copies the current context into a new session. |
+| `Turns()`, `Rewind(ctx, id)` | Lists the turns you can rewind to, each with its first input's id, and rewinds to just before an input or a turn. |
+| `Fork(ctx, opts...)`, `ForkAt(id)` | Copies the current context into a new session; `ForkAt` names the cut by an input id or a turn id. |
 | `SideChat(ctx, name, opts...)`, `SideChats(ctx)`, `DropSideChat(ctx, name)` | Opens, lists and deletes side chats. |
 | `SearchHistory(ctx, q)`, `HistoryLine(ctx, seq)` | Searches the history, including history from before compaction. |
 | `Pins()`, `Unpin(ctx, key)` | Lists and removes content that must be injected again after compaction. |

@@ -2508,7 +2508,12 @@
       "description": "Payload of context.rewound.",
       "properties": {
         "turn_id": {
-          "type": "string"
+          "type": "string",
+          "description": "The turn the dropped line belongs to, which may start before the cut."
+        },
+        "input_id": {
+          "type": "string",
+          "description": "The input the cut was named by; absent when a turn named it."
         },
         "epoch": {
           "type": "integer"

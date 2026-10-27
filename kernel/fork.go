@@ -26,8 +26,9 @@ type forkConfig struct {
 	sinks   []sinkSpec
 }
 
-// ForkAt forks before this turn of the current epoch; the default is the current stable prefix.
-func ForkAt(turnID string) ForkOption { return func(c *forkConfig) { c.at = turnID } }
+// ForkAt forks before a line of the current epoch, named by an input it delivered or by its turn. An input a merged
+// line delivered names the whole line, so the cut lands before all of it; the default is the current stable prefix.
+func ForkAt(id string) ForkOption { return func(c *forkConfig) { c.at = id } }
 
 // ForkTools is a call-time allow-list; the tool definitions sent stay the source's, so the cached prefix holds.
 func ForkTools(names ...string) ForkOption {
@@ -86,10 +87,12 @@ func (s *Session) fork(ctx context.Context, id string, parent *Session, name str
 		cut := st.stableLen
 		if fc.at != "" {
 			hist := st.history[1:]
-			if cut = turnStart(hist, headLen(hist), fc.at) + 1; cut == 0 {
-				err = fmt.Errorf("%w: %s", ErrUnknownTurn, fc.at)
+			at, _, _ := cutLine(hist, headLen(hist), fc.at)
+			if at < 0 {
+				err = unknownCutError{fc.at}
 				return
 			}
+			cut = at + 1
 		}
 		var window *int
 		if st.windowSet {

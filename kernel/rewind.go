@@ -3,6 +3,7 @@ package kernel
 import (
 	"context"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/estonshi/aperture-potatos/event"
@@ -12,18 +13,44 @@ import (
 // TurnInfo is one rewind target: a turn whose first line is in the current epoch after the epoch head.
 type TurnInfo struct {
 	ID      string          `json:"id"`
-	Seq     int64           `json:"seq"`   // first line of the turn
-	Input   message.Content `json:"input"` // content of that line, so a UI can offer it for editing
+	InputID string          `json:"input_id,omitempty"` // the first input its first line delivered, when the line recorded one
+	Seq     int64           `json:"seq"`                // first line of the turn
+	Input   message.Content `json:"input"`              // content of that line, so a UI can offer it for editing
 	Started time.Time       `json:"started"`
 }
 
-// RewindReport is what a rewind left behind; Input is the dropped turn's input, so a UI can offer it for editing and resending.
+// RewindReport is what a rewind left behind; Input is the dropped line's content, so a UI can offer it for editing and resending.
 type RewindReport struct {
-	TurnID  string          `json:"turn_id"`
+	TurnID  string          `json:"turn_id"`            // the turn the dropped line belongs to, which may start before the cut
+	InputID string          `json:"input_id,omitempty"` // the input the cut was named by; empty when a turn named it
 	Epoch   int             `json:"epoch"`
 	Dropped int             `json:"dropped"` // lines left behind
 	Input   message.Content `json:"input"`
 }
+
+// cutLine is the index in hist, counted after its epoch head, of the line id names, with the input and the turn that
+// name it: an input a line delivered wins over a turn, so an id both would mean the input.
+func cutLine(hist []message.Message, head int, id string) (at int, inputID, turnID string) {
+	for i := head; i < len(hist); i++ {
+		if slices.Contains(hist[i].InputIDs, id) {
+			return i, id, hist[i].TurnID
+		}
+	}
+	if i := turnStart(hist, head, id); i >= 0 {
+		return i, "", hist[i].TurnID
+	}
+	return -1, "", ""
+}
+
+// unknownCutError is an id that names neither an input nor a turn of the current epoch; Rewind and ForkAt take either
+// form, so it matches both sentinels rather than guessing which the caller meant.
+type unknownCutError struct{ id string }
+
+func (e unknownCutError) Error() string {
+	return fmt.Sprintf("no input or turn %s in the current epoch after its head", e.id)
+}
+
+func (e unknownCutError) Unwrap() []error { return []error{ErrUnknownInput, ErrUnknownTurn} }
 
 // Turns lists the rewind targets, oldest first.
 func (s *Session) Turns() []TurnInfo {
@@ -39,10 +66,18 @@ func (s *Session) Turns() []TurnInfo {
 				continue
 			}
 			seen[m.TurnID] = true
-			out = append(out, TurnInfo{ID: m.TurnID, Seq: m.Seq, Input: m.Content, Started: m.CreatedAt})
+			out = append(out, TurnInfo{ID: m.TurnID, InputID: firstInput(m), Seq: m.Seq, Input: m.Content, Started: m.CreatedAt})
 		}
 	})
 	return out
+}
+
+// firstInput is the first input a line delivered, or "" for a line that delivered none.
+func firstInput(m message.Message) string {
+	if len(m.InputIDs) == 0 {
+		return ""
+	}
+	return m.InputIDs[0]
 }
 
 // headLen counts the leading epoch-head lines of an epoch's lines after its system line.
@@ -54,11 +89,14 @@ func headLen(hist []message.Message) int {
 	return n
 }
 
-// Rewind drops turnID and everything after it from the context; like Compact it runs inline for a history-token holder and queues otherwise.
-func (s *Session) Rewind(ctx context.Context, turnID string) (RewindReport, error) {
+// Rewind drops a line of the current epoch and everything after it from the context. The id names that line by an
+// input it delivered, which may be one a turn delivered in its middle, or by its turn; an input a merged line
+// delivered names the whole line, so the cut lands before all of it. Like Compact it runs inline for a history-token
+// holder and queues otherwise.
+func (s *Session) Rewind(ctx context.Context, id string) (RewindReport, error) {
 	var rep RewindReport
 	err := s.historyOp(ctx, "rewind", func(ctx context.Context) error {
-		r, err := s.rewind(ctx, turnID)
+		r, err := s.rewind(ctx, id)
 		rep = r
 		return err
 	})
@@ -66,20 +104,20 @@ func (s *Session) Rewind(ctx context.Context, turnID string) (RewindReport, erro
 }
 
 // rewind opens an epoch whose system line and kept lines are the current ones verbatim, so the cached prefix and prefix-bound signatures still hold (runtime.md §12.7).
-func (s *Session) rewind(ctx context.Context, turnID string) (RewindReport, error) {
+func (s *Session) rewind(ctx context.Context, id string) (RewindReport, error) {
 	var seq uint64
 	if m, ok := ctx.Value(markerKey{}).(marker); ok {
 		seq = m.seq
 	}
-	found := false
+	at, inputID, turnID := -1, "", ""
 	_ = s.exec(func(st *state) {
 		if len(st.history) > 0 {
 			hist := st.history[1:]
-			found = turnStart(hist, headLen(hist), turnID) >= 0
+			at, inputID, turnID = cutLine(hist, headLen(hist), id)
 		}
 	})
-	if !found {
-		return RewindReport{}, fmt.Errorf("%w: %s", ErrUnknownTurn, turnID)
+	if at < 0 {
+		return RewindReport{}, unknownCutError{id}
 	}
 	s.clearGen.Add(1) // async hooks started in the dropped turns answer a context that no longer exists
 	sink := &hookSink{}
@@ -89,7 +127,7 @@ func (s *Session) rewind(ctx context.Context, turnID string) (RewindReport, erro
 	var unsynced []message.Message
 	if err := s.exec(func(st *state) {
 		old := st.history
-		cut := turnStart(old[1:], headLen(old[1:]), turnID) + 1
+		cut := at + 1
 		s.dropQueued("rewound", func(it *queueItem) bool {
 			return it.cmd != nil || it.origin.Kind != message.OriginReminder || it.seq > seq && !it.tail
 		})
@@ -108,10 +146,10 @@ func (s *Session) rewind(ctx context.Context, turnID string) (RewindReport, erro
 		for _, n := range notes { // the epoch head was copied, so this context rides the next turn
 			s.enqueue(s.reminderItem(n.Source, n.Text, false))
 		}
-		rep = RewindReport{TurnID: turnID, Epoch: st.epoch, Dropped: len(old) - cut, Input: old[cut].Content}
+		rep = RewindReport{TurnID: turnID, InputID: inputID, Epoch: st.epoch, Dropped: len(old) - cut, Input: old[cut].Content}
 		st.context.UsedTokens, st.context.Basis = st.estimate(), "estimated"
 		s.publishSnapshot()
-		s.publish(&event.ContextRewound{TurnID: turnID, Epoch: rep.Epoch, Dropped: rep.Dropped})
+		s.publish(&event.ContextRewound{TurnID: turnID, InputID: inputID, Epoch: rep.Epoch, Dropped: rep.Dropped})
 		unsynced = st.unsynced()
 	}); err != nil {
 		return RewindReport{}, err

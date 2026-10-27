@@ -65,6 +65,7 @@ Each line in the store is one `message.Message` encoded as JSON, and the schema 
 | `v` | The version of the line format. |
 | `id`, `session_id`, `seq` | The line id, the session the line belongs to and its sequence number. Sequence numbers increase strictly within a session. |
 | `epoch`, `turn_id` | The epoch and the turn the line belongs to. |
+| `input_ids` | The inputs this line was built from: their ids in arrival order. Only user lines can have it; a line that merged several inputs lists them all, and a copy keeps them. Rewind and fork use it to cut before the line. |
 | `role` | One of `system`, `user`, `assistant` or `tool`. `system` is the first line of every epoch, and `tool` marks a batch of tool results. |
 | `origin` | Where the line came from, with `kind` and `source`. `kind` is one of human, command, agent, task, reminder, continuation, epoch_head, model, tool and system. |
 | `content` | An array of content blocks, distinguished by `type`. `type` is one of text, refusal, image, document, reasoning, tool_call, tool_result, reminder, opaque, hosted_call and hosted_result. |

@@ -122,7 +122,7 @@ The following table lists the events the kernel emits, by category. Some events 
 | Usage | `usage.updated` | `UsageUpdated` | `Bucket`, `StepUsage`, `SessionTotal`, `Context` (how much of the context window is used) |
 | Context | `context.injected` | `ContextInjected` | Emitted when reminders are delivered. Fields: `Sources`, `Count`, `Truncated` |
 | | `context.compaction_started`, `context.compacted`, `context.compaction_failed` | `ContextCompact*` | `Trigger`, `Strategy`, `PreTokens`, `PostTokens`, `Epoch` |
-| | `context.cleared`, `context.rewound` | `ContextCleared`, `ContextRewound` | `Epoch` for the former; `TurnID` and `Dropped` for the latter |
+| | `context.cleared`, `context.rewound` | `ContextCleared`, `ContextRewound` | `Epoch` for the former; `TurnID`, `InputID` and `Dropped` for the latter |
 | | `side_chat.dropped` | `SideChatDropped` | Emitted when a side chat is dropped because the main session was cleared or rewound. Fields: `Name`, `Reason`; see [15.4](15-context.md#154-forks-and-side-chats) |
 | Commands | `command.started`, `command.output`, `command.completed` | `Command*` | `CommandID`, `Name`, `Args`, `Text`, `Data`, `Error` |
 | Model switching | `provider.switched`, `provider.switch_rejected` | See [4.6](04-models.md#46-switching-models-at-runtime) | |

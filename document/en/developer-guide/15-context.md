@@ -62,16 +62,19 @@ Both are waiting methods. If a turn is running, the call is queued and runs afte
 
 ## 15.3 Rewind
 
-Rewind restores the context to its state just before a given turn started. First call `Turns` to get the turns you can rewind to, then pass the ID of the chosen turn to `Rewind`.
+Rewind restores the context to its state just before a given line. The cut can be named by a turn ID or by the input ID that delivering that line returned, including a message injected in the middle of a turn. First call `Turns` to get the turns you can rewind to.
 
 ```go
-turns := sess.Turns()                       // turns you can rewind to, oldest first
+turns := sess.Turns()                                   // turns you can rewind to, oldest first
 report, err := sess.Rewind(ctx, turns[len(turns)-1].ID) // go back to just before the last turn
+report, err = sess.Rewind(ctx, inputID)                 // go back to just before that input, mid-turn ones included
 ```
 
-`TurnInfo` contains the `ID`, `Seq`, `Input` and `Started` fields. `Seq` is the sequence number of the turn's first line. `Input` is that turn's input, which a UI can use to let the user edit it and send it again. You can rewind only to turns in the current epoch. History from before a compaction cannot be rewound to; you can only search it.
+`TurnInfo` contains the `ID`, `InputID`, `Seq`, `Input` and `Started` fields. `InputID` is the id recorded for the first input the turn's first line delivered, and is empty for a session stored before it recorded one. `Seq` is the sequence number of the turn's first line. `Input` is that turn's input, which a UI can use to let the user edit it and send it again. You can rewind only to lines in the current epoch. History from before a compaction cannot be rewound to; you can only search it.
 
-The `RewindReport` returned by `Rewind` contains the `TurnID`, `Epoch`, `Dropped` and `Input` fields, where `Dropped` is the number of lines discarded. After a rewind, the kernel emits a `context.rewound` event and starts a new epoch, and the `session_start` hook runs with `Source` set to `rewind`. The system prompt stays the same. If the given turn does not exist, `Rewind` returns `ErrUnknownTurn`.
+When several inputs were merged into one line, for example a batch of reminders, any of their ids cuts before that line, so all of them are dropped together. An input injected mid-turn always has a line of its own, so the cut lands exactly before it.
+
+The `RewindReport` returned by `Rewind` contains the `TurnID`, `InputID`, `Epoch`, `Dropped` and `Input` fields. `Dropped` is the number of lines discarded and `InputID` is the input the caller named, empty when a turn named the line. `TurnID` is the turn the dropped line belongs to, which may start before the cut when the cut is mid-turn. After a rewind, the kernel emits a `context.rewound` event and starts a new epoch, and the `session_start` hook runs with `Source` set to `rewind`. The system prompt stays the same. If the id names neither an input nor a turn of the current epoch, the error matches both `ErrUnknownInput` and `ErrUnknownTurn`.
 
 > Note: Rewind changes only the context. Background tasks keep running, queued inputs and task notifications are kept, and external side effects that tools have already caused are not undone. In addition, side chats opened before the rewind point are dropped; see the next section.
 
@@ -83,7 +86,7 @@ Forks and side chats both start from the current session, but they serve differe
 
 ```go
 branch, err := sess.Fork(ctx,
-	kernel.ForkAt(turnID),                   // fork from just before this turn; the default is the current stable history
+	kernel.ForkAt(inputID),                  // fork from just before this input, or a turn id; the default is the current stable history
 	kernel.ForkTools("read_file", "search"), // only these tools may be called in the branch; definitions are still sent and other calls are blocked when made
 	kernel.ForkSink(ch),                     // subscribe at creation; ForkFunc(fn) is the callback version
 )
@@ -199,7 +202,7 @@ The `/context` command shows this report. In addition, the `Context` field of th
 
 - Do not turn off automatic compaction. In long conversations it is the only safeguard against overflowing the window. If you need to tune it, change `AutoCompactRatio` and the Pins instead.
 - Make facts that must be remembered into Pins. A summary does not necessarily keep them, but a Pin is injected again after every compaction.
-- Consider giving users an "undo last turn" feature. Get the last turn with `Turns()`, call `Rewind`, and put `RewindReport.Input` back into the input box.
+- Consider giving users an "undo last turn" feature. Get the last turn with `Turns()`, call `Rewind`, and put `RewindReport.Input` back into the input box. When the user picks one message instead, call `Rewind` with the input id its delivery returned.
 - To ask the main session how far it has gotten while it keeps working, use a side chat, which sees the main session's latest state on every turn. To try out a different approach, use a fork.
 - Use `SideCall` for auxiliary calls such as summarizing and classification. Its usage is recorded in the session's ledger, and its result does not pollute the history.
 - When you call `Summarize` in a compaction strategy, pass nil. It then sends the entire context and hits the main loop's prompt cache.

@@ -122,7 +122,7 @@ for ev, err := range sess.Events(ctx) { ... }
 | 用量 | `usage.updated` | `UsageUpdated` | `Bucket`、`StepUsage`、`SessionTotal`、`Context`（窗口占用） |
 | 上下文 | `context.injected` | `ContextInjected` | 在提醒送达时发出，字段为 `Sources`、`Count`、`Truncated` |
 | | `context.compaction_started`、`context.compacted`、`context.compaction_failed` | `ContextCompact*` | `Trigger`、`Strategy`、`PreTokens`、`PostTokens`、`Epoch` |
-| | `context.cleared`、`context.rewound` | `ContextCleared`、`ContextRewound` | 前者为 `Epoch`，后者为 `TurnID`、`Dropped` |
+| | `context.cleared`、`context.rewound` | `ContextCleared`、`ContextRewound` | 前者为 `Epoch`，后者为 `TurnID`、`InputID`、`Dropped` |
 | | `side_chat.dropped` | `SideChatDropped` | 主会话清空或回退后旁路对话被丢弃时发出，字段为 `Name`、`Reason`，见 [15.4](15-context.md#154-分叉与旁路对话) |
 | 命令 | `command.started`、`command.output`、`command.completed` | `Command*` | `CommandID`、`Name`、`Args`、`Text`、`Data`、`Error` |
 | 模型切换 | `provider.switched`、`provider.switch_rejected` | 见 [4.6](04-models.md#46-运行中切换模型) | |

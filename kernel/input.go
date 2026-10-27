@@ -557,7 +557,9 @@ func delivery(texts prompt.Source, items []*queueItem, pre, post []*message.Remi
 		}
 	}
 	content := slices.Concat(reminders, notes, agents, humans)
-	return &message.Message{Role: message.RoleUser, Origin: origin, Content: content}, info
+	m := &message.Message{Role: message.RoleUser, Origin: origin, Content: content}
+	m.InputIDs = slices.Clone(info.ids) // a rewind or fork names one of these to cut before this line
+	return m, info
 }
 
 func mergeMeta(into, from map[string]string) map[string]string {

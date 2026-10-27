@@ -107,8 +107,8 @@
 | `Compact(ctx, instructions, opts...)` | 手动压缩上下文。 |
 | `Clear(ctx)` | 清空上下文。 |
 | `SetContextWindow(tokens)` | 设置这个会话的上下文窗口，0 表示回到模型能力；从下一次模型调用起生效，见 [15.1](15-context.md#151-自动压缩)。 |
-| `Turns()`、`Rewind(ctx, turnID)` | 列出可以回退到的轮次，以及回退到指定轮次。 |
-| `Fork(ctx, opts...)` | 把当前上下文复制成一个新的 session。 |
+| `Turns()`、`Rewind(ctx, id)` | 列出可以回退到的轮次（每项带该轮第一条输入的 id），以及回退到某条输入或某一轮之前。 |
+| `Fork(ctx, opts...)`、`ForkAt(id)` | 把当前上下文复制成一个新的 session；`ForkAt` 指定截点，可以是输入 id 或轮次 id。 |
 | `SideChat(ctx, name, opts...)`、`SideChats(ctx)`、`DropSideChat(ctx, name)` | 打开、列出和删除旁路对话。 |
 | `SearchHistory(ctx, q)`、`HistoryLine(ctx, seq)` | 检索历史，包括压缩之前的历史。 |
 | `Pins()`、`Unpin(ctx, key)` | 查看和移除压缩后需要重新注入的内容。 |

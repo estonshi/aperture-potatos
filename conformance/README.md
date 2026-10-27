@@ -61,8 +61,8 @@ Actions:
 | `{"compact": {instructions, from, up_to}}` | Compact, optionally from or up to that turn |
 | `{"clear": true}` | Clear |
 | `{"unpin": key}` | Unpin |
-| `{"rewind": turn_id}` | Rewind to that turn |
-| `{"fork": {as, at, tools}}` | Fork the session, at that turn when `at` is set, limited to `tools` when it is set (an empty list allows none), and name the new session `as` |
+| `{"rewind": id}` | Rewind to just before the line that input or turn id names |
+| `{"fork": {as, at, tools}}` | Fork the session, before the line that input or turn id `at` names when it is set, limited to `tools` when it is set (an empty list allows none), and name the new session `as` |
 | `{"side_chat": {name, as, tools}}` | Open that side chat and name it `as`; it must not be open already under another name |
 | `{"drop_side_chat": name}` | Drop that side chat |
 | `{"background_call": call_id}` | Move that running foreground call to the background (`runtime.md` §13.9) |

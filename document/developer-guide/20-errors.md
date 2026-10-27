@@ -33,7 +33,7 @@ kernel 导出了以下哨兵错误，你可以用 `errors.Is` 判断：
 | `ErrNotMovable` | `BackgroundCall` 找不到可以转入后台的调用。 |
 | `ErrTaskNotFound`、`ErrTaskNotContinuable`、`ErrTaskNoInstructions`、`ErrTaskNotRestartable`、`ErrTaskLimit`、`ErrTaskBusy` | 任务相关的错误。`ErrTaskNotFound` 表示任务不存在。`ErrTaskNotContinuable` 表示任务已经结束，且它的类型不支持续接，这时应改用重启。`ErrTaskNoInstructions` 表示这种类型的任务不接受追加指令。`ErrTaskNotRestartable` 表示这种类型的任务不支持重启。`ErrTaskLimit` 表示正在运行的任务数已达上限。`ErrTaskBusy` 表示任务正在重启或续接，稍后重试即可。 |
 | `ErrNoCompactor` | 没有注册压缩策略就调用了 `Compact`，例如没有安装 `std.Defaults()`。 |
-| `ErrNothingToCompact`、`ErrUnknownTurn`、`ErrUnknownPin`、`ErrEmptyQuery`、`ErrUnknownLine` | 上下文管理接口的参数或当前状态不允许这项操作。 |
+| `ErrNothingToCompact`、`ErrUnknownTurn`、`ErrUnknownInput`、`ErrUnknownPin`、`ErrEmptyQuery`、`ErrUnknownLine` | 上下文管理接口的参数或当前状态不允许这项操作。`ErrUnknownInput` 和 `ErrUnknownTurn` 都由 `Rewind` 和 `ForkAt` 返回：id 既不是输入也不是轮次时，错误同时匹配这两个哨兵。 |
 | `ErrSubscriberStalled`、`ErrSubscriberOverflow`、`ErrChannelClosed` | 订阅被摘除的原因，可以从 `Subscription.Err()` 获取。 |
 | `ErrSeqConflict`、`ErrIncompatibleStore` | 前者表示存储中的行与内存中的状态不一致，通常是因为存在第二个写入者。后者表示存储格式不兼容。出现这两个错误时会话会随之失败。它们是 `store` 包中错误的重新导出。 |
 

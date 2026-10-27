@@ -62,16 +62,19 @@ err = sess.Clear(ctx)                                                           
 
 ## 15.3 回退
 
-回退把上下文恢复到某一轮开始之前的状态。你可以先用 `Turns` 获取可回退的轮次，再把选中轮次的 ID 传给 `Rewind`。
+回退把上下文恢复到某一行之前的状态。这个截点可以用某一轮的轮次 ID 指定，也可以用投递那条输入时得到的输入 ID 指定，包括一轮中间插入的消息。你可以先用 `Turns` 获取可回退的轮次。
 
 ```go
-turns := sess.Turns()                       // 可回退的轮次，最早的排在前面
+turns := sess.Turns()                                   // 可回退的轮次，最早的排在前面
 report, err := sess.Rewind(ctx, turns[len(turns)-1].ID) // 回到最后一轮开始之前
+report, err = sess.Rewind(ctx, inputID)                 // 回到这条输入（含轮中插入的消息）之前
 ```
 
-`TurnInfo` 包含 `ID`、`Seq`、`Input` 和 `Started` 字段。`Seq` 是这一轮第一行的序号。`Input` 是那一轮的输入内容，UI 可以用它让用户编辑后重新发送。只有当前 epoch 中的轮次可以回退。压缩之前的历史无法回退，只能检索。
+`TurnInfo` 包含 `ID`、`InputID`、`Seq`、`Input` 和 `Started` 字段。`InputID` 是这一轮第一条输入投递时记录的 id，旧会话可能为空。`Seq` 是这一轮第一行的序号。`Input` 是那一轮的输入内容，UI 可以用它让用户编辑后重新发送。只有当前 epoch 中的行可以回退。压缩之前的历史无法回退，只能检索。
 
-`Rewind` 返回的 `RewindReport` 包含 `TurnID`、`Epoch`、`Dropped` 和 `Input` 字段，其中 `Dropped` 表示丢弃了多少行。回退之后会发出 `context.rewound` 事件，并开启一个新的 epoch，同时触发 `session_start` hook，其 `Source` 为 `rewind`。系统提示词保持不变。如果传入的轮次不存在，返回 `ErrUnknownTurn`。
+如果几条输入被合并进同一行投递（例如同一批 reminder），用其中任意一条的 id 都会截到那一行之前，这些输入会一起被丢弃。轮中插入的输入总是单独成行，因此可以精确截到它之前。
+
+`Rewind` 返回的 `RewindReport` 包含 `TurnID`、`InputID`、`Epoch`、`Dropped` 和 `Input` 字段，其中 `Dropped` 表示丢弃了多少行，`InputID` 是调用方指定的输入 id（用轮次指定时为空），`TurnID` 是被丢弃那一行所属的轮次——轮中截断时它可能早于截点。回退之后会发出 `context.rewound` 事件，并开启一个新的 epoch，同时触发 `session_start` hook，其 `Source` 为 `rewind`。系统提示词保持不变。如果传入的 id 既不是当前 epoch 中的输入也不是轮次，返回同时匹配 `ErrUnknownInput` 和 `ErrUnknownTurn` 的错误。
 
 > 注意：回退只改变上下文。后台任务会继续运行，排队的输入和任务通知会保留，工具已经造成的外部副作用也不会被撤销。此外，在回退点之前分出的旁路对话会被丢弃，详见下一节。
 
@@ -83,7 +86,7 @@ report, err := sess.Rewind(ctx, turns[len(turns)-1].ID) // 回到最后一轮开
 
 ```go
 branch, err := sess.Fork(ctx,
-	kernel.ForkAt(turnID),                   // 从这一轮开始之前分叉，默认使用当前稳定的历史
+	kernel.ForkAt(inputID),                  // 从这条输入之前分叉；也可以用轮次 id。默认使用当前稳定的历史
 	kernel.ForkTools("read_file", "search"), // 分支中只允许调用这些工具，工具定义照常发送，调用时再拦截
 	kernel.ForkSink(ch),                     // 创建时就挂上订阅，ForkFunc(fn) 是对应的回调版本
 )
@@ -199,7 +202,7 @@ msg, usage, err := sess.SideCall(ctx, kernel.SideRequest{
 
 - 不要关闭自动压缩。在长对话中，它是防止窗口溢出的唯一保障，需要调整时应修改 `AutoCompactRatio` 和 Pin。
 - 必须记住的事实应做成 Pin。摘要不一定会保留这些事实，Pin 则会在每次压缩后重新注入。
-- 建议为用户提供“撤销上一轮”的功能。用 `Turns()` 取得最后一轮，调用 `Rewind` 后，把 `RewindReport.Input` 填回输入框即可。
+- 建议为用户提供“撤销上一轮”的功能。用 `Turns()` 取得最后一轮，调用 `Rewind` 后，把 `RewindReport.Input` 填回输入框即可；如果用户点的是某条具体消息，直接用它投递时得到的输入 id 调用 `Rewind`。
 - 想在主会话工作的同时问问它进展到哪一步，用旁路对话即可，它每一轮都能看到主会话的最新状态。想“试一下另一种方案”时，用分叉。
 - 摘要、分类这类辅助调用适合用 `SideCall` 完成。它的用量会记入 session 的账本，结果也不会污染历史。
 - 在压缩策略中调用 `Summarize` 时，建议传入 nil。这样它会发送整个上下文，从而命中主循环的缓存。

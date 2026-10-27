@@ -13,6 +13,9 @@
       ],
       "epoch": 1,
       "id": "msg_02",
+      "input_ids": [
+        "in_01"
+      ],
       "origin": {
         "kind": "human"
       },

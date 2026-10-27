@@ -472,7 +472,8 @@ type ContextCleared struct {
 
 // ContextRewound is the payload of context.rewound.
 type ContextRewound struct {
-	TurnID  string `json:"turn_id"`
+	TurnID  string `json:"turn_id"`            // the turn the dropped line belongs to, which may start before the cut
+	InputID string `json:"input_id,omitempty"` // the input the cut was named by; absent when a turn named it
 	Epoch   int    `json:"epoch"`
 	Dropped int    `json:"dropped"`
 }
