@@ -63,7 +63,7 @@ type ToolInfo struct {
 type SearchFunc func(ctx context.Context, query string, catalog []ToolInfo) []ToolInfo
 
 type Server struct {
-	Name    string           // the host's key, ^[a-z0-9][a-z0-9-]{0,31}$; it goes into tool names
+	Name    string           // the host's key, ^[A-Za-z0-9_-]{1,64}$; it goes into tool names as given, and into command names in lower case
 	Command func() *exec.Cmd // stdio; called for each connection, since an exec.Cmd runs once; credentials go in the command's Env
 	URL     string           // Streamable HTTP; exactly one of Command and URL
 
@@ -81,7 +81,8 @@ type Server struct {
 	ProtocolVersion string // one of the SDK's mcp.SupportedProtocolVersions(), offered first; empty is the newest; an older one skips server/discover for servers that mishandle it
 }
 
-var serverName = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{0,31}$`)
+// serverName is the form a host's key takes; the case is kept, since hosts name servers as their own configuration does.
+var serverName = regexp.MustCompile(`^[A-Za-z0-9_-]{1,64}$`)
 
 // Extension connects its servers wherever it is installed; one value may be installed in several sessions.
 type Extension struct {

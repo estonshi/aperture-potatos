@@ -244,6 +244,25 @@ func TestNamesAndFilters(t *testing.T) {
 	}
 }
 
+// TestServerNameCase: a server named as the host's own configuration names it keeps its capitals in tool names, and the commands its prompts become are lower-cased.
+func TestServerNameCase(t *testing.T) {
+	ts := promptServer(t)
+	ts.add("echo", "Echo.", okTool)
+	sp := providertest.NewScriptProvider(provider.APIAnthropicMessages, reply("hi"))
+	ag := newAgent(t, sp, use(t, mcp.Options{Servers: []mcp.Server{{Name: "claude_ai_Gmail", URL: ts.URL(), Prompts: true}}}))
+	s, err := ag.NewSession(t.Context())
+	if err != nil {
+		t.Fatal(err)
+	}
+	ask(t, s, "go")
+	if !slices.Contains(toolNames(sp.Requests()[0]), "mcp__claude_ai_Gmail__echo") {
+		t.Fatalf("tool names %v", toolNames(sp.Requests()[0]))
+	}
+	if got := commandNames(s); !slices.Equal(got, []string{"mcp__claude_ai_gmail__few_shot", "mcp__claude_ai_gmail__review_code"}) {
+		t.Fatalf("commands %v", got)
+	}
+}
+
 // TestElicitationURL: a URL request reaches the hook in url mode when it is https, and is declined without asking when it is not.
 func TestElicitationURL(t *testing.T) {
 	ts := newTestServer(t, "", nil)

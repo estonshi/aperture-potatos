@@ -209,7 +209,7 @@ kernel.New(std.Defaults(std.With(m)), kernel.WithApprovalRules(mcp.ApprovalRules
 
 | 字段 | 说明 |
 |---|---|
-| `Name` | 服务器名，必须匹配 `^[a-z0-9][a-z0-9-]{0,31}$`。它会出现在工具名中，格式为 `mcp__<server>__<tool>`。 |
+| `Name` | 服务器名，必须匹配 `^[A-Za-z0-9_-]{1,64}$`，区分大小写，同一个安装内不能重复。它以原样出现在工具名中，格式为 `mcp__<server>__<tool>`；它的 prompts 注册成命令时转为小写，即 `/mcp__<server>__<prompt>`。名字里带 `__` 时，`mcp__<server>__*` 这类按名字前缀写的规则也会命中别的 server 的工具，需要宿主自己避免。 |
 | `Command`、`URL` | 二者选一。`Command` 表示 stdio 服务器，是一个返回 `*exec.Cmd` 的函数，每次连接（包括重连）调用一次，凭据放在返回命令的 `Env` 中；`SysProcAttr`、`Stderr` 等字段都原样生效。`URL` 表示 Streamable HTTP 服务器。 |
 | `Headers`、`HTTPClient` | HTTP 服务器使用的请求头和客户端。 |
 | `OAuth`、`OAuthHandler` | 二者选一。`OAuth` 使用内置的 OAuth 2.1 流程，`OAuthHandler` 使用你自己实现的 SDK `auth.OAuthHandler`。 |

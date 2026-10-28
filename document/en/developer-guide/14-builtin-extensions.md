@@ -209,7 +209,7 @@ An `mcp.Server` describes one server and has the following fields.
 
 | Field | Description |
 |---|---|
-| `Name` | The server name, which must match `^[a-z0-9][a-z0-9-]{0,31}$`. It appears in tool names in the form `mcp__<server>__<tool>`. |
+| `Name` | The server name, which must match `^[A-Za-z0-9_-]{1,64}$`, keeps its case, and is unique in one install. It appears as given in tool names in the form `mcp__<server>__<tool>`, and lower-cased in the `/mcp__<server>__<prompt>` commands its prompts become. A name holding `__` makes a prefix pattern such as `mcp__<server>__*` reach another server's tools too, which the host has to avoid. |
 | `Command`, `URL` | Set one or the other. `Command` denotes a stdio server. It is a function that returns an `*exec.Cmd` and is called once for every connection, reconnections included. Put credentials in the `Env` of the command it returns; fields such as `SysProcAttr` and `Stderr` take effect exactly as set. `URL` denotes a Streamable HTTP server. |
 | `Headers`, `HTTPClient` | The request headers and the client used for an HTTP server. |
 | `OAuth`, `OAuthHandler` | Set one or the other. `OAuth` uses the built-in OAuth 2.1 flow, and `OAuthHandler` uses your own implementation of the MCP SDK's `auth.OAuthHandler`. |

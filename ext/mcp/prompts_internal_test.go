@@ -24,6 +24,9 @@ func TestCommandName(t *testing.T) {
 	if commandName("gh", strings.Repeat("A", 80)) == commandName("gh", strings.Repeat("A", 81)) {
 		t.Fatal("two long names that differ past the cut share a command name")
 	}
+	if got := commandName("My_GitHub", "Review"); got != "mcp__my_github__review" {
+		t.Fatalf("a server's capitals are lower-cased in the command: %q", got)
+	}
 }
 
 func TestPromptArguments(t *testing.T) {

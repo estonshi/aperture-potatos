@@ -35,9 +35,9 @@ type promptKey struct{}
 
 var notCommandChar = regexp.MustCompile(`[^a-z0-9_-]`)
 
-// commandName maps a server's prompt name onto the kernel's ^[a-z0-9][a-z0-9_-]{0,63}$, hashing the tail of a name too long to keep.
+// commandName maps a server's prompt name onto the kernel's ^[a-z0-9][a-z0-9_-]{0,63}$, hashing the tail of a name too long to keep; the server may carry capitals, so its part is lower-cased as the prompt's is.
 func commandName(server, prompt string) string {
-	n := "mcp__" + server + "__" + notCommandChar.ReplaceAllString(strings.ToLower(prompt), "_")
+	n := "mcp__" + strings.ToLower(server) + "__" + notCommandChar.ReplaceAllString(strings.ToLower(prompt), "_")
 	if len(n) <= 64 {
 		return n
 	}

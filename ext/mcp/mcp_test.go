@@ -255,7 +255,9 @@ func TestUnreachableServer(t *testing.T) {
 
 func TestInvalidOptions(t *testing.T) {
 	for name, s := range map[string]mcp.Server{
-		"bad name":    {Name: "Bad", URL: "http://x"},
+		"bad name":    {Name: "bad.name", URL: "http://x"},
+		"empty name":  {Name: "", URL: "http://x"},
+		"long name":   {Name: strings.Repeat("s", 65), URL: "http://x"},
 		"no target":   {Name: "a"},
 		"stdio oauth": {Name: "a", Command: nil, URL: "", OAuth: &mcp.OAuth{}},
 	} {
