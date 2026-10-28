@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A switch takes effect at the next turn's start; the history is not converted, and the thinking and server tool blocks the new API cannot take are counted and left out of its requests.",
   "agent": {
     "nickname": "Tater",

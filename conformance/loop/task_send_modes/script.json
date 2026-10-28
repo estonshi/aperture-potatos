@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "Instructions sent to a running job keep their mode and reach its inbox in order; each is reported by task.instruction, and one to an unknown task is refused.",
   "agent": {
     "nickname": "Tater",

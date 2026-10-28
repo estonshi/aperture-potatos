@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A tool asks the client for input through mcp_elicitation: the session's hook answers accept with a name, the server gets that content back, and mcp.elicitation reports the action.",
   "agent": {
     "nickname": "Tater",

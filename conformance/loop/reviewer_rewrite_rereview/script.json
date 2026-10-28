@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "Reviewer a approves, then reviewer b approves with a rewritten statement; the round restarts so a decides again on the new bytes, told what it approved before, and the tool runs the final input.",
   "agent": {
     "nickname": "Tater",

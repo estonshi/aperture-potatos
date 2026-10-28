@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A second Resume of a session the agent already has open fails, so one session never has two writers; the open session keeps working.",
   "agent": {
     "nickname": "Tater",

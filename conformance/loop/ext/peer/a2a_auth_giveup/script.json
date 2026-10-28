@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "The peer refuses the request for credentials and no peer_auth_required hook fixes them: the call fails with the auth text after one peer.auth_required event.",
   "agent": {
     "nickname": "Tater",

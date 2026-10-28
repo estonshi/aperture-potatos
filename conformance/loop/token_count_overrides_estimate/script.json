@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "The estimate lands just above the threshold, within the counting band, so the session asks the provider to count the request exactly (Anthropic count_tokens); the count is below the threshold, so it does not compact.",
   "agent": {
     "nickname": "Tater",

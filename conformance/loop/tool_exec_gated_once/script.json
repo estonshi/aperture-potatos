@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A rule asks for background fetches: the reviewer sees the model's call under the real tool name with background:true, and approves. The run is not reviewed again, and a restart with the approved input skips the gate, so there is one review in all.",
   "agent": {
     "nickname": "Tater",

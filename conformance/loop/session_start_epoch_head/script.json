@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "Context from a session_start hook becomes the epoch head line, right after the system line, and every request carries it.",
   "agent": {
     "nickname": "Tater",

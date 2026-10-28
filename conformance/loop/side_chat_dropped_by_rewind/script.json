@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A main session's rewind drops its open side chats: each is closed, gets the dropped boundary and is announced as side_chat.dropped on the main session after the epoch's events; opening the name again starts a new side_chat epoch that carries the rewound context.",
   "agent": {
     "nickname": "Tater",

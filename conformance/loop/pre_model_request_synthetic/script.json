@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A pre_model_request hook answers the first step itself with a tool call, so no request is sent; the next step's request carries the hook's parameter patch.",
   "agent": {
     "nickname": "Tater",

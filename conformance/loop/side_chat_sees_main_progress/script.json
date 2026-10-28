@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A side chat's next turn carries what the main session said since its previous request, and its input starts with a reminder that the main session changed; every side call records the main session's last line it carried as parent_seq, here in the main session's calls file.",
   "agent": {
     "nickname": "Tater",

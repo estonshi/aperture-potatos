@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A tool asks for input and no mcp_elicitation hook is registered: the request is declined, the server gets that action, and mcp.elicitation reports decline.",
   "agent": {
     "nickname": "Tater",

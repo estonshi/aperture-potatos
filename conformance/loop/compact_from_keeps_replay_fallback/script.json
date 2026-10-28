@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "On a prefix-bound model, a compaction from a turn keeps the epoch's prefix, which already followed a changed one after summarizing up to a turn, so its boundary carries replay_fallback too, as rewind and fork carry it.",
   "agent": {
     "nickname": "Tater",

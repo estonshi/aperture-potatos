@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "An async hook may wake the session once per window; its next injection waits as a passenger and rides the next human turn.",
   "agent": {
     "nickname": "Tater",

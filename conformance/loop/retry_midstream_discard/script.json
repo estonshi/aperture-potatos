@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "An overloaded error after deltas voids the attempt (message.discarded, model.retry); the retry commits.",
   "agent": {
     "nickname": "Tater",

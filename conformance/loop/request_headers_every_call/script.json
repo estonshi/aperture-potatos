@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "WithRequestHeaders tags every request of the turn with the root session, the turn and the bucket; WithCaptureHeaders keeps the gateway's call id on each ledger entry and on the committed message's producer.",
   "agent": {
     "nickname": "Tater",

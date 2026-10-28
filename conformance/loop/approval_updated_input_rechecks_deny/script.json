@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A reviewer approves with a rewritten input; the rules run again on it, and the deny rule it now hits refuses the call.",
   "agent": {
     "nickname": "Tater",

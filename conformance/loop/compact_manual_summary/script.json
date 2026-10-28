@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A manual compaction: pre_compact rewrites the per-call instructions, the summary request sends the whole context as the cached prefix with the instruction appended, and the new epoch head carries the session_start{compact} context, the summary and the post_compact context.",
   "agent": {
     "nickname": "Tater",

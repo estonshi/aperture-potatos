@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A post_model_response hook halts the turn after a reply that asks for a tool: the reply is committed, its call is paired with a not-executed result, and the turn ends hook_stopped without running the tool.",
   "agent": {
     "nickname": "Tater",

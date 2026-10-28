@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "Compacting a side chat summarizes only its own lines: the summary request sends the main part and the side chat's lines as its prefix and the side_chat_compact_scope reminder before the instructions, and the new epoch head starts with the side chat note again.",
   "agent": {
     "nickname": "Tater",

@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "The peer refuses the request for credentials and the peer_auth_required hook retries: the same message is sent again with its id and the second round answers, so the call succeeds after one peer.auth_required event.",
   "agent": {
     "nickname": "Tater",

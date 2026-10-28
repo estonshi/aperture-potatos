@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "In a side chat, search_history with parent:true is refused, since every request of the side chat already carries the main session's current context, here including what the main session said after the side chat opened.",
   "agent": {
     "nickname": "Tater",

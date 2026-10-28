@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "The model loads a skill: its body and its resource list arrive and the result pins it, so loading it again only points back at it. A resource file is read, while an invalid path and a missing file are refused, and neither read activates or pins anything.",
   "agent": {
     "nickname": "Tater",

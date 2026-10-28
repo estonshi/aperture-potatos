@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A stop hook keeps asking to continue; the turn continues max_stop_continuations times, each time with the hook's reason as the continuation, then ends and the hook's last request is ignored.",
   "agent": {
     "nickname": "Tater",

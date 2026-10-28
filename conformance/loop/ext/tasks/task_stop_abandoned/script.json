@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A task that ignores its context is still running when the grace period ends, so the runtime abandons it and task_stop reports that its side effects are unknown; its late return is dropped.",
   "agent": {
     "nickname": "Tater",

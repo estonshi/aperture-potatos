@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A restart with a new input passes the approval gate as a background call of the start tool: a rule that asks for review of that input makes the reviewer see it, and a denial leaves the current attempt running. Restarting with the approved input skips the gate.",
   "agent": {
     "nickname": "Tater",

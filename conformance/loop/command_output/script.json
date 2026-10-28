@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A command emits two chunks while it runs: each is a command.output naming it, in order, and command.completed follows them with the result text.",
   "agent": {
     "nickname": "Tater",

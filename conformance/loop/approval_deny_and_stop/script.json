@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "One reviewer answers deny_and_stop: the other review still waiting in the batch ends unexecuted, the allowed call runs, the batch is committed and the turn ends hook_stopped.",
   "agent": {
     "nickname": "Tater",

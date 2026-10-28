@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A resumed session takes its labels from the label record, not from the first line, which keeps the labels at creation; set_labels merges into them and a query finds the session by the new values.",
   "agent": {
     "nickname": "Tater",

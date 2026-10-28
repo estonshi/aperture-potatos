@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A no-wake reminder never starts a turn; it rides along with the next human input, ahead of it.",
   "agent": {
     "nickname": "Tater",

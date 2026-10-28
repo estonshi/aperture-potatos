@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "One human input, one text reply: the session's first epoch, a turn and its three lines.",
   "agent": {
     "nickname": "Tater",

@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A job ends without reading its inbox: task.finished and the task's info list the instructions it never processed, and the notification says how many.",
   "agent": {
     "nickname": "Tater",

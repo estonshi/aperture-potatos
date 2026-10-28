@@ -1,6 +1,6 @@
 # Conformance
 
-Language-neutral fixtures that every binding runs. A binding runs them with a runner of its own and compares its outputs with the shared `conform` command ([runner-protocol.md](runner-protocol.md)). The Go reference generates the expected files with `go test ./conformance/... ./ext/... -update`: the loop/ext and A2A cases are driven by the tests of their extensions. A person reviews every change against `spec/runtime.md` before it is committed, and each change needs an entry in `spec/CHANGELOG.md`.
+Language-neutral fixtures that every binding runs. A binding runs them with a runner of its own and compares its outputs with the shared `conform` command ([runner-protocol.md](runner-protocol.md)). The Go reference generates the expected files with `go test ./conformance ./ext/cmd/... ./ext/compact ./ext/history ./ext/mcp ./ext/memory ./ext/peer/... ./ext/skills ./ext/subagent ./ext/tasks -update`, the packages that own fixtures: the loop/ext and A2A cases are driven by the tests of their extensions. A person reviews every change against `spec/runtime.md` before it is committed, and each change needs an entry in `spec/CHANGELOG.md`.
 
 ## Layer 1: provider (pure functions)
 

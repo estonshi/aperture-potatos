@@ -288,7 +288,7 @@ ol.skeleton li.open .slot { color: var(--ext); }
   <div class="eyebrow">Illustrated guide · github.com/estonshi/aperture-potatos</div>
   <h1>potatOS Runtime, Illustrated</h1>
   <p class="lede">potatOS is an agent core SDK written in Go. You use it to build agents inside your own program that can call tools and work over multiple turns. This page shows what happens after an agent receives a message: which parts of potatOS the message passes through, in what order, and where you can step in. It starts with the outermost layering of the modules and works its way down to every step of a single turn.</p>
-  <div class="meta">Spec version 0.2 · Event sequence taken from a real run</div>
+  <div class="meta">Spec version 0.4 · Event sequence taken from a real run</div>
 </header>
 
 <section id="terms">
@@ -517,7 +517,7 @@ ol.skeleton li.open .slot { color: var(--ext); }
 <section id="turn">
   <div class="head"><div class="num">04</div><h2>How a turn runs</h2></div>
   <div class="prose">
-    <p>The diagram below follows the structure of <code>runTurn</code> in <code>kernel/driver.go</code>. The middle column is the main flow, and the two columns on the right show where you can step in at each stage and which events that stage emits. Most of these intervention points are hook points. <code>ContextProvider</code> is not a hook but a registered context provider, which supplies reminders when the turn starts and at every safe point. The loop in the diagram that runs from the safe point to “Commit results” and back is one step.</p>
+    <p>The diagram below follows the structure of <code>runTurn</code> in <code>kernel/driver.go</code>. The middle column is the main flow, and the two columns on the right show where you can step in at each stage and which events that stage emits. Most of these intervention points are hook points. <code>ContextProvider</code> is not a hook but a registered context provider: a <code>turn_start</code> provider supplies a reminder when the turn starts, and an <code>every_step</code> provider also supplies one at every safe point. The loop in the diagram that runs from the safe point to “Commit results” and back is one step.</p>
   </div>
   <figure>
     <div class="scroll">
@@ -731,6 +731,7 @@ ol.skeleton li.open .slot { color: var(--ext); }
   </ul>
   <h3>Tasks and result notifications</h3>
   <p>A task is a capability that runs asynchronously, such as a subagent, an A2A call or a workflow you write yourself. Starting a task returns immediately. When a task finishes, fails or needs input, the kernel puts a notification into the input queue on its own, so the model never needs to poll for the task's status.</p>
+  <p>A subagent follows the parent session's model by default. The host can declare choices with <code>Models</code>, <code>Efforts</code> and <code>ResolveModel</code> in <code>subagent.Options</code>; only then does the start tool expose <code>model</code> and <code>effort</code> as arguments. A definition can also set <code>FixedModel</code> — then the type always runs on the model its definition names, or on the parent's when it names none — and the call's choice is ignored. The <code>subagent_start</code> hook sees both choices and can rewrite them.</p>
   <figure>
     <div class="scroll">
       <svg class="dg" viewBox="0 0 1000 318" role="img" aria-label="Task state machine. A pending task enters running when it starts. A running task can move to waiting_input through AskInput and returns to running once it gets an answer. A running task finally ends as succeeded, failed or canceled, and a task that has not finished when the process restarts is recorded as lost. Whenever a task ends or needs input, it sends a notification that enters the input queue, and an idle session starts a turn automatically. Restart or continuation begins a new attempt from pending.">
@@ -786,6 +787,7 @@ ol.skeleton li.open .slot { color: var(--ext); }
     <li class="open"><span class="n">5</span><span class="slot">catalog</span><span>A catalog of the available skills and the agents you can call, written into the <code>SlotCatalog</code> slot</span></li>
     <li class="open"><span class="n">6</span><span class="slot">environment</span><span>Facts about the environment, written into the <code>SlotEnvironment</code> slot</span></li>
   </ol>
+  <p>The context window does not have to come from the model. Pass <code>kernel.SessionContextWindow(n)</code> when creating or resuming a session, or call <code>Session.SetContextWindow(n)</code> while it runs: a positive value is used as is, even when it is larger than the window the model reports, and 0 keeps following the model. A change applies from the session's next model call, while <code>Context()</code> reflects it at once; the window is stored in the session file, restored by Resume, and kept by a fork. Automatic compaction's threshold follows that effective window.</p>
   <h3>Session files stored as JSONL</h3>
   <figure>
     <div class="scroll">
@@ -815,11 +817,11 @@ ol.skeleton li.open .slot { color: var(--ext); }
         <text class="s" x="20" y="218">On Resume, every row is read back, store.Current takes the part after the last boundary, and the session carries on</text>
       </svg>
     </div>
-    <figcaption>Automatic compaction starts when the context exceeds 90% of the usable window. Compaction happens only at a safe point, because the history is guaranteed to be valid there. The default strategy has the model write a summary, and it can clear out old tool results first. When compaction finishes, it writes a new boundary, and the next compaction also takes the previous summary as part of its input. <code>/clear</code> writes a new boundary as well.</figcaption>
+    <figcaption>Automatic compaction starts when the context exceeds 90% of the usable window. The kernel checks the estimate before every model call, so one turn can compact more than once, up to a per-turn limit. If the API itself reports that the context is too long, the kernel compacts once and retries the same step. Compaction always runs when the history is in a valid state. The default strategy has the model write a summary, and it can be configured to clear out old tool results first. When compaction finishes, it writes a new boundary, and the next compaction also takes the previous summary as part of its input. <code>/clear</code> writes a new boundary as well.</figcaption>
   </figure>
   <ul class="points">
     <li><strong>The message JSON schema is the storage format.</strong> A session written by the Go binding can be resumed directly by a binding in another language. If you store sessions in a database instead, each line becomes one record.</li>
-    <li><strong>The kernel provides all the context management interfaces.</strong> These are <code>Compact</code>, <code>Clear</code>, <code>Rewind</code>, <code>Fork</code>, <code>SideChat</code>, <code>SearchHistory</code>, <code>Context</code> and <code>Unpin</code>, and the matching slash commands live in <code>ext/cmd/*</code>.</li>
+    <li><strong>The kernel provides all the context management interfaces.</strong> These are <code>Compact</code>, <code>Clear</code>, <code>Rewind</code>, <code>Fork</code>, <code>SideChat</code>, <code>SearchHistory</code>, <code>Context</code>, <code>SetContextWindow</code> and <code>Unpin</code>, and the matching slash commands live in <code>ext/cmd/*</code>. <code>Rewind</code> and <code>ForkAt</code> take a turn id or an input id; cutting at an input drops every input that was merged into the same line.</li>
   </ul>
 </section>
 

@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "Anthropic, then Responses, then Chat, then Anthropic again: each API gets the whole history with only what it can replay, and each switch counts what it leaves out.",
   "agent": {
     "nickname": "Tater",

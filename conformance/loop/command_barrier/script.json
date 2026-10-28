@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A wait_idle command is a barrier: input sent after it waits for it, and its prompt keeps the command's place ahead of that input.",
   "agent": {
     "nickname": "Tater",

@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A seq reads one line in full: its header, then its text block by block, a tool call as its name and input JSON; a long line is cut at 20,000 code points with the truncated note.",
   "agent": {
     "nickname": "Tater",

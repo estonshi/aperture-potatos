@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A key spelled Path escapes the rule on path, and the strictly decoding tool rejects it; the path that cleans to /etc/hosts is denied by the rule.",
   "agent": {
     "nickname": "Tater",

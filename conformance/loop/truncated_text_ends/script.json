@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A text reply cut off by max_tokens ends the turn with max_tokens when automatic continuation is off.",
   "agent": {
     "nickname": "Tater",

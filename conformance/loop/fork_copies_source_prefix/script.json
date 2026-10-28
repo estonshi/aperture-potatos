@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A fork's first epoch is the source's system line and lines verbatim, with a fork boundary and copy_of on every copy: its first request is the source's next request up to the new input, and the source goes on unaffected.",
   "agent": {
     "nickname": "Tater",

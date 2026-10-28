@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A pause_turn continuation ends with the assistant line; when it hits a 529 the retry still sends it that way.",
   "agent": {
     "nickname": "Tater",

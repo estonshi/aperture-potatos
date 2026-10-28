@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A message to a finished subagent continues it in the same child session: the kernel binds the open child to the new attempt, the child sees the message as another agent's and keeps its history, and the end of the continuation is notified.",
   "agent": {
     "nickname": "Tater",

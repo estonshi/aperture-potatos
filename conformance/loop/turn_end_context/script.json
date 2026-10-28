@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "Context from a turn_end hook waits, without waking, for the next turn's user line.",
   "agent": {
     "nickname": "Tater",

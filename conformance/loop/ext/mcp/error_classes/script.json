@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A call the server refuses with a protocol error becomes a result naming only the kind of failure, while the server's own error text reaches neither the model nor the events, and an error result the server marks keeps its text and is_error.",
   "agent": {
     "nickname": "Tater",

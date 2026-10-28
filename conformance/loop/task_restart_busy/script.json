@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "While one restart holds the task's migration lock (its task_start hook is still running), a second restart is refused with a retryable busy error and the first goes through.",
   "agent": {
     "nickname": "Tater",

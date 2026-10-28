@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "The model asks a peer and waits in the call: the reply arrives in two chunks and comes back wrapped in agent_reply; the catalog and the agent enum list the peer.",
   "agent": {
     "nickname": "Tater",

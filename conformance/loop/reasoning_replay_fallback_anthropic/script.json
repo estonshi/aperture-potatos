@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A signature error that names prefix binding (thinking_signature_bound) on an undeclared model teaches the session that the model is prefix-bound: the one retry already uses the prefix-bound fallback (history unchanged, the drop_block binding), and the notice hints to declare ThinkingPrefixBound.",
   "agent": {
     "nickname": "Tater",

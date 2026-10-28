@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "In search mode the catalog names the tools without loading them, so the model reads a definition with mcp_search_tools and runs it with mcp_call_tool, both under the server's own name in lower case.",
   "agent": {
     "nickname": "Tater",

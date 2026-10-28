@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A skill only a person can invoke is registered as /release-notes when the session starts; running it expands the body with the arguments as a command input and pins the skill in memory, although the model could not load it.",
   "agent": {
     "nickname": "Tater",

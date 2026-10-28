@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "Without a parent, parent:true is an error; so is giving both query and seq, or neither; an unknown seq and a query without hits are reported too.",
   "agent": {
     "nickname": "Tater",

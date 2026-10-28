@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A prefix-bound model resumes with the system and the tool definitions its file froze, although the agent's instructions and the echo tool's description changed since.",
   "agent": {
     "nickname": "Tater",

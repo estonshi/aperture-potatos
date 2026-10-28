@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A queue input waits for the running turn to end and gets a turn of its own; a next_loop input sent after it still joins the running turn.",
   "agent": {
     "nickname": "Tater",

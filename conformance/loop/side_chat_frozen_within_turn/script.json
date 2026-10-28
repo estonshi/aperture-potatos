@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A side chat takes the main part once per turn: while its own tool runs the main session finishes its call, yet the side chat's next step still sends the main part with the placeholder result; its next turn carries the real result and says the main session changed.",
   "agent": {
     "nickname": "Tater",

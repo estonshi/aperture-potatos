@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.3",
+  "spec_version": "0.4",
   "description": "A rewind names an input the turn delivered in its middle: it drops that line and the reply after it, keeping the tool line before it.",
   "agent": {
     "nickname": "Tater",
