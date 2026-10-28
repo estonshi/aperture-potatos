@@ -165,7 +165,7 @@ func TestConformance(t *testing.T) {
 	for _, e := range entries {
 		dir := filepath.Join(root, e.Name())
 		t.Run(e.Name(), func(t *testing.T) {
-			res := conformance.RunLoopWith(t, dir, build)
+			res := conformance.RunLoopWithPoints(t, dir, build, peer.AuthRequired)
 			if t.Failed() {
 				return
 			}

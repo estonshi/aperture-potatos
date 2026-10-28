@@ -1,0 +1,1 @@
+{"input":{"agent":"Tater","message":"Whom should I greet?","mode":"form","requested_schema":{"properties":{"name":{"type":"string"}},"required":["name"],"type":"object"},"server":"greeter","session_id":"ses_01","tool":"mcp__greeter__ask"},"name":"person","point":"mcp_elicitation"}

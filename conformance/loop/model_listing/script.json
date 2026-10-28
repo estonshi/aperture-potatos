@@ -1,0 +1,35 @@
+{
+  "spec_version": "0.3",
+  "description": "A provider with a models listing answers the capabilities lookup from GET {base}/models before the first model request, so the listing's window reaches the session: usage.updated reports 128000 rather than the default window.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": []
+  },
+  "providers": [
+    {
+      "name": "openai",
+      "api": "openai.chat",
+      "model": "deepseek-v4.1-flash",
+      "models": "models.json",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-29T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Say hi."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "spec_version": "0.3",
+  "description": "A subagent_start hook denies the start: the attempt fails with the hook's reason, no child session opens, and the model gets a subagent_result naming the outcome.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "hooks": [
+      {
+        "point": "subagent_start",
+        "name": "guard",
+        "calls": [
+          {
+            "output": {
+              "deny": true,
+              "reason": "delegation is closed today"
+            }
+          }
+        ]
+      }
+    ],
+    "extensions": {
+      "subagent": {
+        "defs": [
+          {
+            "name": "researcher",
+            "description": "Looks facts up.",
+            "instructions": "Answer in as few words as possible."
+          }
+        ]
+      }
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-09-29T00:00:00.000Z",
+    "step_ms": 1,
+    "interleaved": true
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Ask a researcher for the capital of France."
+      }
+    },
+    {
+      "wait_quiet": true
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "spec_version": "0.3",
+  "description": "The peer refuses the request for credentials and the peer_auth_required hook retries: the same message is sent again with its id and the second round answers, so the call succeeds after one peer.auth_required event.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "hooks": [
+      {
+        "point": "peer_auth_required",
+        "name": "login",
+        "calls": [
+          {
+            "output": {
+              "retry": true,
+              "reason": "credentials refreshed"
+            }
+          }
+        ]
+      }
+    ],
+    "extensions": {
+      "peer": {
+        "peers": [
+          {
+            "name": "bank",
+            "description": "Answers account questions.",
+            "rounds": [
+              {
+                "auth_error": {
+                  "status": 401,
+                  "detail": "Bearer realm=\"bank\""
+                }
+              },
+              {
+                "events": [
+                  {
+                    "kind": "task",
+                    "task_id": "t-1",
+                    "context_id": "c-1",
+                    "state": "submitted"
+                  },
+                  {
+                    "kind": "status",
+                    "task_id": "t-1",
+                    "context_id": "c-1",
+                    "state": "working"
+                  },
+                  {
+                    "kind": "artifact",
+                    "task_id": "t-1",
+                    "context_id": "c-1",
+                    "artifact": {
+                      "artifact_id": "a-t-1",
+                      "parts": [
+                        {
+                          "text": "Your balance is 42."
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "kind": "status",
+                    "task_id": "t-1",
+                    "context_id": "c-1",
+                    "state": "completed"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-02T00:00:00.000Z",
+    "step_ms": 1,
+    "interleaved": true
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Check my balance."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

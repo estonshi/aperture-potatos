@@ -1,0 +1,42 @@
+{
+  "spec_version": "0.3",
+  "description": "A skill only a person can invoke is registered as /release-notes when the session starts; running it expands the body with the arguments as a command input and pins the skill in memory, although the model could not load it.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "extensions": {
+      "skills": {
+        "files": {
+          "release-notes/SKILL.md": "---\nname: release-notes\ndescription: Draft release notes from merged changes.\nargument-hint: \"[version]\"\ndisable-model-invocation: true\n---\nWrite release notes for version $ARGUMENTS, grouped by feature, fix and breaking change.\n"
+        }
+      }
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-28T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "command": {
+        "name": "release-notes",
+        "args": "2.1"
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

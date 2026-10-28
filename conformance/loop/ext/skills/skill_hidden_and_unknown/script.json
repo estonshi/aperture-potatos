@@ -1,0 +1,44 @@
+{
+  "spec_version": "0.3",
+  "description": "A skill its frontmatter disables for the model cannot be loaded with the skill tool, and neither can a name no skill has: both answers name the skills that can be loaded, and the catalog carries neither of the others.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "extensions": {
+      "skills": {
+        "files": {
+          "notes/SKILL.md": "---\nname: notes\ndescription: Take notes.\nuser-invocable: false\n---\n\nNote it.\n",
+          "hidden/SKILL.md": "---\nname: hidden\ndescription: Only people may run this.\nuser-invocable: false\ndisable-model-invocation: true\n---\n\nHidden body.\n"
+        }
+      }
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-28T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Load the hidden skill, then one that does not exist."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

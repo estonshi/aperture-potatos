@@ -1,0 +1,1 @@
+{"input":{"agent":"Tater","attempt":1,"detail":"Bearer realm=\"bank\"","peer":"bank","session_id":"ses_01","status":401,"turn_id":"turn_01"},"name":"login","point":"peer_auth_required"}

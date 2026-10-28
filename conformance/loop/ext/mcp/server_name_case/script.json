@@ -1,0 +1,75 @@
+{
+  "spec_version": "0.3",
+  "description": "A server the host names as its own configuration names it — capitals and underscores — keeps that case in its tool names, so the model calls mcp__claude_ai_Gmail__echo, while the prompt it offers becomes the lower-cased command mcp__claude_ai_gmail__review_code.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "extensions": {
+      "mcp": {
+        "servers": [
+          {
+            "name": "claude_ai_Gmail",
+            "instructions": "Use echo to repeat text.",
+            "tools": [
+              {
+                "name": "echo",
+                "description": "Repeat the text it is given.",
+                "echo": true
+              }
+            ],
+            "prompts": [
+              {
+                "name": "Review.Code",
+                "description": "Review a snippet of code.",
+                "arguments": [
+                  {
+                    "name": "code",
+                    "required": true
+                  }
+                ],
+                "text": "Review this code: {{code}}"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-28T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Repeat hello."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "command": {
+        "name": "mcp__claude_ai_gmail__review_code",
+        "args": "\"x = 1\""
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

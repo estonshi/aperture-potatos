@@ -1,0 +1,2 @@
+{"input":{"agent":"Tater","name":"notes","session_id":"ses_01","trigger":"model"},"name":"policy","point":"skill_activate"}
+{"input":{"agent":"Tater","name":"notes","session_id":"ses_01","trigger":"user"},"name":"policy","point":"skill_activate"}

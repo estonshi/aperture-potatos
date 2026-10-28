@@ -1,0 +1,47 @@
+{
+  "spec_version": "0.3",
+  "description": "A command emits two chunks while it runs: each is a command.output naming it, in order, and command.completed follows them with the result text.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "commands": [
+      {
+        "name": "report",
+        "description": "Report progress.",
+        "busy": "wait_idle",
+        "outputs": [
+          "Scanning.",
+          "Done scanning."
+        ],
+        "text": "Reported."
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-28T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "command": {
+        "name": "report",
+        "args": "now"
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

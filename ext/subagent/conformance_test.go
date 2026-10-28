@@ -102,7 +102,7 @@ func TestConformance(t *testing.T) {
 	for _, e := range entries {
 		dir := filepath.Join(root, e.Name())
 		t.Run(e.Name(), func(t *testing.T) {
-			res := conformance.RunLoopWithModels(t, dir, build)
+			res := conformance.RunLoopWithModelsAndPoints(t, dir, build, subagent.Start, subagent.Stop)
 			if t.Failed() {
 				return
 			}

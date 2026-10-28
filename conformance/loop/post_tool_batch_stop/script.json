@@ -1,0 +1,104 @@
+{
+  "spec_version": "0.3",
+  "description": "A post_tool_batch hook, which fires once a batch has every result, asks to stop: the batch is committed, the next_loop input queued meanwhile waits, and the turn ends hook_stopped before another step.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "first",
+        "description": "Answer one.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "fixed",
+          "text": "one",
+          "sleep_ms": 10
+        }
+      },
+      {
+        "name": "second",
+        "description": "Answer two.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "fixed",
+          "text": "two",
+          "sleep_ms": 10
+        }
+      }
+    ],
+    "hooks": [
+      {
+        "point": "post_tool_batch",
+        "name": "stop_after_batch",
+        "calls": [
+          {
+            "output": {
+              "stop_turn": true,
+              "additional_context": "The batch is done."
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-28T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Run both tools."
+      }
+    },
+    {
+      "wait": {
+        "event": "tool.started",
+        "count": 2
+      }
+    },
+    {
+      "send": {
+        "text": "Also this.",
+        "mode": "next_loop"
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

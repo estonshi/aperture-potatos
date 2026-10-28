@@ -500,6 +500,9 @@ func callSyncFail[In, Out any](ctx context.Context, s *Session, p *HookPoint[In,
 		return invokeSync[In, Out](hctx, h, in)
 	})
 	took := time.Since(started).Milliseconds()
+	// A registration the hook made is announced through the actor; waiting for the queue to drain keeps the hook's
+	// own announcements ahead of hook.completed, an order a conformance case compares.
+	_ = s.exec(func(*state) {})
 	if fail == nil {
 		done := &event.HookCompleted{HookID: id, Point: p.def.Name, Name: h.name, CallID: callID, DurationMs: took}
 		if c := commonOf(&out); c != nil {

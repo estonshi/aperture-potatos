@@ -1,0 +1,68 @@
+{
+  "spec_version": "0.3",
+  "description": "A call still running after the cancel grace is abandoned: the tool line records tool.abandoned in place of a result, and the result it returns later is dropped.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [
+      {
+        "name": "stuck",
+        "description": "Never returns in time.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "concurrency": "serial",
+        "behavior": {
+          "type": "fixed",
+          "text": "late",
+          "sleep_ms": 5000,
+          "ignore_ctx": true
+        }
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-28T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Run the stuck tool."
+      }
+    },
+    {
+      "wait": {
+        "event": "tool.started",
+        "count": 1
+      }
+    },
+    {
+      "interrupt": {
+        "reason": "stop"
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "spec_version": "0.3",
+  "description": "In search mode the catalog names the tools without loading them, so the model reads a definition with mcp_search_tools and runs it with mcp_call_tool, both under the server's own name in lower case.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "extensions": {
+      "mcp": {
+        "discovery": "search",
+        "servers": [
+          {
+            "name": "my_server",
+            "instructions": "Repeat text and add numbers.",
+            "tools": [
+              {
+                "name": "echo",
+                "description": "Repeat the text it is given.",
+                "echo": true
+              },
+              {
+                "name": "add",
+                "description": "Add two numbers.",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "a": {
+                      "type": "integer"
+                    },
+                    "b": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "a",
+                    "b"
+                  ]
+                },
+                "text": "3"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-28T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Repeat hello."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

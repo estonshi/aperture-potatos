@@ -1,0 +1,57 @@
+{
+  "spec_version": "0.3",
+  "description": "A call the server refuses with a protocol error becomes a result naming only the kind of failure, while the server's own error text reaches neither the model nor the events, and an error result the server marks keeps its text and is_error.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "extensions": {
+      "mcp": {
+        "servers": [
+          {
+            "name": "my_server",
+            "tools": [
+              {
+                "name": "fail",
+                "description": "Fail on the server's side.",
+                "error": "boom: secret internals"
+              },
+              {
+                "name": "deny",
+                "description": "Answer with an error result.",
+                "text": "not allowed",
+                "is_error": true
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-28T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Try both tools."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

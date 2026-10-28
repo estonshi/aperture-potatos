@@ -1,0 +1,52 @@
+{
+  "spec_version": "0.3",
+  "description": "An async session_end hook runs once as the session closes, keyed by the close reason, with the final usage; the close waits for it, its end event comes before session.closed, and the reminder its injection queued is dropped as the session closes.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "hooks": [
+      {
+        "point": "session_end",
+        "name": "ingest",
+        "async": true,
+        "calls": [
+          {
+            "output": {
+              "additional_context": "The session is closed."
+            },
+            "sleep_ms": 10
+          }
+        ]
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-28T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Say hi."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "close": true
+    }
+  ]
+}

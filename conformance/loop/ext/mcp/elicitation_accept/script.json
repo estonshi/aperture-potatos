@@ -1,0 +1,81 @@
+{
+  "spec_version": "0.3",
+  "description": "A tool asks the client for input through mcp_elicitation: the session's hook answers accept with a name, the server gets that content back, and mcp.elicitation reports the action.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "hooks": [
+      {
+        "point": "mcp_elicitation",
+        "name": "person",
+        "calls": [
+          {
+            "output": {
+              "action": "accept",
+              "content": {
+                "name": "Ann"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "extensions": {
+      "mcp": {
+        "servers": [
+          {
+            "name": "greeter",
+            "tools": [
+              {
+                "name": "ask",
+                "description": "Ask whom to greet.",
+                "elicit": {
+                  "mode": "form",
+                  "message": "Whom should I greet?",
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "name"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-28T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Ask whom to greet."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

@@ -78,6 +78,7 @@ type LoopAgent struct {
 	Instructions              string                     `json:"instructions"`
 	InputMode                 string                     `json:"input_mode"`
 	AutoContinueTruncatedText bool                       `json:"auto_continue_truncated_text"`
+	RawEvents                 bool                       `json:"raw_events"` // also publish provider.raw events
 	StorePolicy               string                     `json:"store_policy"`
 	Limits                    LoopLimits                 `json:"limits"`
 	Retry                     LoopRetry                  `json:"retry"`
@@ -315,6 +316,7 @@ type LoopCommand struct {
 	Template    string       `json:"template"`  // PromptCommand's template
 	ArgNames    []string     `json:"arg_names"` // PromptCommand's WithArgs
 	Pin         *message.Pin `json:"pin"`       // the result also declares this pin
+	Outputs     []string     `json:"outputs"`   // emitted as command.output events before the result
 }
 
 type LoopProvider struct {
@@ -323,6 +325,7 @@ type LoopProvider struct {
 	Model        string                 `json:"model"`
 	Params       provider.Params        `json:"params"`
 	Responses    []LoopResponse         `json:"responses"`
+	Models       string                 `json:"models"`        // a listing file GET {base}/models answers, which capabilities then resolve through
 	Resolved     *provider.Capabilities `json:"resolved"`      // what the scripted resolver answers for this model; absent means all unknown
 	ResolveError string                 `json:"resolve_error"` // makes the scripted resolver fail for this model
 }
@@ -506,12 +509,31 @@ func RunLoopWithModels(t *testing.T, dir string, exts ModelExtensionBuilder) Loo
 	return runLoopWith(t, dir, exts)
 }
 
-func runLoopWith(t *testing.T, dir string, exts ModelExtensionBuilder) LoopResult {
+// RunLoopWithPoints is RunLoopWith for an extension that declares hook points of its own, which a case may then
+// script by name as it scripts the kernel's; a point not passed here is unknown to the case.
+func RunLoopWithPoints(t *testing.T, dir string, exts ExtensionBuilder, points ...kernel.AnyHookPoint) LoopResult {
+	t.Helper()
+	var models ModelExtensionBuilder
+	if exts != nil {
+		models = func(name string, options json.RawMessage, _ map[string]provider.ModelRef) (kernel.Extension, error) {
+			return exts(name, options)
+		}
+	}
+	return runLoopWith(t, dir, models, points...)
+}
+
+// RunLoopWithModelsAndPoints is RunLoopWithModels for an extension that also declares hook points of its own.
+func RunLoopWithModelsAndPoints(t *testing.T, dir string, exts ModelExtensionBuilder, points ...kernel.AnyHookPoint) LoopResult {
+	t.Helper()
+	return runLoopWith(t, dir, exts, points...)
+}
+
+func runLoopWith(t *testing.T, dir string, exts ModelExtensionBuilder, points ...kernel.AnyHookPoint) LoopResult {
 	t.Helper()
 	var res LoopResult
 	var skipped error
 	synctest.Test(t, func(t *testing.T) {
-		r, err := runLoop(t, dir, exts)
+		r, err := runLoop(t, dir, exts, points...)
 		if errors.Is(err, ErrExtensionMissing) || errors.Is(err, errUnsupported) {
 			skipped = err
 			return
@@ -534,34 +556,36 @@ func runLoopWith(t *testing.T, dir string, exts ModelExtensionBuilder) LoopResul
 }
 
 type loopRun struct {
-	t        *testing.T
-	dir      string
-	script   LoopScript
-	rec      *recorder
-	sess     *kernel.Session
-	ag       *kernel.Agent
-	runs     *runCounter
-	named    map[string]*kernel.Receipt
-	pending  []*kernel.Receipt // command receipts, which must settle before the session counts as idle
-	closed   bool
-	models   map[string]provider.ModelRef
-	log      *requestLog
-	sent     *requestLog                     // neutral requests, whatever the response kind
-	tools    map[string]*kernel.Registration // session-scope tools, by name
-	sections map[string]*kernel.Registration // session-scope sections, by name
-	hookLog  *requestLog
-	ledger   []json.RawMessage
-	labels   []json.RawMessage
-	exts     ModelExtensionBuilder
-	peers    []*peer
-	store    store.SessionStore
-	scripts  *taskScripts
-	taskLog  []json.RawMessage
-	async    sync.WaitGroup
-	asyncErr chan error
+	t         *testing.T
+	dir       string
+	script    LoopScript
+	rec       *recorder
+	sess      *kernel.Session
+	ag        *kernel.Agent
+	runs      *runCounter
+	named     map[string]*kernel.Receipt
+	pending   []*kernel.Receipt // command receipts, which must settle before the session counts as idle
+	closed    bool
+	models    map[string]provider.ModelRef
+	log       *requestLog
+	sent      *requestLog                     // neutral requests, whatever the response kind
+	tools     map[string]*kernel.Registration // session-scope tools, by name
+	sections  map[string]*kernel.Registration // session-scope sections, by name
+	hookLog   *requestLog
+	ledger    []json.RawMessage
+	labels    []json.RawMessage
+	exts      ModelExtensionBuilder
+	points    map[string]kernel.AnyHookPoint         // the extension's own points, which a case may script by name
+	resolvers map[string]provider.CapabilityResolver // the providers whose capabilities resolve from a models listing
+	peers     []*peer
+	store     store.SessionStore
+	scripts   *taskScripts
+	taskLog   []json.RawMessage
+	async     sync.WaitGroup
+	asyncErr  chan error
 }
 
-func runLoop(t *testing.T, dir string, exts ModelExtensionBuilder) (LoopResult, error) {
+func runLoop(t *testing.T, dir string, exts ModelExtensionBuilder, points ...kernel.AnyHookPoint) (LoopResult, error) {
 	var sc LoopScript
 	if err := readJSON(filepath.Join(dir, "script.json"), &sc); err != nil {
 		return LoopResult{}, err
@@ -572,8 +596,13 @@ func runLoop(t *testing.T, dir string, exts ModelExtensionBuilder) (LoopResult, 
 	if len(sc.Providers) == 0 {
 		return LoopResult{}, errors.New("a case needs a provider")
 	}
+	named := make(map[string]kernel.AnyHookPoint, len(points))
+	for _, p := range points {
+		named[p.Name()] = p
+	}
 	run := &loopRun{t: t, dir: dir, script: sc, exts: exts, rec: newRecorder(), runs: &runCounter{n: map[string]int{}}, named: map[string]*kernel.Receipt{},
-		models: map[string]provider.ModelRef{}, log: &requestLog{}, sent: &requestLog{}, tools: map[string]*kernel.Registration{}, sections: map[string]*kernel.Registration{}, hookLog: &requestLog{}, scripts: &taskScripts{}}
+		models: map[string]provider.ModelRef{}, log: &requestLog{}, sent: &requestLog{}, tools: map[string]*kernel.Registration{}, sections: map[string]*kernel.Registration{}, hookLog: &requestLog{}, scripts: &taskScripts{}, points: named,
+		resolvers: map[string]provider.CapabilityResolver{}}
 	var wire bool
 	for i, lp := range sc.Providers {
 		prov, w, err := run.provider(lp)
@@ -902,8 +931,18 @@ func (r *loopRun) provider(p LoopProvider) (provider.Provider, bool, error) {
 	if len(p.Responses) == 0 {
 		return nil, false, errors.New("the provider has no responses")
 	}
+	if p.Models != "" && p.Responses[0].SSE == "" {
+		return nil, false, errors.New("a models listing needs SSE responses, since it is answered on the wire")
+	}
 	if p.Responses[0].SSE != "" {
 		var responses []providertest.Response
+		if p.Models != "" { // the capabilities request comes before the case's first model call
+			body, err := os.ReadFile(r.path(p.Models))
+			if err != nil {
+				return nil, false, err
+			}
+			responses = append(responses, providertest.Response{Header: http.Header{"Content-Type": {"application/json"}}, Body: body})
+		}
 		for _, lr := range p.Responses {
 			if lr.SSE == "" {
 				return nil, false, errors.New("mixing SSE and event responses in one provider")
@@ -923,6 +962,11 @@ func (r *loopRun) provider(p LoopProvider) (provider.Provider, bool, error) {
 			return nil, false, fmt.Errorf("no adapter for %s", p.API)
 		}
 		real := f(loggingDoer{next: providertest.NewFixtureTransport(responses...), log: r.log, headers: slices.Sorted(maps.Keys(r.script.Agent.RequestHeaders))})
+		if p.Models != "" {
+			if c, ok := real.(provider.CapabilityResolver); ok {
+				r.resolvers[p.Name] = c
+			}
+		}
 		if c, ok := real.(provider.TokenCounter); ok {
 			return countingProvider{loggingProvider{Provider: real, sent: r.sent}, c}, true, nil
 		}
@@ -962,13 +1006,20 @@ var loopFactories = map[provider.API]func(provider.Doer) provider.Provider{
 	},
 }
 
-// scriptResolver answers capability lookups from the script, so no case ever spends a fixture response on a models request.
-type scriptResolver struct{ providers []LoopProvider }
+// scriptResolver answers capability lookups from the script, so no case spends a fixture response on a models
+// request unless it names a listing; that provider then resolves through its own GET {base}/models.
+type scriptResolver struct {
+	providers []LoopProvider
+	caps      map[string]provider.CapabilityResolver // by provider name, for those with a listing
+}
 
-func (s scriptResolver) ResolveCapabilities(_ context.Context, m provider.ModelInfo) (provider.Capabilities, error) {
+func (s scriptResolver) ResolveCapabilities(ctx context.Context, m provider.ModelInfo) (provider.Capabilities, error) {
 	for _, p := range s.providers {
 		if provider.API(p.API) != m.API || p.Model != m.Model {
 			continue
+		}
+		if c, ok := s.caps[p.Name]; ok {
+			return c.ResolveCapabilities(ctx, m)
 		}
 		if p.ResolveError != "" {
 			return provider.Capabilities{}, errors.New(p.ResolveError)
@@ -1036,7 +1087,7 @@ func (r *loopRun) agentOptions(model provider.ModelRef, st store.SessionStore) (
 	l := a.Limits
 	opts := []kernel.Option{
 		kernel.WithModel(model),
-		kernel.WithCapabilityResolver(scriptResolver{providers: r.script.Providers}),
+		kernel.WithCapabilityResolver(scriptResolver{providers: r.script.Providers, caps: r.resolvers}),
 		kernel.WithStore(st),
 		kernel.WithClock(determ.NewStepClock(start, step)),
 		kernel.WithIDGenerator(determ.NewSequentialIDs()),
@@ -1050,6 +1101,9 @@ func (r *loopRun) agentOptions(model provider.ModelRef, st store.SessionStore) (
 		}),
 		kernel.WithRetryPolicy(provider.RetryPolicy{MaxAttempts: a.Retry.MaxAttempts, BaseDelay: ms(a.Retry.BaseDelayMS), MaxDelay: ms(a.Retry.MaxDelayMS)}),
 		kernel.WithAutoContinueTruncatedText(a.AutoContinueTruncatedText),
+	}
+	if a.RawEvents {
+		opts = append(opts, kernel.WithRawProviderEvents())
 	}
 	if a.Nickname != "" {
 		opts = append(opts, kernel.WithNickname(a.Nickname))
@@ -1193,19 +1247,20 @@ func scriptProvider(lc LoopContext) (kernel.ContextProvider, error) {
 	}}, nil
 }
 
-// kernelPoints finds a kernel hook point by name.
-func kernelPoint(name string) (kernel.AnyHookPoint, bool) {
+// hookPoint finds a kernel point by name, or one the extension whose cases this test drives declared.
+func (r *loopRun) hookPoint(name string) (kernel.AnyHookPoint, bool) {
 	for _, p := range kernel.HookPoints() {
 		if p.Name() == name {
 			return p, true
 		}
 	}
-	return nil, false
+	p, ok := r.points[name]
+	return p, ok
 }
 
 // addHook registers a scripted hook through its point's JSON form, logging every input it receives.
 func (r *loopRun) addHook(reg kernel.Registrar, lh LoopHook) error {
-	point, ok := kernelPoint(lh.Point)
+	point, ok := r.hookPoint(lh.Point)
 	if !ok {
 		return fmt.Errorf("hook %s: unknown point %q", lh.Name, lh.Point)
 	}
@@ -1449,6 +1504,9 @@ func scriptCommand(lc LoopCommand) kernel.Command {
 	return kernel.Command{
 		Name: lc.Name, Aliases: lc.Aliases, Description: lc.Description, Busy: kernel.BusyPolicy(lc.Busy),
 		Run: func(ctx context.Context, cc *kernel.CommandContext) (kernel.CommandResult, error) {
+			for _, out := range lc.Outputs {
+				cc.Output(out)
+			}
 			if d := ms(lc.SleepMS); d > 0 {
 				select {
 				case <-time.After(d):

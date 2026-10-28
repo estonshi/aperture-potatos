@@ -1,0 +1,80 @@
+{
+  "spec_version": "0.3",
+  "description": "A skill_activate hook refuses the model's tool call and the person's command: both answers carry the hook's reason, and the skill is neither pinned nor reported as activated.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "hooks": [
+      {
+        "point": "skill_activate",
+        "name": "policy",
+        "cases": [
+          {
+            "when": {
+              "trigger": "model"
+            },
+            "call": {
+              "output": {
+                "deny": true,
+                "reason": "not in this workspace"
+              }
+            }
+          },
+          {
+            "when": {
+              "trigger": "user"
+            },
+            "call": {
+              "output": {
+                "deny": true,
+                "reason": "ask an admin"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "extensions": {
+      "skills": {
+        "files": {
+          "notes/SKILL.md": "---\nname: notes\ndescription: Take notes.\n---\n\nNote it.\n"
+        }
+      }
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-28T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Load the notes skill."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "command": {
+        "name": "notes"
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}
