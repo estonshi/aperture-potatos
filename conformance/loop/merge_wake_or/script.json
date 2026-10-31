@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "At the queue limit a waking reminder merges into a sleeping one of the same source; the merged item wakes and starts a turn.",
   "agent": {
     "nickname": "Tater",

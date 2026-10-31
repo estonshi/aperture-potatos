@@ -441,3 +441,50 @@ func TestAgentOnClose(t *testing.T) {
 		}
 	})
 }
+
+// TestCommandNameAllowsColon: a command and its alias may carry ":", which runtime registration and /name parsing both accept.
+func TestCommandNameAllowsColon(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		h := newHarness(t, nil)
+		run := func(context.Context, *kernel.CommandContext) (kernel.CommandResult, error) {
+			return kernel.CommandResult{Text: "deployed"}, nil
+		}
+		if _, err := h.sess.Registrar().Command(kernel.Command{Name: "plugin:deploy", Aliases: []string{"plugin:d"}, Run: run}); err != nil {
+			t.Fatal(err)
+		}
+		for _, text := range []string{"/plugin:deploy prod", "/plugin:d prod"} {
+			rc, err := h.sess.Send(kernel.Text(text))
+			if err != nil {
+				t.Fatal(err)
+			}
+			res, err := rc.Wait(t.Context())
+			if err != nil {
+				t.Fatal(err)
+			}
+			if res.Command == nil || res.Command.Text != "deployed" {
+				t.Fatalf("%s: %+v", text, res)
+			}
+		}
+		synctest.Wait()
+		var names []string
+		for _, ev := range h.rec.all() {
+			if ev.Type == event.TypeCommandStarted {
+				names = append(names, ev.Data.(*event.CommandStarted).Name)
+			}
+		}
+		if !slices.Equal(names, []string{"plugin:deploy", "plugin:deploy"}) {
+			t.Fatalf("command.started names %v", names)
+		}
+		for _, bad := range []kernel.Command{
+			{Name: ":deploy", Run: run},
+			{Name: "Plugin:deploy", Run: run},
+			{Name: "plugin/deploy", Run: run},
+			{Name: "plugin:deploy", Aliases: []string{":bad"}, Run: run},
+		} {
+			if _, err := h.sess.Registrar().Command(bad); !errors.Is(err, kernel.ErrInvalidName) {
+				t.Fatalf("%q: %v", bad.Name, err)
+			}
+		}
+		h.close()
+	})
+}

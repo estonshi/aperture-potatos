@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "On a declared prefix-bound model the history stays whole; the retry asks the API to drop mismatched thinking, which it reports.",
   "agent": {
     "nickname": "Tater",

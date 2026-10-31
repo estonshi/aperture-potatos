@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "The task API's errors reach the model as fixed texts: a kind without instructions refuses a message while it runs, a kind without restart refuses a restart, and a finished task of a kind that cannot continue points to task_restart.",
   "agent": {
     "nickname": "Tater",

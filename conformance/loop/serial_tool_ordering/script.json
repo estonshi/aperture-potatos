@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "Two calls of a serial tool in one reply run one after the other in call order, and one tool line holds both results.",
   "agent": {
     "nickname": "Tater",

@@ -5,6 +5,7 @@
     "type": "object",
     "properties": {
       "name": { "type": "string", "enum": [], "description": "The skill to load." },
+      "args": { "type": "string", "description": "Arguments for the skill's prompt template; $ARGUMENTS, $ARGUMENTS[N], $N and $$ expand with them. Omit to load the body unchanged." },
       "resource": { "type": "string", "description": "Optional relative path listed in <skill_resources>; returns that file instead of the instructions." }
     },
     "required": ["name"],

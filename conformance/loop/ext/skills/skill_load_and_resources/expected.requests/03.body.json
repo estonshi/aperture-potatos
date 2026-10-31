@@ -102,6 +102,10 @@
       "input_schema": {
         "additionalProperties": false,
         "properties": {
+          "args": {
+            "description": "Arguments for the skill's prompt template; $ARGUMENTS, $ARGUMENTS[N], $N and $$ expand with them. Omit to load the body unchanged.",
+            "type": "string"
+          },
           "name": {
             "description": "The skill to load.",
             "enum": [

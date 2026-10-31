@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "Interrupting after the response started but before any block leaves nothing to commit: the attempt is discarded as empty.",
   "agent": {
     "nickname": "Tater",

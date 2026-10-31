@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "On a model whose signatures are bound to the prefix, a side chat's requests keep the main session's thinking, whose prefix is unchanged, leave out the thinking of the side chat's earlier turns, made on another main part, and keep the thinking of the turn that is running.",
   "agent": {
     "nickname": "Tater",

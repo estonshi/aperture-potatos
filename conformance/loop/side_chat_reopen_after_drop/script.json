@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "A side chat is stored as <main>.side.<name>, whose calls also count in the main session's side bucket; dropping it writes a dropped boundary, after which it does not resume, and opening it again starts a new side_chat epoch of the same file, whose requests carry the main session as it is then.",
   "agent": {
     "nickname": "Tater",

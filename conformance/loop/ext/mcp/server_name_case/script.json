@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "A server the host names as its own configuration names it — capitals and underscores — keeps that case in its tool names, so the model calls mcp__claude_ai_Gmail__echo, while the prompt it offers becomes the lower-cased command mcp__claude_ai_gmail__review_code.",
   "agent": {
     "nickname": "Tater",

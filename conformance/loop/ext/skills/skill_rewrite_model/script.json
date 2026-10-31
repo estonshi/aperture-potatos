@@ -1,0 +1,51 @@
+{
+  "spec_version": "0.5",
+  "description": "A rewriter replaces the body's shell substitution with its output before the model sees it; the tool result and pin hold the rewritten text, and a later call without args is already active without rewriting again.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "extensions": {
+      "skills": {
+        "files": {
+          "notes/SKILL.md": "---\nname: notes\ndescription: Draft notes.\n---\nDraft notes for $ARGUMENTS.\n\n!`git status`\n"
+        },
+        "rewrite": {
+          "replace": [
+            {
+              "old": "!`git status`",
+              "new": "working tree clean"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-31T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Load the notes skill for 2.1, then again."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

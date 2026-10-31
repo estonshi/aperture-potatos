@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "Turns fed only by reminders stop at max_consecutive_auto_turns; the reminder over the cap waits and rides the next human turn, which resets the count.",
   "agent": {
     "nickname": "Tater",

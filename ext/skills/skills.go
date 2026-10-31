@@ -17,6 +17,7 @@ import (
 
 	"github.com/estonshi/aperture-potatos/event"
 	"github.com/estonshi/aperture-potatos/kernel"
+	"github.com/estonshi/aperture-potatos/message"
 	"github.com/estonshi/aperture-potatos/spec"
 )
 
@@ -36,7 +37,20 @@ type Options struct {
 	Sources             []Source
 	MaxDescriptionChars int // default 1536
 	PinTokens           int // default 5000 per activated skill
+	Rewrite             RewriteFunc
 }
+
+// RewriteInput is what Rewrite receives: the body after $ARGUMENTS expansion.
+type RewriteInput struct {
+	Session   *kernel.Session
+	Name      string
+	Trigger   string // model or user
+	Arguments string
+	Body      string
+}
+
+// RewriteFunc may run the body's shell substitutions with the session's permissions before the model sees it; an error ends the load with the denied text.
+type RewriteFunc func(ctx context.Context, in RewriteInput) (string, error)
 
 type ActivateInput struct {
 	kernel.HookEnv
@@ -376,9 +390,27 @@ func env(s *kernel.Session, path []event.Hop) kernel.HookEnv {
 	return kernel.HookEnv{Session: s, SessionID: info.SessionID, Agent: info.Agent, Path: path}
 }
 
-// active reports whether the session's pin set already holds this body, which compaction re-injects, so loading it again would only repeat it.
-func active(s *kernel.Session, name, body string) bool {
-	return slices.ContainsFunc(s.Pins(), func(p kernel.Pin) bool { return p.Key == pinPrefix+name && p.Content == body })
+// active reports whether the session's pin set already holds this load, which compaction re-injects, so loading it again would only repeat it. With a rewriter, a call that names no args is active whenever the pin exists, since the rewritten text may differ on every load; a call that names args is a new invocation and never deduplicates.
+func (e *ext) active(s *kernel.Session, name, body string, hasArgs bool) (kernel.Pin, bool) {
+	for _, p := range s.Pins() {
+		if p.Key != pinPrefix+name {
+			continue
+		}
+		if e.o.Rewrite == nil {
+			return p, p.Content == body
+		}
+		if !hasArgs {
+			return p, true
+		}
+	}
+	return kernel.Pin{}, false
+}
+
+func (e *ext) rewrite(ctx context.Context, s *kernel.Session, name, trigger, args, body string) (string, error) {
+	if e.o.Rewrite == nil {
+		return body, nil
+	}
+	return e.o.Rewrite(ctx, RewriteInput{Session: s, Name: name, Trigger: trigger, Arguments: args, Body: body})
 }
 
 func (e *ext) pin(name, body string) *kernel.Pin {
@@ -390,8 +422,9 @@ func (e *ext) pin(name, body string) *kernel.Pin {
 type skillTool struct{ e *ext }
 
 type toolInput struct {
-	Name     string `json:"name"`
-	Resource string `json:"resource,omitempty"`
+	Name     string  `json:"name"`
+	Args     *string `json:"args,omitempty"`
+	Resource string  `json:"resource,omitempty"`
 }
 
 var toolDef = func() (d struct {
@@ -435,13 +468,22 @@ func (t *skillTool) Call(ctx context.Context, tc *kernel.ToolContext, raw json.R
 	if err != nil {
 		return kernel.ToolResult{}, err
 	}
-	ev := &Activated{Name: in.Name, Trigger: "model", Tokens: estimate(sk.Body), AllowedTools: sk.AllowedTools}
-	if active(s, in.Name, sk.Body) {
-		ev.Deduplicated = true
-		tc.Emit(ev)
+	delivered := sk.Body
+	args := ""
+	hasArgs := in.Args != nil
+	if hasArgs {
+		args = *in.Args
+		delivered = kernel.ExpandPrompt(sk.Body, args)
+	}
+	if p, ok := t.e.active(s, in.Name, delivered, hasArgs); ok {
+		tc.Emit(&Activated{Name: in.Name, Trigger: "model", Tokens: estimate(p.Content), Deduplicated: true, AllowedTools: sk.AllowedTools})
 		return kernel.TextResult(text("already_active", "name", in.Name)), nil
 	}
-	body := strings.ReplaceAll(sk.Body, "</skill_content>", `<\/skill_content>`)
+	delivered, err = t.e.rewrite(ctx, s, in.Name, "model", args, delivered)
+	if err != nil {
+		return kernel.ErrorResult("%s", text("denied", "name", in.Name, "reason", err.Error())), nil
+	}
+	body := strings.ReplaceAll(delivered, "</skill_content>", `<\/skill_content>`)
 	out2 := text("content", "name", attr(in.Name), "location", attr(sk.Location), "body", body)
 	if len(sk.Resources) > 0 {
 		files := make([]string, len(sk.Resources))
@@ -450,9 +492,9 @@ func (t *skillTool) Call(ctx context.Context, tc *kernel.ToolContext, raw json.R
 		}
 		out2 += "\n" + text("resources", "files", strings.Join(files, "\n"))
 	}
-	tc.Emit(ev)
+	tc.Emit(&Activated{Name: in.Name, Trigger: "model", Tokens: estimate(delivered), AllowedTools: sk.AllowedTools})
 	res := kernel.TextResult(out2)
-	res.Pin = t.e.pin(in.Name, sk.Body)
+	res.Pin = t.e.pin(in.Name, delivered)
 	return res, nil
 }
 
@@ -501,7 +543,7 @@ func withEnum(schema json.RawMessage, names []string) json.RawMessage {
 	enum, _ := json.Marshal(names)
 	nm["enum"] = enum
 	props["name"] = ordered(nm, "type", "enum", "description")
-	s["properties"] = ordered(props, "name", "resource")
+	s["properties"] = ordered(props, "name", "args", "resource")
 	return ordered(s, "type", "properties", "required", "additionalProperties")
 }
 
@@ -545,13 +587,16 @@ func (e *ext) command(fm Frontmatter) kernel.Command {
 			if err != nil {
 				return kernel.CommandResult{}, err
 			}
-			res, err := kernel.PromptCommand(name, "", sk.Body).Run(ctx, cc) // the body expands $ARGUMENTS like any prompt command
+			args := cc.Args()
+			delivered := kernel.ExpandPrompt(sk.Body, args) // the body expands like any prompt command
+			delivered, err = e.rewrite(ctx, s, name, "user", args, delivered)
 			if err != nil {
-				return res, err
+				return kernel.CommandResult{Text: text("denied", "name", name, "reason", err.Error())}, nil
 			}
-			res.Pin = e.pin(name, sk.Body)
-			s.Emit(&Activated{Name: name, Trigger: "user", Tokens: estimate(sk.Body), AllowedTools: sk.AllowedTools})
-			return res, nil
+			in := kernel.Text(delivered)
+			in.Origin = message.Origin{Kind: message.OriginCommand, Source: name}
+			s.Emit(&Activated{Name: name, Trigger: "user", Tokens: estimate(delivered), AllowedTools: sk.AllowedTools})
+			return kernel.CommandResult{Prompt: &in, Pin: e.pin(name, delivered)}, nil
 		},
 	}
 }

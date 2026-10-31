@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "An ask rule with nobody to review denies the call; the session warned about it when it started.",
   "agent": {
     "nickname": "Tater",

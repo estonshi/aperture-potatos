@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "A host starts a tool_exec task: its run reviews the input as the model's background call would be, under the tool's name with background:true and the task hop in the path, and the reviewer denies it, so the task fails with the denial. The denied input was never approved, so a restart without a new input is reviewed again; approved, the second attempt runs.",
   "agent": {
     "nickname": "Tater",

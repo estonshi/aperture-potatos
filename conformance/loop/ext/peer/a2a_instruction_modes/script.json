@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "While the peer works, a queue instruction and two next_loop ones wait for its round: the next_loop ones go out merged, then the queue one alone. A second task's interrupt cancels the peer's task and goes out at once in the same conversation.",
   "agent": {
     "nickname": "Tater",

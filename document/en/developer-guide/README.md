@@ -2,7 +2,7 @@
 
 potatOS is an agent core SDK written in Go. You use it to build agents inside your own program that can call tools and work over multiple turns; Chapter 1 introduces it in full. This guide is for developers who use potatOS. It explains how to integrate, configure and extend it, and the constraints you need to follow when you use it. The guide covers only how to use the interfaces, not how they are implemented. If you want to learn how it works internally first, read [architecture.html](../architecture.html) in the parent directory.
 
-> Note: This guide covers the module `github.com/estonshi/aperture-potatos`, which requires Go 1.25. Its content matches spec version 0.4.
+> Note: This guide covers the module `github.com/estonshi/aperture-potatos`, which requires Go 1.25. Its content matches spec version 0.5.
 
 ## How to read this guide
 

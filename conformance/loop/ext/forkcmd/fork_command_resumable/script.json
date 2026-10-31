@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "/fork stores a copy of the context as a new session, closes it and reports its id, which resumes; the source goes on as before.",
   "agent": {
     "nickname": "Tater",

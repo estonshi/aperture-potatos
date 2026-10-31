@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"log/slog"
 	"os"
 	"slices"
@@ -174,6 +175,29 @@ func reminders(msgs []message.Message, source string) []string {
 
 func example() skills.Options {
 	return skills.Options{Sources: []skills.Source{skills.FS(os.DirFS("testdata/skills"))}}
+}
+
+// staticSource is a host source: it lists exactly the skills it was given, without the file-system rules.
+type staticSource struct {
+	list []skills.Frontmatter
+	body map[string]string
+}
+
+func (s staticSource) List(context.Context) ([]skills.Frontmatter, error) {
+	return slices.Clone(s.list), nil
+}
+
+func (s staticSource) Load(_ context.Context, name string) (*skills.Skill, error) {
+	for _, fm := range s.list {
+		if fm.Name == name {
+			return &skills.Skill{Frontmatter: fm, Body: s.body[name]}, nil
+		}
+	}
+	return nil, skills.ErrNotFound
+}
+
+func (s staticSource) Open(context.Context, string, string) (io.ReadCloser, error) {
+	return nil, skills.ErrNotFound
 }
 
 func toolOf(req *provider.Request, name string) *message.ToolDef {
@@ -419,4 +443,230 @@ func TestActivateHookFailures(t *testing.T) {
 			})
 		})
 	}
+}
+
+// TestRewriteModel: a rewriter runs after $ARGUMENTS expansion, the tool result and pin hold its text, and a later load without args is already active without calling it again.
+func TestRewriteModel(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		var calls []skills.RewriteInput
+		rewrite := func(_ context.Context, in skills.RewriteInput) (string, error) {
+			calls = append(calls, in)
+			return strings.ReplaceAll(in.Body, "!`git status`", "working tree clean"), nil
+		}
+		files := fstest.MapFS{
+			"notes/SKILL.md": &fstest.MapFile{Data: []byte("---\nname: notes\ndescription: Draft notes.\n---\nDraft notes for $ARGUMENTS.\n\n!`git status`\n")},
+		}
+		h := newHarness(t, [][]providertest.Step{
+			call("toolu_1", `{"name":"notes","args":"2.1"}`),
+			call("toolu_2", `{"name":"notes"}`),
+			call("toolu_3", `{"name":"notes","args":"2.2"}`),
+			reply("ok"),
+		}, kernel.Use(skills.New(skills.Options{Sources: []skills.Source{skills.FS(files)}, Rewrite: rewrite})))
+		h.turn("go")
+		texts, pins := h.results()
+		if len(texts) != 3 || !strings.Contains(texts[0], "Draft notes for 2.1.") || !strings.Contains(texts[0], "working tree clean") || strings.Contains(texts[0], "!`git status`") || !strings.HasPrefix(texts[1], "Skill notes is already active") || !strings.Contains(texts[2], "Draft notes for 2.2.") || !strings.Contains(texts[2], "working tree clean") {
+			t.Fatalf("results %q", texts)
+		}
+		ps := h.sess.Pins()
+		if len(pins) != 2 || len(ps) != 1 || !strings.Contains(ps[0].Content, "2.2") || !strings.Contains(ps[0].Content, "working tree clean") || strings.Contains(ps[0].Content, "!`git status`") {
+			t.Fatalf("pins %v %+v", pins, ps)
+		}
+		if len(calls) != 2 || calls[0].Trigger != "model" || calls[0].Arguments != "2.1" || !strings.Contains(calls[0].Body, "Draft notes for 2.1.") || !strings.Contains(calls[0].Body, "!`git status`") || calls[1].Arguments != "2.2" || !strings.Contains(calls[1].Body, "Draft notes for 2.2.") {
+			t.Fatalf("calls %+v", calls)
+		}
+		acts := h.rec.of("skills.activated")
+		if len(acts) != 3 || !acts[1].Data.(*skills.Activated).Deduplicated || acts[2].Data.(*skills.Activated).Deduplicated {
+			t.Fatalf("activations %+v", acts)
+		}
+		h.close()
+	})
+}
+
+// TestRewriteUser: a command expands $ARGUMENTS first, the rewriter sees the expanded body, and the command input and pin hold its text.
+func TestRewriteUser(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		var got skills.RewriteInput
+		rewrite := func(_ context.Context, in skills.RewriteInput) (string, error) {
+			got = in
+			return strings.ReplaceAll(in.Body, "!`git status`", "working tree clean"), nil
+		}
+		files := fstest.MapFS{
+			"notes/SKILL.md": &fstest.MapFile{Data: []byte("---\nname: notes\ndescription: Draft notes.\n---\nDraft notes for $ARGUMENTS.\n\n!`git status`\n")},
+		}
+		h := newHarness(t, [][]providertest.Step{reply("ok")}, kernel.Use(skills.New(skills.Options{Sources: []skills.Source{skills.FS(files)}, Rewrite: rewrite})))
+		rc, err := h.sess.Command("notes", "2.1")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := rc.Wait(t.Context()); err != nil {
+			t.Fatal(err)
+		}
+		_, _ = h.sess.WaitQuiet(t.Context())
+		req := h.sp.Requests()[0]
+		if text := req.Messages[0].Text(); !strings.Contains(text, "Draft notes for 2.1.") || !strings.Contains(text, "working tree clean") || strings.Contains(text, "!`git status`") {
+			t.Fatalf("input %q", text)
+		}
+		if ps := h.sess.Pins(); len(ps) != 1 || !strings.Contains(ps[0].Content, "working tree clean") || strings.Contains(ps[0].Content, "!`git status`") {
+			t.Fatalf("pins %+v", ps)
+		}
+		if got.Trigger != "user" || got.Arguments != "2.1" || !strings.Contains(got.Body, "Draft notes for 2.1.") {
+			t.Fatalf("rewrite %+v", got)
+		}
+		if acts := h.rec.of("skills.activated"); len(acts) != 1 || acts[0].Data.(*skills.Activated).Tokens == 0 {
+			t.Fatalf("activations %+v", acts)
+		}
+		h.close()
+	})
+}
+
+// TestRewriteDenies: a rewriter error fails the load with the denied text on both paths, without a pin or activation.
+func TestRewriteDenies(t *testing.T) {
+	deny := func(context.Context, skills.RewriteInput) (string, error) { return "", errors.New("no shell here") }
+	files := fstest.MapFS{
+		"notes/SKILL.md": &fstest.MapFile{Data: []byte("---\nname: notes\ndescription: Draft notes.\n---\nBody.\n")},
+	}
+	t.Run("model", func(t *testing.T) {
+		synctest.Test(t, func(t *testing.T) {
+			h := newHarness(t, [][]providertest.Step{call("toolu_1", `{"name":"notes"}`), reply("ok")},
+				kernel.Use(skills.New(skills.Options{Sources: []skills.Source{skills.FS(files)}, Rewrite: deny})))
+			h.turn("go")
+			texts, pins := h.results()
+			if len(texts) != 1 || texts[0] != "Loading skill notes was denied: no shell here" || len(pins) != 0 {
+				t.Fatalf("results %q %v", texts, pins)
+			}
+			if len(h.sess.Pins()) != 0 || len(h.rec.of("skills.activated")) != 0 {
+				t.Fatalf("pin %v, activations %d", h.sess.Pins(), len(h.rec.of("skills.activated")))
+			}
+			h.close()
+		})
+	})
+	t.Run("user", func(t *testing.T) {
+		synctest.Test(t, func(t *testing.T) {
+			h := newHarness(t, [][]providertest.Step{reply("ok")},
+				kernel.Use(skills.New(skills.Options{Sources: []skills.Source{skills.FS(files)}, Rewrite: deny})))
+			rc, err := h.sess.Command("notes", "")
+			if err != nil {
+				t.Fatal(err)
+			}
+			res, err := rc.Wait(t.Context())
+			if err != nil {
+				t.Fatal(err)
+			}
+			if res.Command == nil || res.Command.Text != "Loading skill notes was denied: no shell here" {
+				t.Fatalf("result %+v", res.Command)
+			}
+			if len(h.sess.Pins()) != 0 || len(h.rec.of("skills.activated")) != 0 {
+				t.Fatalf("pin %v, activations %d", h.sess.Pins(), len(h.rec.of("skills.activated")))
+			}
+			h.close()
+		})
+	})
+}
+
+// TestHostSkillNameWithColon: a host Source's name may carry ":"; it reaches the catalog, the tool's enum and /<name>.
+func TestHostSkillNameWithColon(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		src := staticSource{
+			list: []skills.Frontmatter{{Name: "plugin:notes", Description: "Draft notes.", UserInvocable: true, ModelInvocable: true, Location: "plugin:notes/SKILL.md"}},
+			body: map[string]string{"plugin:notes": "Body of the plugin skill."},
+		}
+		h := newHarness(t, [][]providertest.Step{reply("ok"), reply("ok")},
+			kernel.Use(skills.New(skills.Options{Sources: []skills.Source{src}})))
+		h.turn("hi")
+		req := h.sp.Requests()[0]
+		if sys := system(req); !strings.Contains(sys, "<name>plugin:notes</name>") {
+			t.Fatalf("system %q", sys)
+		}
+		if def := toolOf(req, "skill"); def == nil || !strings.Contains(string(def.InputSchema), `"plugin:notes"`) {
+			t.Fatalf("tool %+v", def)
+		}
+		if !slices.ContainsFunc(h.sess.Commands(), func(c kernel.CommandInfo) bool { return c.Name == "plugin:notes" }) {
+			t.Fatalf("commands %+v", h.sess.Commands())
+		}
+		rc, err := h.sess.Command("plugin:notes", "")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := rc.Wait(t.Context()); err != nil {
+			t.Fatal(err)
+		}
+		_, _ = h.sess.WaitQuiet(t.Context())
+		reqs := h.sp.Requests()
+		if len(reqs) != 2 || !slices.ContainsFunc(reqs[1].Messages, func(m message.Message) bool {
+			return strings.Contains(m.Text(), "Body of the plugin skill.")
+		}) {
+			t.Fatalf("second request %+v", reqs)
+		}
+		h.close()
+	})
+}
+
+// TestFSRejectsColonName: the Agent Skills naming rule still skips a file-system skill whose name holds ":".
+func TestFSRejectsColonName(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		files := fstest.MapFS{
+			"plugin:notes/SKILL.md": &fstest.MapFile{Data: []byte("---\nname: plugin:notes\ndescription: Hidden.\n---\nBody.\n")},
+		}
+		h := newHarness(t, [][]providertest.Step{reply("ok")},
+			kernel.Use(skills.New(skills.Options{Sources: []skills.Source{skills.FS(files)}})))
+		h.turn("hi")
+		req := h.sp.Requests()[0]
+		if sys := system(req); strings.Contains(sys, "plugin:notes") {
+			t.Fatalf("system %q", sys)
+		}
+		if toolOf(req, "skill") != nil {
+			t.Fatal("the skill tool is registered without a model-invocable skill")
+		}
+		if slices.ContainsFunc(h.sess.Commands(), func(c kernel.CommandInfo) bool { return c.Name == "plugin:notes" }) {
+			t.Fatal("the command is registered")
+		}
+		h.close()
+	})
+}
+
+// TestArgsWithoutRewrite: args expand the body without a rewriter; the same args load again as already active, and different args reload.
+func TestArgsWithoutRewrite(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		files := fstest.MapFS{
+			"notes/SKILL.md": &fstest.MapFile{Data: []byte("---\nname: notes\ndescription: Draft notes.\n---\nVersion $ARGUMENTS.\n")},
+		}
+		h := newHarness(t, [][]providertest.Step{
+			call("toolu_1", `{"name":"notes","args":"2.1"}`),
+			call("toolu_2", `{"name":"notes","args":"2.1"}`),
+			call("toolu_3", `{"name":"notes","args":"2.2"}`),
+			reply("ok"),
+		}, kernel.Use(skills.New(skills.Options{Sources: []skills.Source{skills.FS(files)}})))
+		h.turn("go")
+		texts, _ := h.results()
+		if len(texts) != 3 || !strings.Contains(texts[0], "Version 2.1.") || !strings.HasPrefix(texts[1], "Skill notes is already active") || !strings.Contains(texts[2], "Version 2.2.") {
+			t.Fatalf("results %q", texts)
+		}
+		if ps := h.sess.Pins(); len(ps) != 1 || !strings.Contains(ps[0].Content, "Version 2.2.") || strings.Contains(ps[0].Content, "2.1") {
+			t.Fatalf("pins %+v", ps)
+		}
+		if acts := h.rec.of("skills.activated"); len(acts) != 3 || !acts[1].Data.(*skills.Activated).Deduplicated {
+			t.Fatalf("activations %+v", acts)
+		}
+		h.close()
+	})
+}
+
+// TestArgsAbsentLeavesBody: a model call without args leaves $ARGUMENTS in the body, as before args existed.
+func TestArgsAbsentLeavesBody(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		files := fstest.MapFS{
+			"notes/SKILL.md": &fstest.MapFile{Data: []byte("---\nname: notes\ndescription: Draft notes.\n---\nVersion $ARGUMENTS.\n")},
+		}
+		h := newHarness(t, [][]providertest.Step{call("toolu_1", `{"name":"notes"}`), reply("ok")},
+			kernel.Use(skills.New(skills.Options{Sources: []skills.Source{skills.FS(files)}})))
+		h.turn("go")
+		texts, _ := h.results()
+		if len(texts) != 1 || !strings.Contains(texts[0], "Version $ARGUMENTS.") {
+			t.Fatalf("results %q", texts)
+		}
+		if ps := h.sess.Pins(); len(ps) != 1 || !strings.Contains(ps[0].Content, "$ARGUMENTS") {
+			t.Fatalf("pins %+v", ps)
+		}
+		h.close()
+	})
 }

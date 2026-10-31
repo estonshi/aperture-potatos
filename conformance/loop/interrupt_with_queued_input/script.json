@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "A queue input is turned into an interrupt while a tool runs: the turn stops at once, and the next turn delivers the undelivered next_loop input first, then that input, with the interruption note.",
   "agent": {
     "nickname": "Tater",

@@ -1,0 +1,42 @@
+{
+  "spec_version": "0.5",
+  "description": "A model call may name args: the body expands $ARGUMENTS with them before it is delivered, and the pin holds the expanded text.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "extensions": {
+      "skills": {
+        "files": {
+          "notes/SKILL.md": "---\nname: notes\ndescription: Draft notes.\n---\nDraft notes for $ARGUMENTS.\n"
+        }
+      }
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-31T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Load the notes skill for 2.1."
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

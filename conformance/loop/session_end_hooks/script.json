@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "An async session_end hook runs once as the session closes, keyed by the close reason, with the final usage; the close waits for it, its end event comes before session.closed, and the reminder its injection queued is dropped as the session closes.",
   "agent": {
     "nickname": "Tater",

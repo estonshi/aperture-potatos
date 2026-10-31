@@ -183,7 +183,7 @@ func startOptionsFor(r kernel.Registrar) startOptions {
 	return o
 }
 
-var defName = regexp.MustCompile(`^[a-zA-Z0-9_-]{1,64}$`)
+var defName = regexp.MustCompile(`^[a-zA-Z0-9_:-]{1,64}$`)
 
 // New registers the subagent kind together with its start tool, so the model can delegate in the foreground or the background.
 func New(o Options) kernel.Extension {

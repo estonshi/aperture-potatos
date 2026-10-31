@@ -308,3 +308,41 @@ func TestHookFailures(t *testing.T) {
 		})
 	}
 }
+
+// TestDefineAllowsColonName: a subagent type may carry ":", and the start tool's enum lists it.
+func TestDefineAllowsColonName(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		sp := providertest.NewScriptProvider(provider.APIAnthropicMessages)
+		ag := newAgent(t, store.NewMemory(), sp, kernel.Use(subagent.New(subagent.Options{})))
+		sess, err := ag.NewSession(t.Context())
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := subagent.Define(sess.Registrar(), subagent.Def{Name: "plugin:db-agent", Description: "Database work."}); err != nil {
+			t.Fatal(err)
+		}
+		var enum []string
+		for _, d := range sess.Tools() {
+			if d.Name == subagent.Name {
+				var s struct {
+					Properties struct {
+						AgentType struct {
+							Enum []string `json:"enum"`
+						} `json:"agent_type"`
+					} `json:"properties"`
+				}
+				_ = json.Unmarshal(d.InputSchema, &s)
+				enum = s.Properties.AgentType.Enum
+			}
+		}
+		if !slices.Equal(enum, []string{"general", "plugin:db-agent"}) {
+			t.Fatalf("enum %v", enum)
+		}
+		if _, err := subagent.Define(sess.Registrar(), subagent.Def{Name: ":bad name", Description: "Bad."}); !errors.Is(err, kernel.ErrInvalidName) {
+			t.Fatalf("invalid name: %v", err)
+		}
+		if err := ag.Close(t.Context()); err != nil {
+			t.Fatal(err)
+		}
+	})
+}

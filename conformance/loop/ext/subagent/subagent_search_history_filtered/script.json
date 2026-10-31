@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "search_history is a tool like any other for a subagent: a definition whose Tools does not list it gives the child no search_history.",
   "agent": {
     "nickname": "Tater",

@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "The file references a job that was still running and one that had finished. Resume rebuilds both from their last references: the running one is lost, reported by task.finished{lost} without a task.started, and its notice rides the next input instead of starting a turn. Its spec and state survived, so a restart runs it again.",
   "agent": {
     "nickname": "Tater",

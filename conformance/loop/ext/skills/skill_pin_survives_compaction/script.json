@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "A skill the model loaded is pinned, so after a compaction the new epoch head carries its body, and loading it again only points back at it. The skill has no command, so the case does not depend on when commands are registered.",
   "agent": {
     "nickname": "Tater",

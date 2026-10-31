@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "With pruning on, an automatic compaction first clears the older large tool results, all but the most recent: that alone gets under half the threshold, so no summary is requested, the strategy is prune and the lines are otherwise copied unchanged.",
   "agent": {
     "nickname": "Tater",

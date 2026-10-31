@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "A background subagent's model calls are booked in the parent's ledger under the turn that started it, in the subagent bucket with the child's session id, alongside the parent's own call. While the subagent still runs after that turn ended, the turn's calls are pending. A post_tool_use hook holds the start call's result for 1 ms of virtual time, so the child takes its message ids before the parent's tool line does, which O4 otherwise leaves unordered.",
   "agent": {
     "nickname": "Tater",

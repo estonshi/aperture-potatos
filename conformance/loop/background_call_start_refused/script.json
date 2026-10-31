@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "A task_start hook refuses the task a move would start, so BackgroundCall fails and the call runs on in the foreground; with the task limit taken by a host-started task a second move fails the same way, and the call ends with its own result.",
   "agent": {
     "nickname": "Tater",

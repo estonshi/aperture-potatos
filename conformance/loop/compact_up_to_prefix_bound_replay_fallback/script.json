@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "On a prefix-bound model, summarizing up to a turn changes what the kept lines follow, so their thinking signatures no longer verify: the boundary carries replay_fallback and every request of the epoch renders with degraded replay (the drop_block binding).",
   "agent": {
     "nickname": "Tater",

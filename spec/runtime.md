@@ -301,6 +301,8 @@ The host may act on one input that is still queued, named by its id.
 
 Text sent with origin `human` is a command when it starts with `/` followed by a registered name or alias and then whitespace or the end; the rest, trimmed, is the arguments. `//` escapes a literal leading slash. Parsing can be turned off per input.
 
+A command's name and each alias match `[a-z0-9][a-z0-9_:-]{0,63}`: a colon may separate a namespace, as in `plugin:command`, but it may not lead.
+
 | Busy policy | While a turn or a history command runs | When idle |
 |---|---|---|
 | `run_now` | Runs at once, beside it (`command.started{busy:true}`) | Runs at once |

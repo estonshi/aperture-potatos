@@ -1,0 +1,53 @@
+{
+  "spec_version": "0.5",
+  "description": "A command and its alias may carry a namespace colon: /plugin:deploy and /plugin:d both invoke it, and command.started keeps the colon in the canonical name.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "commands": [
+      {
+        "name": "plugin:deploy",
+        "aliases": [
+          "plugin:d"
+        ],
+        "description": "Deploy.",
+        "busy": "wait_idle",
+        "text": "Deployed."
+      }
+    ]
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-31T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "/plugin:deploy prod"
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "send": {
+        "text": "/plugin:d prod"
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

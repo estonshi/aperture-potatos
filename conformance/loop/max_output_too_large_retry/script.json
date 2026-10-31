@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "The API names its output limit; the step retries once with it, and the next turn starts from the learned limit.",
   "agent": {
     "nickname": "Tater",

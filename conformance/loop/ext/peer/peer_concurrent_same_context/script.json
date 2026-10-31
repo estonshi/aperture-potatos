@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "Two exchanges in one conversation with an in-process peer: the second waits for the first, saying which task it waits for, and each message is a turn of its own. Each end is notified and wakes the model.",
   "agent": {
     "nickname": "Tater",

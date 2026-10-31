@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "A reviewer's deny_and_stop in the child session ends the child's turn after its batch, as it would anywhere, and then fails the subagent task with the reviewer's reason, which the foreground call returns as an error.",
   "agent": {
     "nickname": "Tater",

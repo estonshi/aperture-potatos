@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "Interrupting mid-reply commits the closed part of the reply as partial and queues a note for the next turn.",
   "agent": {
     "nickname": "Tater",

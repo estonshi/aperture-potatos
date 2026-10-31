@@ -107,6 +107,9 @@ func TestSideChatReopensUntilDropped(t *testing.T) {
 		if _, err := h.sess.SideChat(ctx, "Bad Name"); !errors.Is(err, kernel.ErrInvalidName) {
 			t.Fatalf("bad name: %v", err)
 		}
+		if _, err := h.sess.SideChat(ctx, "a:b"); !errors.Is(err, kernel.ErrInvalidName) {
+			t.Fatalf("a side chat keeps the old name rule: %v", err)
+		}
 		mid := h.sess.Info().SessionID
 		if side.Info().SessionID != mid+".side.notes" || side.Parent() != h.sess || side.Info().ParentSessionID != mid || h.sess.Info().ParentSessionID != "" {
 			t.Fatalf("id %s parent %v", side.Info().SessionID, side.Parent())

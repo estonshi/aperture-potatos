@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "A pre_tool_use hook allows the call, but an ask rule registered at session scope still sends it to the reviewer: an allow on one side never lifts the other side's ask, and approval.requested names the rule's scope.",
   "agent": {
     "nickname": "Tater",

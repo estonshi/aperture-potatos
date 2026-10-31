@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "With max_steps 2 the turn ends after the second step's tools, with every call paired.",
   "agent": {
     "nickname": "Tater",

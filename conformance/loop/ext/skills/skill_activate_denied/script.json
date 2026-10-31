@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "A skill_activate hook refuses the model's tool call and the person's command: both answers carry the hook's reason, and the skill is neither pinned nor reported as activated.",
   "agent": {
     "nickname": "Tater",

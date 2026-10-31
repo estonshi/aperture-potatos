@@ -104,7 +104,7 @@ const appName = "app"
 
 var (
 	toolName    = regexp.MustCompile(`^[a-zA-Z0-9_-]{1,64}$`)
-	commandName = regexp.MustCompile(`^[a-z0-9][a-z0-9_-]{0,63}$`)
+	commandName = regexp.MustCompile(`^[a-z0-9][a-z0-9_:-]{0,63}$`)
 )
 
 type toolReg struct {

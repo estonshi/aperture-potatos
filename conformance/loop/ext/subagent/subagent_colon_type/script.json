@@ -1,0 +1,48 @@
+{
+  "spec_version": "0.5",
+  "description": "A subagent type may carry a namespace colon: the start tool offers plugin:db-agent, the model calls it, and the child session runs on an agent of that name.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "extensions": {
+      "subagent": {
+        "defs": [
+          {
+            "name": "plugin:db-agent",
+            "description": "Works on databases.",
+            "instructions": "Answer briefly."
+          }
+        ]
+      }
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse",
+        "responses/03.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-31T00:00:00.000Z",
+    "step_ms": 1,
+    "interleaved": true
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Ask the database agent to check the schema."
+      }
+    },
+    {
+      "wait_quiet": true
+    }
+  ]
+}

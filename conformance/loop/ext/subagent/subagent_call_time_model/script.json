@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "A call names a model and an effort the host exposes: the child session runs on the model the host resolves for that name, with the reasoning effort the call asked for, and the parent goes on with its own.",
   "agent": {
     "nickname": "Tater",

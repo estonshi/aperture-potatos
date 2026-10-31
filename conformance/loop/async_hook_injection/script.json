@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "An async turn_end hook answers later with context that wakes the idle session: it starts a reminder turn.",
   "agent": {
     "nickname": "Tater",

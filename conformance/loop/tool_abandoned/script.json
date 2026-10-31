@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "A call still running after the cancel grace is abandoned: the tool line records tool.abandoned in place of a result, and the result it returns later is dropped.",
   "agent": {
     "nickname": "Tater",

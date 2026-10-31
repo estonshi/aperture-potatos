@@ -1,0 +1,53 @@
+{
+  "spec_version": "0.5",
+  "description": "A rewriter error fails the load with the denied text: the model gets an error result and a person's command completes with the same text, with no pin and no skills.activated.",
+  "agent": {
+    "nickname": "Tater",
+    "instructions": "Be brief.",
+    "tools": [],
+    "extensions": {
+      "skills": {
+        "files": {
+          "notes/SKILL.md": "---\nname: notes\ndescription: Draft notes.\n---\nBody.\n"
+        },
+        "rewrite": {
+          "error": "no shell here"
+        }
+      }
+    }
+  },
+  "providers": [
+    {
+      "name": "claude",
+      "api": "anthropic.messages",
+      "model": "claude-opus-5-5",
+      "responses": [
+        "responses/01.sse",
+        "responses/02.sse"
+      ]
+    }
+  ],
+  "clock": {
+    "start": "2026-10-31T00:00:00.000Z",
+    "step_ms": 1
+  },
+  "ids": "sequential",
+  "actions": [
+    {
+      "send": {
+        "text": "Load the notes skill."
+      }
+    },
+    {
+      "wait": "idle"
+    },
+    {
+      "command": {
+        "name": "notes"
+      }
+    },
+    {
+      "wait": "idle"
+    }
+  ]
+}

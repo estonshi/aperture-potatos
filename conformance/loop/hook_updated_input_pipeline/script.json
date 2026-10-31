@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "Two pre_tool_use hooks rewrite the input in turn: the second sees the first one's rewrite, and the tool runs with the second one's.",
   "agent": {
     "nickname": "Tater",

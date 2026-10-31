@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "Moving the first of two serial calls lets the second start at once; an interrupt then stops the second call and ends the turn, but the moved call runs on as its task and its success is notified.",
   "agent": {
     "nickname": "Tater",

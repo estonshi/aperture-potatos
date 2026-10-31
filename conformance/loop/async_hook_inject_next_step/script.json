@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "An async user_prompt_submit hook answers while the turn's tool runs: its context reaches the running turn at the next safe point, in the user line after the tool line, before the second model call.",
   "agent": {
     "nickname": "Tater",

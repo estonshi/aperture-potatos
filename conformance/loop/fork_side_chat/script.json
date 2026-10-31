@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "A fork of a side chat is an independent session holding what the side chat sends: after the side chat's system line, copies of the main session's stable prefix and then of the side chat's lines, with boundary fork from the side chat; on a prefix-bound model the boundary carries replay_fallback, since the side chat's thinking was made on the main part of its own turns.",
   "agent": {
     "nickname": "Tater",

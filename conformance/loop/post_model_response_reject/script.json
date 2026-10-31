@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "A post_model_response hook rejects the reply: it is discarded, never committed, and the turn ends hook_stopped.",
   "agent": {
     "nickname": "Tater",

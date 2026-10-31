@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "Summarize up to here: the summary request carries only the lines before the turn as appended messages, and the new epoch keeps that turn and the ones after it verbatim after the rebuilt epoch head.",
   "agent": {
     "nickname": "Tater",

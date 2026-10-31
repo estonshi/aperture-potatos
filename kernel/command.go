@@ -332,11 +332,16 @@ func PromptCommand(name, description, template string, opts ...PromptOption) Com
 		Description: description,
 		Busy:        pc.busy,
 		Run: func(_ context.Context, cc *CommandContext) (CommandResult, error) {
-			in := Text(expandTemplate(template, cc.Args(), pc.args))
+			in := Text(ExpandPrompt(template, cc.Args(), pc.args...))
 			in.Origin = message.Origin{Kind: message.OriginCommand, Source: name}
 			return CommandResult{Prompt: &in}, nil
 		},
 	}
+}
+
+// ExpandPrompt expands a prompt command template with args by the rules of runtime.md §6.
+func ExpandPrompt(template, args string, names ...string) string {
+	return expandTemplate(template, args, names)
 }
 
 // expandTemplate replaces $ARGUMENTS, $ARGUMENTS[N], $N and the named $name; $$ is a literal $, and a template without placeholders gets the arguments appended.

@@ -60,9 +60,9 @@ The MCP client, `ext/mcp`, is part of this module as well, so you do not need to
 
 The events, session file format, prompt text and defaults of potatOS are defined by a language-independent specification in the repository's `spec/` directory, and implementations in other languages follow the same specification. The spec is versioned with SemVer. The current version is in `spec/VERSION`, and the change log is in `spec/CHANGELOG.md`.
 
-This Go implementation supports spec 0.4, shipped by the `v0.4.y` SDK releases. The spec is numbered `MAJOR.MINOR` and has no PATCH release; the SDK is numbered `vMAJOR.MINOR.PATCH`, and every `v0.4.y` satisfies spec 0.4.
+This Go implementation supports spec 0.5, shipped by the `v0.5.y` SDK releases. The spec is numbered `MAJOR.MINOR` and has no PATCH release; the SDK is numbered `vMAJOR.MINOR.PATCH`, and every `v0.5.y` satisfies spec 0.5.
 
-- A new session records `0.4` in the `spec_version` field of the `session.started` event and in the first line of the session file, and the data it writes contains only fields defined by spec 0.4.
+- A new session records `0.5` in the `spec_version` field of the `session.started` event and in the first line of the session file, and the data it writes contains only fields defined by spec 0.5.
 - When a session is resumed, whether it can be read depends on the line format version `v`, not on the spec version recorded in the first line. Any session file whose `v` is 1 can be read, including files written by implementations in other languages. If `v` is higher, resume returns `store.ErrIncompatibleStore`.
 - When the SDK reads data written by a newer version, it ignores unknown fields, keeps unknown content blocks as `*message.OpaqueBlock`, and decodes unknown event types as `*event.Unknown`.
 

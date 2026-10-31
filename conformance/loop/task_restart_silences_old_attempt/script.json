@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "A restart while the model is busy cancels the running attempt without a notification, withdraws the question that attempt left in the queue, and starts attempt 2 once the first has returned; only attempt 2's end is notified.",
   "agent": {
     "nickname": "Tater",

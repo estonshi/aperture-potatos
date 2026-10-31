@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"maps"
+	"regexp"
 	"slices"
 	"strings"
 	"sync"
@@ -15,6 +16,9 @@ import (
 	"github.com/estonshi/aperture-potatos/provider"
 	"github.com/estonshi/aperture-potatos/store"
 )
+
+// sideChatName keeps the name rule of runtime.md §12.8 even though a command's name now allows ":".
+var sideChatName = regexp.MustCompile(`^[a-z0-9][a-z0-9_-]{0,63}$`)
 
 // ForkOption configures Fork and SideChat.
 type ForkOption func(*forkConfig)
@@ -310,7 +314,7 @@ func (s *Session) sideID(name string) string { return s.id + ".side." + name }
 
 // SideChat opens the named side chat of this session, which sends this session's current context ahead of its own lines every turn; later opens return the same chat until DropSideChat.
 func (s *Session) SideChat(ctx context.Context, name string, opts ...ForkOption) (*Session, error) {
-	if !commandName.MatchString(name) {
+	if !sideChatName.MatchString(name) {
 		return nil, fmt.Errorf("%w: side chat %q", ErrInvalidName, name)
 	}
 	fc := forkOptions(opts)
@@ -528,7 +532,7 @@ func (s *Session) SideChats(ctx context.Context) ([]string, error) {
 	names := map[string]bool{}
 	for _, id := range ids {
 		name := strings.TrimPrefix(id, prefix)
-		if !commandName.MatchString(name) { // a side chat of a side chat
+		if !sideChatName.MatchString(name) { // a side chat of a side chat
 			continue
 		}
 		lines, err := s.agent.cfg.store.Load(ctx, id)

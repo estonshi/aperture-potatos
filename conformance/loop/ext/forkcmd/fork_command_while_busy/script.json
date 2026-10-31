@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "/fork runs while a turn streams, without interrupting it, and copies only the stable prefix, so the running turn is not in the fork.",
   "agent": {
     "nickname": "Tater",

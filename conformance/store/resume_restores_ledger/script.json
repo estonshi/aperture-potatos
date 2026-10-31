@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "The call ledger is kept in the session's calls file: after Resume the stored turn's calls come back, the usage totals, retries and turns are rebuilt from the file and the lines, and new calls continue its seq.",
   "agent": {
     "nickname": "Tater",

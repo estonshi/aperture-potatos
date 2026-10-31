@@ -2,7 +2,7 @@
 
 potatOS 是一个用 Go 编写的 agent core SDK，用于在你自己的程序中构建能够调用工具、多轮工作的 agent，第 1 章对它有完整的介绍。本指南面向使用 potatOS 的开发者，介绍如何接入、如何配置、如何扩展，以及使用时需要遵守的约束。指南只讲接口的用法，不涉及内部实现。如果你想先了解运行机制，请阅读上一级目录中的 [architecture.html](../architecture.html)。
 
-> 说明：本指南对应的 module 为 `github.com/estonshi/aperture-potatos`，要求 Go 1.25，内容与 spec 0.4 版本保持一致。
+> 说明：本指南对应的 module 为 `github.com/estonshi/aperture-potatos`，要求 Go 1.25，内容与 spec 0.5 版本保持一致。
 
 ## 阅读方式
 

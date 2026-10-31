@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "A subagent's search_history with parent: true sees only what the parent session's current context holds: a line the parent's rewind took out is neither found nor read by seq, while a kept line is found at its original seq.",
   "agent": {
     "nickname": "Tater",

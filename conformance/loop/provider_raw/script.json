@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "With raw provider events on, every wire event of the response is published as provider.raw beside the neutral events it decodes to, in the order the stream carried them.",
   "agent": {
     "nickname": "Tater",

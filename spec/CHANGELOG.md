@@ -2,6 +2,10 @@
 
 Every change to a schema, data file, prompt or expected fixture is recorded here; the release notes carry the detail.
 
+## 0.5 (2026-10-31)
+
+A MINOR release: command names and subagent type names may carry a namespace colon (`plugin:command`, `plugin:agent`), `ext/skills` lets a host rewrite a skill's body with the session's permissions before the model sees it, and the `skill` tool takes `args` to expand the body's prompt template. See [v0.5.0 release notes](../document/releases/v0.5.0.md) (in Chinese).
+
 ## 0.4 (2026-10-29)
 
 A MINOR release: an MCP server's name keeps its case, a sync hook's own events are published before its `hook.completed` (now fixed in `runtime.md` §10.2), and the conformance suite grows cases for extension hook points, `command.output`, `provider.raw`, model listings, `session_end` and the kernel points that had none. See [v0.4.0 release notes](../document/releases/v0.4.0.md) (in Chinese).

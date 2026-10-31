@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.4",
+  "spec_version": "0.5",
   "description": "A main session's compaction keeps its side chat, whose next turn carries the compacted context and says the main session changed; a clear drops it like a rewind, announced as side_chat.dropped with reason cleared.",
   "agent": {
     "nickname": "Tater",
