@@ -49,7 +49,7 @@ type RewriteInput struct {
 	Body      string
 }
 
-// RewriteFunc may run the body's shell substitutions with the session's permissions before the model sees it; an error ends the load with the denied text.
+// RewriteFunc may run the body's shell substitutions with the session's permissions before the model sees it; a model load calls it before deduplication, so a repeated load sees fresh text. An error ends the load with the denied text.
 type RewriteFunc func(ctx context.Context, in RewriteInput) (string, error)
 
 type ActivateInput struct {
@@ -390,16 +390,10 @@ func env(s *kernel.Session, path []event.Hop) kernel.HookEnv {
 	return kernel.HookEnv{Session: s, SessionID: info.SessionID, Agent: info.Agent, Path: path}
 }
 
-// active reports whether the session's pin set already holds this load, which compaction re-injects, so loading it again would only repeat it. With a rewriter, a call that names no args is active whenever the pin exists, since the rewritten text may differ on every load; a call that names args is a new invocation and never deduplicates.
-func (e *ext) active(s *kernel.Session, name, body string, hasArgs bool) (kernel.Pin, bool) {
+// active reports whether the session's pin set already holds this delivered body, which compaction re-injects, so loading it again would only repeat it.
+func active(s *kernel.Session, name, body string) (kernel.Pin, bool) {
 	for _, p := range s.Pins() {
-		if p.Key != pinPrefix+name {
-			continue
-		}
-		if e.o.Rewrite == nil {
-			return p, p.Content == body
-		}
-		if !hasArgs {
+		if p.Key == pinPrefix+name && p.Content == body {
 			return p, true
 		}
 	}
@@ -470,18 +464,17 @@ func (t *skillTool) Call(ctx context.Context, tc *kernel.ToolContext, raw json.R
 	}
 	delivered := sk.Body
 	args := ""
-	hasArgs := in.Args != nil
-	if hasArgs {
+	if in.Args != nil {
 		args = *in.Args
 		delivered = kernel.ExpandPrompt(sk.Body, args)
-	}
-	if p, ok := t.e.active(s, in.Name, delivered, hasArgs); ok {
-		tc.Emit(&Activated{Name: in.Name, Trigger: "model", Tokens: estimate(p.Content), Deduplicated: true, AllowedTools: sk.AllowedTools})
-		return kernel.TextResult(text("already_active", "name", in.Name)), nil
 	}
 	delivered, err = t.e.rewrite(ctx, s, in.Name, "model", args, delivered)
 	if err != nil {
 		return kernel.ErrorResult("%s", text("denied", "name", in.Name, "reason", err.Error())), nil
+	}
+	if p, ok := active(s, in.Name, delivered); ok {
+		tc.Emit(&Activated{Name: in.Name, Trigger: "model", Tokens: estimate(p.Content), Deduplicated: true, AllowedTools: sk.AllowedTools})
+		return kernel.TextResult(text("already_active", "name", in.Name)), nil
 	}
 	body := strings.ReplaceAll(delivered, "</skill_content>", `<\/skill_content>`)
 	out2 := text("content", "name", attr(in.Name), "location", attr(sk.Location), "body", body)

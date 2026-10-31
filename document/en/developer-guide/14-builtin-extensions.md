@@ -120,7 +120,7 @@ std.Defaults(std.With(skills.New(skills.Options{
 | `Sources` | The list of skill sources. Earlier sources take precedence. You can also merge several sources into one first with `skills.Merge(sources...)`. |
 | `MaxDescriptionChars` | The character limit for each skill's description in the catalog. The default is 1536. |
 | `PinTokens` | The number of tokens pinned for each loaded skill. The default is 5000. |
-| `Rewrite` | An optional body rewriter. It receives `skills.RewriteInput` (the session, the skill's name, the trigger, the arguments and the expanded body) and returns the body to deliver or an error; an error fails the load with the `denied` text. |
+| `Rewrite` | An optional body rewriter. It receives `skills.RewriteInput` (the session, the skill's name, the trigger, the arguments and the expanded body) and returns the body to deliver or an error; an error fails the load with the `denied` text. A model load calls it before deduplication, so a repeated load sees fresh text. |
 
 `skills.FS(fsys, opts...)` scans an `embed.FS` or an `os.DirFS` as a source. It accepts two options. `WithFrontmatterParser(fn)` swaps in a full YAML parser; the default parser understands only the subset that Agent Skills uses. `WithLogger(l)` receives warnings when a skill is loaded leniently or skipped. If your skills live in a database or a remote service, implement the `skills.Source` interface yourself; it has three methods, `List`, `Load` and `Open`. A host source is not bound by the Agent Skills naming rules: a name may contain `:`, and when it fits the command-name rule it is registered as `/<name>` too. To add a source at runtime, call `skills.AddSource(r, src)`.
 

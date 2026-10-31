@@ -1,6 +1,6 @@
 {
   "spec_version": "0.5",
-  "description": "A rewriter replaces the body's shell substitution with its output before the model sees it; the tool result and pin hold the rewritten text, and a later call without args is already active without rewriting again.",
+  "description": "A rewriter replaces the body's shell substitution with its output before the model sees it; the tool result and pin hold the rewritten text, and a later call with the same args re-renders the same text and is already active.",
   "agent": {
     "nickname": "Tater",
     "instructions": "Be brief.",

@@ -33,7 +33,8 @@ type caseRewrite struct {
 		Old string `json:"old"`
 		New string `json:"new"`
 	} `json:"replace"`
-	Error string `json:"error"`
+	Sequence []string `json:"sequence"`
+	Error    string   `json:"error"`
 }
 
 // caseOptions holds the skills of a case inline, path to file content, so a case is one script.
@@ -105,9 +106,15 @@ func build(name string, raw json.RawMessage) (kernel.Extension, error) {
 	opts := skills.Options{Sources: sources}
 	if o.Rewrite != nil {
 		rw := *o.Rewrite
+		calls := 0
 		opts.Rewrite = func(_ context.Context, in skills.RewriteInput) (string, error) {
 			if rw.Error != "" {
 				return "", errors.New(rw.Error)
+			}
+			if len(rw.Sequence) > 0 {
+				i := min(calls, len(rw.Sequence)-1)
+				calls++
+				return rw.Sequence[i], nil
 			}
 			body := in.Body
 			for _, r := range rw.Replace {

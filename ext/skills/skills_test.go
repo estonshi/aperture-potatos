@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"os"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -458,7 +459,7 @@ func TestRewriteModel(t *testing.T) {
 		}
 		h := newHarness(t, [][]providertest.Step{
 			call("toolu_1", `{"name":"notes","args":"2.1"}`),
-			call("toolu_2", `{"name":"notes"}`),
+			call("toolu_2", `{"name":"notes","args":"2.1"}`),
 			call("toolu_3", `{"name":"notes","args":"2.2"}`),
 			reply("ok"),
 		}, kernel.Use(skills.New(skills.Options{Sources: []skills.Source{skills.FS(files)}, Rewrite: rewrite})))
@@ -471,7 +472,7 @@ func TestRewriteModel(t *testing.T) {
 		if len(pins) != 2 || len(ps) != 1 || !strings.Contains(ps[0].Content, "2.2") || !strings.Contains(ps[0].Content, "working tree clean") || strings.Contains(ps[0].Content, "!`git status`") {
 			t.Fatalf("pins %v %+v", pins, ps)
 		}
-		if len(calls) != 2 || calls[0].Trigger != "model" || calls[0].Arguments != "2.1" || !strings.Contains(calls[0].Body, "Draft notes for 2.1.") || !strings.Contains(calls[0].Body, "!`git status`") || calls[1].Arguments != "2.2" || !strings.Contains(calls[1].Body, "Draft notes for 2.2.") {
+		if len(calls) != 3 || calls[0].Trigger != "model" || calls[0].Arguments != "2.1" || !strings.Contains(calls[0].Body, "Draft notes for 2.1.") || !strings.Contains(calls[0].Body, "!`git status`") || calls[1].Arguments != "2.1" || calls[2].Arguments != "2.2" || !strings.Contains(calls[2].Body, "Draft notes for 2.2.") {
 			t.Fatalf("calls %+v", calls)
 		}
 		acts := h.rec.of("skills.activated")
@@ -666,6 +667,38 @@ func TestArgsAbsentLeavesBody(t *testing.T) {
 		}
 		if ps := h.sess.Pins(); len(ps) != 1 || !strings.Contains(ps[0].Content, "$ARGUMENTS") {
 			t.Fatalf("pins %+v", ps)
+		}
+		h.close()
+	})
+}
+
+// TestRewriteRefreshes: a rewriter runs again on every model load, so a second call without args returns its new text and updates the pin instead of reporting the skill active.
+func TestRewriteRefreshes(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		n := 0
+		rewrite := func(_ context.Context, in skills.RewriteInput) (string, error) {
+			n++
+			return in.Body + " status " + strconv.Itoa(n), nil
+		}
+		files := fstest.MapFS{
+			"notes/SKILL.md": &fstest.MapFile{Data: []byte("---\nname: notes\ndescription: Draft notes.\n---\nWatch the tree.\n")},
+		}
+		h := newHarness(t, [][]providertest.Step{
+			call("toolu_1", `{"name":"notes"}`),
+			call("toolu_2", `{"name":"notes"}`),
+			reply("ok"),
+		}, kernel.Use(skills.New(skills.Options{Sources: []skills.Source{skills.FS(files)}, Rewrite: rewrite})))
+		h.turn("go")
+		texts, _ := h.results()
+		if len(texts) != 2 || !strings.Contains(texts[0], "status 1") || !strings.Contains(texts[1], "status 2") || strings.HasPrefix(texts[1], "Skill notes is already active") {
+			t.Fatalf("results %q", texts)
+		}
+		if ps := h.sess.Pins(); len(ps) != 1 || !strings.Contains(ps[0].Content, "status 2") {
+			t.Fatalf("pins %+v", ps)
+		}
+		acts := h.rec.of("skills.activated")
+		if len(acts) != 2 || acts[1].Data.(*skills.Activated).Deduplicated {
+			t.Fatalf("activations %+v", acts)
 		}
 		h.close()
 	})

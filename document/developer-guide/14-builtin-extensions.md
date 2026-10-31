@@ -120,7 +120,7 @@ std.Defaults(std.With(skills.New(skills.Options{
 | `Sources` | skill 来源列表，排在前面的来源优先。也可以先用 `skills.Merge(sources...)` 把多个来源合并成一个。 |
 | `MaxDescriptionChars` | 目录中每个 skill 描述的字符上限，默认为 1536。 |
 | `PinTokens` | 每个已加载的 skill 被 Pin 住的 token 数，默认为 5000。 |
-| `Rewrite` | 可选的正文改写器。它收到 `skills.RewriteInput`（会话、skill 名、触发方、参数和展开后的正文），返回最终正文或 error；返回 error 时这次加载以 `denied` 文案失败。 |
+| `Rewrite` | 可选的正文改写器。它收到 `skills.RewriteInput`（会话、skill 名、触发方、参数和展开后的正文），返回最终正文或 error；返回 error 时这次加载以 `denied` 文案失败。模型路径在判重前调用它，所以重复加载也会拿到最新正文。 |
 
 `skills.FS(fsys, opts...)` 扫描一个 `embed.FS` 或 `os.DirFS` 作为来源。它接受两个选项。`WithFrontmatterParser(fn)` 用于换成一个完整的 YAML 解析器，默认解析器只识别 Agent Skills 用到的子集。`WithLogger(l)` 用于接收 skill 被宽松加载或被跳过时的告警。如果 skill 存放在数据库或远端服务中，你需要自己实现 `skills.Source` 接口，它包含 `List`、`Load` 和 `Open` 三个方法。宿主自己实现的来源不受 Agent Skills 命名规则约束，名字里可以有 `:`，能通过命令名规则时照常注册 `/<name>` 命令。运行中新增来源可以调用 `skills.AddSource(r, src)`。
 

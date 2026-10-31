@@ -4,7 +4,7 @@ Every change to a schema, data file, prompt or expected fixture is recorded here
 
 ## 0.5 (2026-10-31)
 
-A MINOR release: command names and subagent type names may carry a namespace colon (`plugin:command`, `plugin:agent`), `ext/skills` lets a host rewrite a skill's body with the session's permissions before the model sees it, and the `skill` tool takes `args` to expand the body's prompt template. See [v0.5.0 release notes](../document/releases/v0.5.0.md) (in Chinese).
+A MINOR release: command names and subagent type names may carry a namespace colon (`plugin:command`, `plugin:agent`), `ext/skills` lets a host rewrite a skill's body with the session's permissions before the model sees it, rendering it again before deduplication so a repeated load sees fresh text, and the `skill` tool takes `args` to expand the body's prompt template. See [v0.5.0 release notes](../document/releases/v0.5.0.md) (in Chinese).
 
 ## 0.4 (2026-10-29)
 
